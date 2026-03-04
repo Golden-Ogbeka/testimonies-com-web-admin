@@ -1,13 +1,31 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import { getSessionDetails } from "../functions/userSession";
+import { RoutePaths } from "../routes/route-paths";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Testimonies Admin" },
+    {
+      name: "description",
+      content: "Administration console for managing the Testimonies platform.",
+    },
   ];
 }
 
 export default function Home() {
-  return <Welcome />;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const admin = getSessionDetails();
+    if (admin) {
+      navigate(RoutePaths.DASHBOARD, { replace: true });
+    } else {
+      navigate(RoutePaths.LOGIN, { replace: true });
+    }
+  }, [navigate]);
+
+  return null;
 }
+

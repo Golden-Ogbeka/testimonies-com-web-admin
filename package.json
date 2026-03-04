@@ -9,16 +9,26 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.9.0",
+    "@heroicons/react": "^2.2.0",
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
+    "@reduxjs/toolkit": "^2.11.2",
+    "axios": "^1.13.6",
+    "crypto-js": "^4.2.0",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
+    "react-click-away-listener": "^2.4.0",
     "react-dom": "^19.1.0",
-    "react-router": "^7.7.1"
+    "react-otp-input": "^3.1.1",
+    "react-redux": "^9.2.0",
+    "react-router": "^7.7.1",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@react-router/dev": "^7.7.1",
     "@tailwindcss/vite": "^4.1.4",
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
