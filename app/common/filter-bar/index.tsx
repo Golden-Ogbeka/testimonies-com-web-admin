@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react';
 
 interface FilterBarProps {
   searchPlaceholder?: string;
@@ -8,7 +8,7 @@ interface FilterBarProps {
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({
-  searchPlaceholder = "Search…",
+  searchPlaceholder = 'Search…',
   searchValue,
   onSearchChange,
   children,

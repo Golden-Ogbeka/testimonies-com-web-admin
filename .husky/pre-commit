@@ -1,0 +1,8 @@
+#!/bin/sh
+
+npm run format
+npm run lint:fix
+npm run typecheck
+
+# Re-stage any files that were modified by format/lint
+git add -u

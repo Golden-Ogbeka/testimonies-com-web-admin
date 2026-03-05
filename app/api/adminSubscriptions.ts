@@ -1,10 +1,10 @@
 import type {
-    ApiSuccessResponse,
-    PaginationMeta,
-    SubscriptionPlan,
-    SubscriptionSummary,
-} from "../types";
-import { appAxios } from "./axios";
+  ApiSuccessResponse,
+  PaginationMeta,
+  SubscriptionPlan,
+  SubscriptionSummary,
+} from '../types';
+import { appAxios } from './axios';
 
 export interface ListPlansQuery {
   page?: number;
@@ -21,14 +21,19 @@ export interface ListPlansResponse {
 export const AdminSubscriptionsApi = {
   listPlans(params: ListPlansQuery) {
     return appAxios.get<ApiSuccessResponse<SubscriptionPlan[]>>(
-      "/admin/subscription",
+      '/admin/subscription',
       { params },
     );
   },
 
-  createPlan(payload: Omit<SubscriptionPlan, "_id" | "createdAt" | "updatedAt" | "isActive">) {
+  createPlan(
+    payload: Omit<
+      SubscriptionPlan,
+      '_id' | 'createdAt' | 'updatedAt' | 'isActive'
+    >,
+  ) {
     return appAxios.post<ApiSuccessResponse<SubscriptionPlan>>(
-      "/admin/subscription",
+      '/admin/subscription',
       payload,
     );
   },
@@ -92,23 +97,22 @@ export const AdminSubscriptionsApi = {
 
   listActive(params: { page?: number; limit?: number }) {
     return appAxios.get<ApiSuccessResponse<SubscriptionSummary[]>>(
-      "/admin/subscription/active-subscriptions",
+      '/admin/subscription/active-subscriptions',
       { params },
     );
   },
 
   listCancelled(params: { page?: number; limit?: number }) {
     return appAxios.get<ApiSuccessResponse<SubscriptionSummary[]>>(
-      "/admin/subscription/cancelled-subscriptions",
+      '/admin/subscription/cancelled-subscriptions',
       { params },
     );
   },
 
   listUnsubscribedUsers(params: { page?: number; limit?: number }) {
     return appAxios.get<ApiSuccessResponse<SubscriptionSummary[]>>(
-      "/admin/subscription/unsubscribed-users",
+      '/admin/subscription/unsubscribed-users',
       { params },
     );
   },
 };
-

@@ -1,36 +1,39 @@
-import { useEffect, useMemo, useState } from "react";
-import { AdminTestimoniesApi } from "../../api/adminTestimonies";
-import FilterBar from "../../common/filter-bar";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AdminTestimonySummary } from "../../types";
+import { useEffect, useMemo, useState } from 'react';
+import { AdminTestimoniesApi } from '../../api/adminTestimonies';
+import FilterBar from '../../common/filter-bar';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminTestimonySummary } from '../../types';
 
 export function meta() {
   return [
-    { title: "Flagged testimonies | Testimonies Admin" },
-    { name: "description", content: "Review and manage flagged testimonies." },
+    { title: 'Flagged testimonies | Testimonies Admin' },
+    { name: 'description', content: 'Review and manage flagged testimonies.' },
   ];
 }
 
 export default function FlaggedTestimonies() {
   const [items, setItems] = useState<AdminTestimonySummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [reason, setReason] = useState("");
+  const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminTestimoniesApi.listFlagged({ page: 1, limit: 100 });
+        const { data } = await AdminTestimoniesApi.listFlagged({
+          page: 1,
+          limit: 100,
+        });
         const { results } = getPaginatedResponse<AdminTestimonySummary>(
           data,
-          "testimonies",
+          'testimonies',
         );
         setItems(results);
       } catch (error) {
@@ -50,15 +53,17 @@ export default function FlaggedTestimonies() {
 
   const columns: TableColumn<AdminTestimonySummary>[] = [
     {
-      id: "content",
-      header: "Content",
+      id: 'content',
+      header: 'Content',
       accessor: (item) => (
-        <p className="line-clamp-2 max-w-xl text-sm text-gray-800">{item.content}</p>
+        <p className="line-clamp-2 max-w-xl text-sm text-gray-800">
+          {item.content}
+        </p>
       ),
     },
     {
-      id: "user",
-      header: "User ID",
+      id: 'user',
+      header: 'User ID',
       accessor: (item) => (
         <span className="text-xs font-mono text-gray-500">
           {item.userId.slice(0, 8)}…
@@ -66,8 +71,8 @@ export default function FlaggedTestimonies() {
       ),
     },
     {
-      id: "created",
-      header: "Created",
+      id: 'created',
+      header: 'Created',
       accessor: (item) => (
         <span className="text-xs text-gray-600">
           {new Date(item.createdAt).toLocaleDateString()}
@@ -75,21 +80,21 @@ export default function FlaggedTestimonies() {
       ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (item) => (
         <button
           type="button"
           onClick={() => {
             setSelectedId(item._id);
-            setReason("");
+            setReason('');
           }}
           className="text-xs font-medium text-primary hover:underline"
         >
           Unflag
         </button>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -107,7 +112,9 @@ export default function FlaggedTestimonies() {
     }
   };
 
-  const activeItem = selectedId ? items.find((i) => i._id === selectedId) : undefined;
+  const activeItem = selectedId
+    ? items.find((i) => i._id === selectedId)
+    : undefined;
 
   return (
     <>
@@ -127,7 +134,7 @@ export default function FlaggedTestimonies() {
         onPrimary={handleConfirm}
         onClose={() => {
           setSelectedId(null);
-          setReason("");
+          setReason('');
         }}
         loading={submitting}
       >

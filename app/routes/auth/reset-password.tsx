@@ -1,20 +1,13 @@
-import type { FormEvent } from "react";
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router";
-import { AdminAuthApi } from "../../api/adminAuth";
-import OtpInput from "../../common/otp-input";
-import PasswordInput from "../../common/password-input";
-import { sendCatchFeedback, sendFeedback } from "../../functions/feedback";
-import { getPasswordStrengthMessage, isStrongPassword } from "../../functions/security";
-import { RoutePaths } from "../../routes/route-paths";
-
-interface ResetPasswordState {
-  email: string;
-  otp: string;
-  newPassword: string;
-  submitting: boolean;
-  passwordError: string;
-}
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router';
+import { AdminAuthApi } from '../../api/adminAuth';
+import OtpInput from '../../common/otp-input';
+import PasswordInput from '../../common/password-input';
+import TextInput from '../../common/text-input';
+import { sendCatchFeedback, sendFeedback } from '../../functions/feedback';
+import { RoutePaths } from '../../routes/route-paths';
+import { resetPasswordSchema, type ResetPasswordFormData } from '../../schemas';
 
 interface LocationState {
   email?: string;
@@ -22,10 +15,11 @@ interface LocationState {
 
 export function meta() {
   return [
-    { title: "Reset password | Testimonies Admin" },
+    { title: 'Reset password | Testimonies Admin' },
     {
-      name: "description",
-      content: "Set a new password for your admin account using the reset code.",
+      name: 'description',
+      content:
+        'Set a new password for your admin account using the reset code.',
     },
   ];
 }
@@ -35,107 +29,91 @@ export default function ResetPasswordRoute() {
   const location = useLocation();
   const locationState = location.state as LocationState | null;
 
-  const [state, setState] = useState<ResetPasswordState>({
-    email: locationState?.email ?? "",
-    otp: "",
-    newPassword: "",
-    submitting: false,
-    passwordError: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      email: locationState?.email ?? '',
+    },
   });
 
-  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const password = event.target.value;
-    const error = password && !isStrongPassword(password) ? getPasswordStrengthMessage(password) : "";
-    setState((prev) => ({
-      ...prev,
-      newPassword: password,
-      passwordError: error || "",
-    }));
+  const onSubmit = async (data: ResetPasswordFormData) => {
+    try {
+      await AdminAuthApi.resetPassword({
+        email: data.email,
+        otp: data.otp,
+        newPassword: data.password,
+      });
+      sendFeedback('Password reset successfully', 'success');
+      navigate(RoutePaths.LOGIN);
+    } catch (error) {
+      sendCatchFeedback(error);
+    }
   };
 
   const handleOtpChange = (otp: string) => {
-    setState((prev) => ({ ...prev, otp }));
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!state.email || !state.otp || !state.newPassword) {
-      sendFeedback("Fill in all fields", "warning");
-      return;
-    }
-
-    if (state.otp.length !== 6) {
-      sendFeedback("Reset code must be 6 digits", "warning");
-      return;
-    }
-
-    if (!isStrongPassword(state.newPassword)) {
-      sendFeedback("Password does not meet requirements", "warning");
-      return;
-    }
-
-    try {
-      setState((prev) => ({ ...prev, submitting: true }));
-      await AdminAuthApi.resetPassword({
-        email: state.email,
-        otp: state.otp,
-        newPassword: state.newPassword,
-      });
-      sendFeedback("Password reset successfully", "success");
-      navigate(RoutePaths.LOGIN, { replace: true });
-    } catch (error) {
-      sendCatchFeedback(error);
-    } finally {
-      setState((prev) => ({ ...prev, submitting: false }));
-    }
+    setValue('otp', otp);
   };
 
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Set a new password</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">
+          Set a new password
+        </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Enter the reset code sent to your email and choose a strong new password.
+          Enter the reset code sent to your email and choose a strong new
+          password.
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="inputContainer">
-          <label htmlFor="email">Email address</label>
-          <input
-            id="email"
-            type="email"
-            value={state.email}
-            onChange={(event) =>
-              setState((prev) => ({ ...prev, email: event.target.value }))
-            }
-            placeholder="you@example.com"
-            autoComplete="email"
-          />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <TextInput
+          id="email"
+          label="Email address"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          {...register('email')}
+          error={errors.email?.message}
+        />
 
         <OtpInput
-          value={state.otp}
+          value={watch('otp')}
           onChange={handleOtpChange}
           label="Reset code"
+          error={errors.otp?.message}
         />
 
         <PasswordInput
-          id="newPassword"
+          id="password"
           label="New password"
-          value={state.newPassword}
-          onChange={handlePasswordChange}
           placeholder="At least 8 characters"
           autoComplete="new-password"
-          error={state.passwordError}
+          {...register('password')}
+          error={errors.password?.message}
+        />
+
+        <PasswordInput
+          id="confirmPassword"
+          label="Confirm new password"
+          placeholder="Confirm your password"
+          autoComplete="new-password"
+          {...register('confirmPassword')}
+          error={errors.confirmPassword?.message}
         />
 
         <button
           type="submit"
           className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
-          disabled={state.submitting}
+          disabled={isSubmitting}
         >
-          {state.submitting ? "Updating password..." : "Update password"}
+          {isSubmitting ? 'Updating password...' : 'Update password'}
         </button>
 
         <button
@@ -149,4 +127,3 @@ export default function ResetPasswordRoute() {
     </div>
   );
 }
-

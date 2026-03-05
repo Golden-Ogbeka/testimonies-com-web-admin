@@ -1,15 +1,15 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import type { Route } from "./+types/home";
-import { getSessionDetails } from "../functions/userSession";
-import { RoutePaths } from "../routes/route-paths";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import type { Route } from './+types/home';
+import { getSessionDetails } from '../functions/userSession';
+import { RoutePaths } from '../routes/route-paths';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Testimonies Admin" },
+    { title: 'Testimonies Admin' },
     {
-      name: "description",
-      content: "Administration console for managing the Testimonies platform.",
+      name: 'description',
+      content: 'Administration console for managing the Testimonies platform.',
     },
   ];
 }
@@ -28,4 +28,3 @@ export default function Home() {
 
   return null;
 }
-

@@ -1,32 +1,38 @@
-import { useEffect, useState } from "react";
-import { AdminContentApi } from "../../api/adminContent";
-import FilterBar from "../../common/filter-bar";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse, getResponseData } from "../../functions/api-response";
-import { sendCatchFeedback, sendSuccessFeedback } from "../../functions/feedback";
-import type { FaqItem } from "../../types";
+import { useEffect, useState } from 'react';
+import { AdminContentApi } from '../../api/adminContent';
+import FilterBar from '../../common/filter-bar';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import {
+  getPaginatedResponse,
+  getResponseData,
+} from '../../functions/api-response';
+import {
+  sendCatchFeedback,
+  sendSuccessFeedback,
+} from '../../functions/feedback';
+import type { FaqItem } from '../../types';
 
 export function meta() {
   return [
-    { title: "FAQs | Testimonies Admin" },
-    { name: "description", content: "Manage frequently asked questions." },
+    { title: 'FAQs | Testimonies Admin' },
+    { name: 'description', content: 'Manage frequently asked questions.' },
   ];
 }
 
-type FaqFormState = Pick<FaqItem, "question" | "answer" | "order">;
+type FaqFormState = Pick<FaqItem, 'question' | 'answer' | 'order'>;
 
 const emptyForm: FaqFormState = {
-  question: "",
-  answer: "",
+  question: '',
+  answer: '',
   order: 0,
 };
 
 export default function FaqsPage() {
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
@@ -40,12 +46,15 @@ export default function FaqsPage() {
   const loadFaqs = async (currentPage = 1) => {
     try {
       setLoading(true);
-      const { data } = await AdminContentApi.listFaq({ 
-        page: currentPage, 
-        limit: 20 
+      const { data } = await AdminContentApi.listFaq({
+        page: currentPage,
+        limit: 20,
       });
 
-      const { results, pagination } = getPaginatedResponse<FaqItem>(data, "faqs");
+      const { results, pagination } = getPaginatedResponse<FaqItem>(
+        data,
+        'faqs',
+      );
       setFaqs(results);
       setTotalPages(pagination.totalPages || 1);
       setTotalResults(pagination.totalResults || 0);
@@ -63,44 +72,48 @@ export default function FaqsPage() {
 
   const columns: TableColumn<FaqItem>[] = [
     {
-      id: "order",
-      header: "Order",
+      id: 'order',
+      header: 'Order',
       accessor: (faq) => (
         <span className="text-xs font-medium text-gray-600">{faq.order}</span>
       ),
-      className: "w-16",
+      className: 'w-16',
     },
     {
-      id: "question",
-      header: "Question",
+      id: 'question',
+      header: 'Question',
       accessor: (faq) => (
         <div className="flex flex-col gap-1 min-w-0">
-          <span className="text-sm font-medium text-gray-900 break-words">{faq.question}</span>
-          <span className="text-xs text-gray-500 line-clamp-2 break-words">{faq.answer}</span>
+          <span className="text-sm font-medium text-gray-900 break-words">
+            {faq.question}
+          </span>
+          <span className="text-xs text-gray-500 line-clamp-2 break-words">
+            {faq.answer}
+          </span>
         </div>
       ),
     },
     {
-      id: "status",
-      header: "Status",
+      id: 'status',
+      header: 'Status',
       accessor: (faq) => (
         <button
           type="button"
           onClick={() => handleToggleStatus(faq)}
           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
-            faq.isActive 
-              ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" 
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            faq.isActive
+              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          {faq.isActive ? "Active" : "Inactive"}
+          {faq.isActive ? 'Active' : 'Inactive'}
         </button>
       ),
-      className: "w-24",
+      className: 'w-24',
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (faq) => (
         <div className="flex justify-end gap-2">
           <button
@@ -127,16 +140,21 @@ export default function FaqsPage() {
           </button>
         </div>
       ),
-      className: "w-24 text-right",
+      className: 'w-24 text-right',
     },
   ];
 
   const handleToggleStatus = async (faq: FaqItem) => {
     try {
-      const { data } = await AdminContentApi.toggleFaqStatus(faq._id, !faq.isActive);
+      const { data } = await AdminContentApi.toggleFaqStatus(
+        faq._id,
+        !faq.isActive,
+      );
       const updatedFaq = getResponseData<FaqItem>(data);
       setFaqs((prev) => prev.map((f) => (f._id === faq._id ? updatedFaq : f)));
-      sendSuccessFeedback(`FAQ ${!faq.isActive ? "activated" : "deactivated"} successfully`);
+      sendSuccessFeedback(
+        `FAQ ${!faq.isActive ? 'activated' : 'deactivated'} successfully`,
+      );
     } catch (error) {
       sendCatchFeedback(error);
     }
@@ -144,7 +162,7 @@ export default function FaqsPage() {
 
   const handleSave = async () => {
     if (!form.question.trim() || !form.answer.trim()) {
-      sendCatchFeedback(new Error("Question and answer are required"));
+      sendCatchFeedback(new Error('Question and answer are required'));
       return;
     }
 
@@ -153,11 +171,13 @@ export default function FaqsPage() {
       if (editing) {
         const { data } = await AdminContentApi.updateFaq(editing._id, form);
         const updatedFaq = getResponseData<FaqItem>(data);
-        setFaqs((prev) => prev.map((f) => (f._id === editing._id ? updatedFaq : f)));
-        sendSuccessFeedback("FAQ updated successfully");
+        setFaqs((prev) =>
+          prev.map((f) => (f._id === editing._id ? updatedFaq : f)),
+        );
+        sendSuccessFeedback('FAQ updated successfully');
       } else {
         await AdminContentApi.createFaq(form);
-        sendSuccessFeedback("FAQ created successfully");
+        sendSuccessFeedback('FAQ created successfully');
         loadFaqs(1); // Reload to get updated list
       }
       setEditing(null);
@@ -175,8 +195,8 @@ export default function FaqsPage() {
     try {
       setDeleting(true);
       await AdminContentApi.deleteFaq(deleteId);
-      sendSuccessFeedback("FAQ deleted successfully");
-      
+      sendSuccessFeedback('FAQ deleted successfully');
+
       // Reload current page or go to previous if current page becomes empty
       const remainingOnPage = faqs.length - 1;
       if (remainingOnPage === 0 && page > 1) {
@@ -220,19 +240,24 @@ export default function FaqsPage() {
         }
       />
 
-      <FilterBar 
-        searchValue={search} 
+      <FilterBar
+        searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search FAQs..."
       />
 
-      <Table columns={columns} data={faqs} loading={loading} emptyMessage="No FAQs found" />
+      <Table
+        columns={columns}
+        data={faqs}
+        loading={loading}
+        emptyMessage="No FAQs found"
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
           <div className="text-sm text-gray-700">
-            Showing <span className="font-medium">{faqs.length}</span> of{" "}
+            Showing <span className="font-medium">{faqs.length}</span> of{' '}
             <span className="font-medium">{totalResults}</span> results
           </div>
           <div className="flex items-center gap-2">
@@ -262,8 +287,8 @@ export default function FaqsPage() {
       {/* Create/Edit Modal */}
       <Modal
         open={showModal}
-        title={editing ? "Edit FAQ" : "New FAQ"}
-        primaryLabel={editing ? "Save changes" : "Create FAQ"}
+        title={editing ? 'Edit FAQ' : 'New FAQ'}
+        primaryLabel={editing ? 'Save changes' : 'Create FAQ'}
         onPrimary={handleSave}
         onClose={() => {
           setEditing(null);
@@ -278,7 +303,9 @@ export default function FaqsPage() {
             <input
               id="faq-question"
               value={form.question}
-              onChange={(e) => setForm((prev) => ({ ...prev, question: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, question: e.target.value }))
+              }
               placeholder="Enter the question"
               className="w-full"
             />
@@ -288,7 +315,9 @@ export default function FaqsPage() {
             <textarea
               id="faq-answer"
               value={form.answer}
-              onChange={(e) => setForm((prev) => ({ ...prev, answer: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, answer: e.target.value }))
+              }
               rows={5}
               placeholder="Enter the answer"
               className="w-full resize-none"
@@ -301,12 +330,17 @@ export default function FaqsPage() {
               type="number"
               value={form.order}
               onChange={(e) =>
-                setForm((prev) => ({ ...prev, order: Number(e.target.value) || 0 }))
+                setForm((prev) => ({
+                  ...prev,
+                  order: Number(e.target.value) || 0,
+                }))
               }
               placeholder="0"
               className="w-full"
             />
-            <p className="mt-1 text-xs text-gray-500">Lower numbers appear first</p>
+            <p className="mt-1 text-xs text-gray-500">
+              Lower numbers appear first
+            </p>
           </div>
         </div>
       </Modal>
@@ -321,7 +355,8 @@ export default function FaqsPage() {
         loading={deleting}
       >
         <p className="text-sm text-gray-700">
-          Are you sure you want to delete this FAQ? This action cannot be undone.
+          Are you sure you want to delete this FAQ? This action cannot be
+          undone.
         </p>
       </Modal>
     </div>

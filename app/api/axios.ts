@@ -1,13 +1,13 @@
-import axios from "axios";
-import { ADMIN_API_KEY, API_URL } from "../functions/environmentVariables";
-import { getTokenDetails } from "../functions/userSession";
-import { store } from "../store";
-import { signOut } from "../store/slices/admin";
+import axios from 'axios';
+import { ADMIN_API_KEY, API_URL } from '../functions/environmentVariables';
+import { getTokenDetails } from '../functions/userSession';
+import { store } from '../store';
+import { signOut } from '../store/slices/admin';
 
 const initialToken = getTokenDetails();
 
 const createRequestId = (): string => {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
   }
 
@@ -17,7 +17,7 @@ const createRequestId = (): string => {
 export const appAxios = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -30,15 +30,15 @@ appAxios.interceptors.request.use(
     const token = storeToken?.token ?? tokenFromSession?.token;
 
     if (ADMIN_API_KEY) {
-      config.headers["x-admin-api-key"] = ADMIN_API_KEY;
+      config.headers['x-admin-api-key'] = ADMIN_API_KEY;
     }
 
     if (token) {
-      config.headers["x-jwt-token"] = token;
+      config.headers['x-jwt-token'] = token;
     }
 
-    if (!config.headers["x-request-id"]) {
-      config.headers["x-request-id"] = createRequestId();
+    if (!config.headers['x-request-id']) {
+      config.headers['x-request-id'] = createRequestId();
     }
 
     return config;
@@ -58,4 +58,3 @@ appAxios.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-

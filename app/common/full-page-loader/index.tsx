@@ -1,4 +1,4 @@
-import LoadingIndicator from "../loading-indicator";
+import LoadingIndicator from '../loading-indicator';
 
 const FullPageLoader = () => {
   return (
@@ -12,4 +12,3 @@ const FullPageLoader = () => {
 };
 
 export default FullPageLoader;
-

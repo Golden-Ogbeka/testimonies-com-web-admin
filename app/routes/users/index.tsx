@@ -1,24 +1,27 @@
-import { useEffect, useMemo, useState } from "react";
-import { AdminUsersApi } from "../../api/adminUsers";
-import FilterBar from "../../common/filter-bar";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AdminUserSummary } from "../../types";
+import { useEffect, useMemo, useState } from 'react';
+import { AdminUsersApi } from '../../api/adminUsers';
+import FilterBar from '../../common/filter-bar';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminUserSummary } from '../../types';
 
 export function meta() {
   return [
-    { title: "Users | Testimonies Admin" },
-    { name: "description", content: "Manage all users on the Testimonies platform." },
+    { title: 'Users | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'Manage all users on the Testimonies platform.',
+    },
   ];
 }
 
 export default function UsersIndex() {
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [toggleUserId, setToggleUserId] = useState<string | null>(null);
   const [toggling, setToggling] = useState(false);
 
@@ -29,7 +32,7 @@ export default function UsersIndex() {
         const { data } = await AdminUsersApi.list({ page: 1, limit: 50 });
         const { results: userResults } = getPaginatedResponse<AdminUserSummary>(
           data,
-          "users",
+          'users',
         );
         type OrganizationItem = {
           _id: string;
@@ -42,22 +45,22 @@ export default function UsersIndex() {
           subscriptionType?: string;
           createdAt?: string;
         };
-        const { results: organizationResults } = getPaginatedResponse<OrganizationItem>(
-          data,
-          "organizations",
+        const { results: organizationResults } =
+          getPaginatedResponse<OrganizationItem>(data, 'organizations');
+        const mappedOrganizations: AdminUserSummary[] = organizationResults.map(
+          (org) => ({
+            _id: org._id,
+            firstName: org.businessName || 'Organization',
+            lastName: '',
+            email: org.businessEmail || '',
+            username: org.username,
+            active: org.active ?? true,
+            isFlagged: org.isFlagged ?? false,
+            accountType: org.accountType ?? 'organization',
+            subscriptionType: org.subscriptionType,
+            createdAt: org.createdAt || new Date().toISOString(),
+          }),
         );
-        const mappedOrganizations: AdminUserSummary[] = organizationResults.map((org) => ({
-          _id: org._id,
-          firstName: org.businessName || "Organization",
-          lastName: "",
-          email: org.businessEmail || "",
-          username: org.username,
-          active: org.active ?? true,
-          isFlagged: org.isFlagged ?? false,
-          accountType: org.accountType ?? "organization",
-          subscriptionType: org.subscriptionType,
-          createdAt: org.createdAt || new Date().toISOString(),
-        }));
         setUsers([...userResults, ...mappedOrganizations]);
       } catch (error) {
         sendCatchFeedback(error);
@@ -76,15 +79,15 @@ export default function UsersIndex() {
       return (
         fullName.includes(query) ||
         user.email.toLowerCase().includes(query) ||
-        (user.username ?? "").toLowerCase().includes(query)
+        (user.username ?? '').toLowerCase().includes(query)
       );
     });
   }, [users, search]);
 
   const columns: TableColumn<AdminUserSummary>[] = [
     {
-      id: "name",
-      header: "User",
+      id: 'name',
+      header: 'User',
       accessor: (user) => (
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
@@ -100,28 +103,32 @@ export default function UsersIndex() {
       ),
     },
     {
-      id: "accountType",
-      header: "Account",
+      id: 'accountType',
+      header: 'Account',
       accessor: (user) => (
-        <span className="text-xs capitalize text-gray-600">{user.accountType}</span>
-      ),
-    },
-    {
-      id: "status",
-      header: "Status",
-      accessor: (user) => (
-        <span
-          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-            user.active ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
-          }`}
-        >
-          {user.active ? "Active" : "Inactive"}
+        <span className="text-xs capitalize text-gray-600">
+          {user.accountType}
         </span>
       ),
     },
     {
-      id: "flag",
-      header: "Flagged",
+      id: 'status',
+      header: 'Status',
+      accessor: (user) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+            user.active
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          {user.active ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      id: 'flag',
+      header: 'Flagged',
       accessor: (user) =>
         user.isFlagged ? (
           <span className="text-xs font-medium text-red-600">Yes</span>
@@ -130,18 +137,18 @@ export default function UsersIndex() {
         ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (user) => (
         <button
           type="button"
           onClick={() => setToggleUserId(user._id)}
           className="text-xs font-medium text-primary hover:underline"
         >
-          {user.active ? "Deactivate" : "Activate"}
+          {user.active ? 'Deactivate' : 'Activate'}
         </button>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -191,9 +198,10 @@ export default function UsersIndex() {
         loading={toggling}
       >
         <p className="text-sm text-gray-700">
-          Are you sure you want to {users.find((u) => u._id === toggleUserId)?.active
-            ? "deactivate"
-            : "activate"}{" "}
+          Are you sure you want to{' '}
+          {users.find((u) => u._id === toggleUserId)?.active
+            ? 'deactivate'
+            : 'activate'}{' '}
           this user&apos;s account?
         </p>
       </Modal>

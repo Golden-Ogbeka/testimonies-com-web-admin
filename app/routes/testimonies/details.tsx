@@ -1,27 +1,29 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { AdminTestimoniesApi } from "../../api/adminTestimonies";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { getResponseResource } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AdminTestimonySummary } from "../../types";
-import { RoutePaths } from "../route-paths";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { AdminTestimoniesApi } from '../../api/adminTestimonies';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { getResponseResource } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminTestimonySummary } from '../../types';
+import { RoutePaths } from '../route-paths';
 
 export function meta() {
   return [
-    { title: "Testimony details | Testimonies Admin" },
-    { name: "description", content: "View detailed testimony information." },
+    { title: 'Testimony details | Testimonies Admin' },
+    { name: 'description', content: 'View detailed testimony information.' },
   ];
 }
 
 export default function TestimonyDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [testimony, setTestimony] = useState<AdminTestimonySummary | null>(null);
+  const [testimony, setTestimony] = useState<AdminTestimonySummary | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
-  const [flagAction, setFlagAction] = useState<"flag" | "unflag" | null>(null);
-  const [reason, setReason] = useState("");
+  const [flagAction, setFlagAction] = useState<'flag' | 'unflag' | null>(null);
+  const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -30,7 +32,9 @@ export default function TestimonyDetails() {
       try {
         setLoading(true);
         const { data } = await AdminTestimoniesApi.getById(id);
-        setTestimony(getResponseResource<AdminTestimonySummary>(data, "testimony"));
+        setTestimony(
+          getResponseResource<AdminTestimonySummary>(data, 'testimony'),
+        );
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -44,8 +48,11 @@ export default function TestimonyDetails() {
     if (!testimony || !flagAction) return;
     try {
       setSubmitting(true);
-      if (flagAction === "flag") {
-        await AdminTestimoniesApi.flag(testimony._id, reason || "Flagged by admin");
+      if (flagAction === 'flag') {
+        await AdminTestimoniesApi.flag(
+          testimony._id,
+          reason || 'Flagged by admin',
+        );
         setTestimony({ ...testimony, isFlagged: true });
       } else {
         await AdminTestimoniesApi.unflag(testimony._id, reason);
@@ -56,7 +63,7 @@ export default function TestimonyDetails() {
     } finally {
       setSubmitting(false);
       setFlagAction(null);
-      setReason("");
+      setReason('');
     }
   };
 
@@ -100,12 +107,12 @@ export default function TestimonyDetails() {
             <button
               type="button"
               onClick={() => {
-                setFlagAction(testimony.isFlagged ? "unflag" : "flag");
-                setReason("");
+                setFlagAction(testimony.isFlagged ? 'unflag' : 'flag');
+                setReason('');
               }}
               className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-primary/90"
             >
-              {testimony.isFlagged ? "Unflag" : "Flag"}
+              {testimony.isFlagged ? 'Unflag' : 'Flag'}
             </button>
           </div>
         }
@@ -130,7 +137,9 @@ export default function TestimonyDetails() {
 
           <div>
             <label className="text-xs font-medium text-gray-500">User ID</label>
-            <p className="mt-1 font-mono text-sm text-gray-900">{testimony.userId}</p>
+            <p className="mt-1 font-mono text-sm text-gray-900">
+              {testimony.userId}
+            </p>
           </div>
 
           <div>
@@ -142,14 +151,20 @@ export default function TestimonyDetails() {
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="text-xs font-medium text-gray-500">Created at</label>
+              <label className="text-xs font-medium text-gray-500">
+                Created at
+              </label>
               <p className="mt-1 text-sm text-gray-900">
                 {new Date(testimony.createdAt).toLocaleString()}
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-500">Testimony ID</label>
-              <p className="mt-1 font-mono text-xs text-gray-900">{testimony._id}</p>
+              <label className="text-xs font-medium text-gray-500">
+                Testimony ID
+              </label>
+              <p className="mt-1 font-mono text-xs text-gray-900">
+                {testimony._id}
+              </p>
             </div>
           </div>
         </div>
@@ -157,20 +172,20 @@ export default function TestimonyDetails() {
 
       <Modal
         open={flagAction !== null}
-        title={flagAction === "flag" ? "Flag testimony" : "Unflag testimony"}
-        primaryLabel={flagAction === "flag" ? "Flag" : "Unflag"}
+        title={flagAction === 'flag' ? 'Flag testimony' : 'Unflag testimony'}
+        primaryLabel={flagAction === 'flag' ? 'Flag' : 'Unflag'}
         onPrimary={handleConfirm}
         onClose={() => {
           setFlagAction(null);
-          setReason("");
+          setReason('');
         }}
         loading={submitting}
       >
         <div className="space-y-3">
           <p className="text-sm text-gray-700">
-            {flagAction === "flag"
-              ? "Provide a reason for flagging this testimony."
-              : "Optionally provide a note for unflagging this testimony."}
+            {flagAction === 'flag'
+              ? 'Provide a reason for flagging this testimony.'
+              : 'Optionally provide a note for unflagging this testimony.'}
           </p>
           <textarea
             value={reason}

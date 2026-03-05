@@ -1,16 +1,16 @@
-import type { AdminProfile, AdminToken } from "../types/auth";
+import type { AdminProfile, AdminToken } from '../types/auth';
 import {
   SESSION_KEY,
   SESSION_NAME,
   TOKEN_KEY,
   TOKEN_NAME,
-} from "./environmentVariables";
-import { decryptItem, encryptItem } from "./encryption";
-import { sendCatchFeedback } from "./feedback";
+} from './environmentVariables';
+import { decryptItem, encryptItem } from './encryption';
+import { sendCatchFeedback } from './feedback';
 
 export const getSessionDetails = (): AdminProfile | null => {
   try {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const encryptedSession = window.localStorage.getItem(SESSION_NAME);
       if (encryptedSession) {
         return decryptItem<AdminProfile>(encryptedSession, SESSION_KEY);
@@ -45,7 +45,7 @@ export const removeSessionDetails = (): boolean => {
 
 export const getTokenDetails = (): AdminToken | null => {
   try {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const encryptedToken = window.localStorage.getItem(TOKEN_NAME);
       if (encryptedToken) {
         return decryptItem<AdminToken>(encryptedToken, TOKEN_KEY);
@@ -77,4 +77,3 @@ export const removeTokenDetails = (): boolean => {
     return false;
   }
 };
-

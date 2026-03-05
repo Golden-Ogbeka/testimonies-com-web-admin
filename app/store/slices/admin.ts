@@ -1,11 +1,11 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { AdminProfile, AdminToken } from "../../types/auth";
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { AdminProfile, AdminToken } from '../../types/auth';
 import {
   removeSessionDetails,
   removeTokenDetails,
   storeSessionDetails,
   storeTokenDetails,
-} from "../../functions/userSession";
+} from '../../functions/userSession';
 
 interface AdminState {
   profile: AdminProfile | null;
@@ -18,7 +18,7 @@ const initialState: AdminState = {
 };
 
 export const adminSlice = createSlice({
-  name: "admin",
+  name: 'admin',
   initialState,
   reducers: {
     updateAdmin(state, action: PayloadAction<{ profile: AdminProfile }>) {
@@ -39,4 +39,3 @@ export const adminSlice = createSlice({
 });
 
 export const { updateAdmin, updateToken, signOut } = adminSlice.actions;
-

@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
-import { AdminContentApi } from "../../api/adminContent";
-import PageHeader from "../../common/page-header";
-import { sendCatchFeedback, sendSuccessFeedback } from "../../functions/feedback";
-import type { SystemContentItem } from "../../types";
+import { useEffect, useState } from 'react';
+import { AdminContentApi } from '../../api/adminContent';
+import PageHeader from '../../common/page-header';
+import TextInput from '../../common/text-input';
+import {
+  sendCatchFeedback,
+  sendSuccessFeedback,
+} from '../../functions/feedback';
+import type { SystemContentItem } from '../../types';
 
 export function meta() {
   return [
-    { title: "Privacy policy | Testimonies Admin" },
-    { name: "description", content: "Manage the privacy policy content." },
+    { title: 'Privacy policy | Testimonies Admin' },
+    { name: 'description', content: 'Manage the privacy policy content.' },
   ];
 }
 
@@ -15,9 +19,9 @@ export default function PrivacyPolicyPage() {
   const [content, setContent] = useState<SystemContentItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [version, setVersion] = useState("");
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [version, setVersion] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -27,7 +31,7 @@ export default function PrivacyPolicyPage() {
         setContent(data.data);
         setTitle(data.data.title);
         setBody(data.data.content);
-        setVersion(data.data.version || "");
+        setVersion(data.data.version || '');
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -46,7 +50,7 @@ export default function PrivacyPolicyPage() {
         version: version || undefined,
       });
       setContent(data.data);
-      sendSuccessFeedback("Privacy policy updated successfully");
+      sendSuccessFeedback('Privacy policy updated successfully');
     } catch (error) {
       sendCatchFeedback(error);
     } finally {
@@ -74,30 +78,28 @@ export default function PrivacyPolicyPage() {
             disabled={saving}
             className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
           >
-            {saving ? "Saving…" : "Save changes"}
+            {saving ? 'Saving…' : 'Save changes'}
           </button>
         }
       />
 
       <div className="card">
         <div className="space-y-4">
-          <div className="inputContainer">
-            <label htmlFor="pp-title">Title</label>
-            <input
-              id="pp-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-          <div className="inputContainer">
-            <label htmlFor="pp-version">Version (optional)</label>
-            <input
-              id="pp-version"
-              value={version}
-              onChange={(e) => setVersion(e.target.value)}
-              placeholder="e.g., 1.0.0"
-            />
-          </div>
+          <TextInput
+            id="pp-title"
+            label="Title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <TextInput
+            id="pp-version"
+            label="Version (optional)"
+            type="text"
+            value={version}
+            onChange={(e) => setVersion(e.target.value)}
+            placeholder="e.g., 1.0.0"
+          />
           <div className="inputContainer">
             <label htmlFor="pp-content">Content</label>
             <textarea

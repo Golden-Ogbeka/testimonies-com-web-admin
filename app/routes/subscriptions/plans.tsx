@@ -1,30 +1,33 @@
-import { useEffect, useState } from "react";
-import { AdminSubscriptionsApi } from "../../api/adminSubscriptions";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { SubscriptionPlan } from "../../types";
+import { useEffect, useState } from 'react';
+import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { SubscriptionPlan } from '../../types';
 
 export function meta() {
   return [
-    { title: "Subscription plans | Testimonies Admin" },
-    { name: "description", content: "Configure subscription plans for the platform." },
+    { title: 'Subscription plans | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'Configure subscription plans for the platform.',
+    },
   ];
 }
 
 type PlanFormState = Pick<
   SubscriptionPlan,
-  "name" | "description" | "price" | "billingCycle"
+  'name' | 'description' | 'price' | 'billingCycle'
 > & { currency: string };
 
 const emptyForm: PlanFormState = {
-  name: "",
-  description: "",
+  name: '',
+  description: '',
   price: 0,
-  billingCycle: "monthly",
-  currency: "NGN",
+  billingCycle: 'monthly',
+  currency: 'NGN',
 };
 
 export default function SubscriptionPlans() {
@@ -38,8 +41,14 @@ export default function SubscriptionPlans() {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminSubscriptionsApi.listPlans({ page: 1, limit: 50 });
-        const { results } = getPaginatedResponse<SubscriptionPlan>(data, "plans");
+        const { data } = await AdminSubscriptionsApi.listPlans({
+          page: 1,
+          limit: 50,
+        });
+        const { results } = getPaginatedResponse<SubscriptionPlan>(
+          data,
+          'plans',
+        );
         setPlans(results);
       } catch (error) {
         sendCatchFeedback(error);
@@ -52,42 +61,46 @@ export default function SubscriptionPlans() {
 
   const columns: TableColumn<SubscriptionPlan>[] = [
     {
-      id: "name",
-      header: "Plan",
+      id: 'name',
+      header: 'Plan',
       accessor: (plan) => (
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-900">{plan.name}</span>
           <span className="text-xs text-gray-500">
-            {plan.billingCycle.charAt(0).toUpperCase() + plan.billingCycle.slice(1)}
+            {plan.billingCycle.charAt(0).toUpperCase() +
+              plan.billingCycle.slice(1)}
           </span>
         </div>
       ),
     },
     {
-      id: "price",
-      header: "Price",
+      id: 'price',
+      header: 'Price',
       accessor: (plan) => (
         <span className="text-sm text-gray-900">
-          {plan.currency} {plan.price.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+          {plan.currency}{' '}
+          {plan.price.toLocaleString(undefined, { minimumFractionDigits: 0 })}
         </span>
       ),
     },
     {
-      id: "status",
-      header: "Status",
+      id: 'status',
+      header: 'Status',
       accessor: (plan) => (
         <span
           className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-            plan.isActive ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
+            plan.isActive
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-gray-100 text-gray-600'
           }`}
         >
-          {plan.isActive ? "Active" : "Inactive"}
+          {plan.isActive ? 'Active' : 'Inactive'}
         </span>
       ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (plan) => (
         <div className="flex justify-end gap-2">
           <button
@@ -111,11 +124,11 @@ export default function SubscriptionPlans() {
             className="text-xs font-medium text-primary hover:underline"
             onClick={() => handleToggleStatus(plan)}
           >
-            {plan.isActive ? "Deactivate" : "Activate"}
+            {plan.isActive ? 'Deactivate' : 'Activate'}
           </button>
         </div>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -127,7 +140,9 @@ export default function SubscriptionPlans() {
         await AdminSubscriptionsApi.activatePlan(plan._id);
       }
       setPlans((prev) =>
-        prev.map((p) => (p._id === plan._id ? { ...p, isActive: !p.isActive } : p)),
+        prev.map((p) =>
+          p._id === plan._id ? { ...p, isActive: !p.isActive } : p,
+        ),
       );
     } catch (error) {
       sendCatchFeedback(error);
@@ -193,8 +208,8 @@ export default function SubscriptionPlans() {
 
       <Modal
         open={editing !== null || form.name.length > 0}
-        title={editing ? "Edit plan" : "New plan"}
-        primaryLabel={editing ? "Save changes" : "Create plan"}
+        title={editing ? 'Edit plan' : 'New plan'}
+        primaryLabel={editing ? 'Save changes' : 'Create plan'}
         onPrimary={handleSave}
         onClose={() => {
           setEditing(null);
@@ -219,7 +234,10 @@ export default function SubscriptionPlans() {
               id="plan-description"
               value={form.description}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, description: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  description: event.target.value,
+                }))
               }
               rows={3}
             />
@@ -247,7 +265,8 @@ export default function SubscriptionPlans() {
                 onChange={(event) =>
                   setForm((prev) => ({
                     ...prev,
-                    billingCycle: event.target.value as PlanFormState["billingCycle"],
+                    billingCycle: event.target
+                      .value as PlanFormState['billingCycle'],
                   }))
                 }
               >

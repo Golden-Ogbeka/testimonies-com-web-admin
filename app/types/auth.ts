@@ -1,4 +1,4 @@
-export type AdminRole = "admin" | "super-admin";
+export type AdminRole = 'admin' | 'super-admin';
 
 export interface AdminProfile {
   _id: string;
@@ -27,4 +27,3 @@ export interface AdminVerifyOtpRequest {
   email: string;
   otp: string;
 }
-

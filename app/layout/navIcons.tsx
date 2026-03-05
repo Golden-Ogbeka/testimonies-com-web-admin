@@ -1,5 +1,5 @@
-import type React from "react";
-import styles from "./styles.module.css";
+import type React from 'react';
+import styles from './styles.module.css';
 
 interface IconProps {
   className?: string;
@@ -8,7 +8,7 @@ interface IconProps {
 const baseIconClass = styles.navIcon;
 
 const mergeClassName = (className?: string): string =>
-  [baseIconClass, className].filter(Boolean).join(" ");
+  [baseIconClass, className].filter(Boolean).join(' ');
 
 export const DashboardIcon: React.FC<IconProps> = ({ className }) => (
   <svg
@@ -17,10 +17,42 @@ export const DashboardIcon: React.FC<IconProps> = ({ className }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <rect x="3" y="3" width="8" height="8" rx="2" stroke="#6B7280" strokeWidth="1.5" />
-    <rect x="13" y="3" width="8" height="5" rx="2" stroke="#6B7280" strokeWidth="1.5" />
-    <rect x="13" y="10" width="8" height="11" rx="2" stroke="#6B7280" strokeWidth="1.5" />
-    <rect x="3" y="13" width="8" height="8" rx="2" stroke="#6B7280" strokeWidth="1.5" />
+    <rect
+      x="3"
+      y="3"
+      width="8"
+      height="8"
+      rx="2"
+      stroke="#6B7280"
+      strokeWidth="1.5"
+    />
+    <rect
+      x="13"
+      y="3"
+      width="8"
+      height="5"
+      rx="2"
+      stroke="#6B7280"
+      strokeWidth="1.5"
+    />
+    <rect
+      x="13"
+      y="10"
+      width="8"
+      height="11"
+      rx="2"
+      stroke="#6B7280"
+      strokeWidth="1.5"
+    />
+    <rect
+      x="3"
+      y="13"
+      width="8"
+      height="8"
+      rx="2"
+      stroke="#6B7280"
+      strokeWidth="1.5"
+    />
   </svg>
 );
 
@@ -268,4 +300,3 @@ export const LogoutIcon: React.FC<IconProps> = ({ className }) => (
     />
   </svg>
 );
-

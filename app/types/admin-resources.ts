@@ -1,4 +1,4 @@
-import type { AuditLogLevel, AuditLogCategory } from "./enums";
+import type { AuditLogLevel, AuditLogCategory } from './enums';
 
 export interface AdminUserSummary {
   _id: string;
@@ -36,7 +36,7 @@ export interface AdminTestimonyAnalyticsItem {
   count: number;
 }
 
-export type SubscriptionBillingCycle = "monthly" | "yearly" | "quarterly";
+export type SubscriptionBillingCycle = 'monthly' | 'yearly' | 'quarterly';
 
 export interface SubscriptionPlan {
   _id: string;
@@ -54,7 +54,7 @@ export interface SubscriptionPlan {
   updatedAt: string;
 }
 
-export type SubscriptionStatus = "active" | "cancelled" | "expired" | "trial";
+export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'trial';
 
 export interface SubscriptionSummary {
   _id: string;
@@ -64,10 +64,10 @@ export interface SubscriptionSummary {
   startDate: string;
   endDate: string;
   autoRenew: boolean;
-  userType: "user" | "organization";
+  userType: 'user' | 'organization';
 }
 
-export type AdminRole = "super-admin" | "admin";
+export type AdminRole = 'super-admin' | 'admin';
 
 export interface AdminPermission {
   _id: string;
@@ -89,9 +89,13 @@ export interface AdminAccount {
   updatedAt: string;
 }
 
-export type PromotionType = "discount" | "offer" | "announcement" | "feature";
+export type PromotionType = 'discount' | 'offer' | 'announcement' | 'feature';
 
-export type PromotionTargetAudience = "all" | "premium" | "basic" | "organizations";
+export type PromotionTargetAudience =
+  | 'all'
+  | 'premium'
+  | 'basic'
+  | 'organizations';
 
 export interface PromotionSummary {
   _id: string;
@@ -117,9 +121,9 @@ export interface FaqItem {
 }
 
 export type SystemContentType =
-  | "privacy_policy"
-  | "terms_of_service"
-  | "community_guidelines";
+  | 'privacy_policy'
+  | 'terms_of_service'
+  | 'community_guidelines';
 
 export interface SystemContentItem {
   _id: string;
@@ -145,7 +149,7 @@ export interface AuditLogItem {
   adminId?: string;
   userId?: string;
   action: string;
-  userType?: "admin" | "user" | "organization";
+  userType?: 'admin' | 'user' | 'organization';
   details?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
@@ -154,4 +158,3 @@ export interface AuditLogItem {
   createdAt: string;
   updatedAt: string;
 }
-

@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react';
 
 interface ModalProps {
   open: boolean;
@@ -32,8 +32,18 @@ const Modal: React.FC<ModalProps> = ({
             className="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
             aria-label="Close"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -54,7 +64,7 @@ const Modal: React.FC<ModalProps> = ({
             disabled={loading}
             className="inline-flex items-center rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {loading ? "Please wait…" : primaryLabel}
+            {loading ? 'Please wait…' : primaryLabel}
           </button>
         </div>
       </div>

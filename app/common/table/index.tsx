@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react';
 
 export interface TableColumn<T> {
   id: string;
@@ -15,7 +15,12 @@ export interface TableProps<T> {
   emptyMessage?: string;
 }
 
-export function Table<T>({ columns, data, loading, emptyMessage }: TableProps<T>) {
+export function Table<T>({
+  columns,
+  data,
+  loading,
+  emptyMessage,
+}: TableProps<T>) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-10">
@@ -29,7 +34,7 @@ export function Table<T>({ columns, data, loading, emptyMessage }: TableProps<T>
     return (
       <div className="rounded-xl border border-dashed border-gray-200 bg-white py-8 text-center">
         <p className="text-sm text-gray-500">
-          {emptyMessage ?? "No records found for this view."}
+          {emptyMessage ?? 'No records found for this view.'}
         </p>
       </div>
     );
@@ -46,8 +51,8 @@ export function Table<T>({ columns, data, loading, emptyMessage }: TableProps<T>
                   key={column.id}
                   scope="col"
                   className={`px-3 sm:px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 ${
-                    column.hideOnMobile ? "hidden sm:table-cell" : ""
-                  } ${column.className ?? ""}`}
+                    column.hideOnMobile ? 'hidden sm:table-cell' : ''
+                  } ${column.className ?? ''}`}
                 >
                   {column.header}
                 </th>
@@ -61,8 +66,8 @@ export function Table<T>({ columns, data, loading, emptyMessage }: TableProps<T>
                   <td
                     key={column.id}
                     className={`px-3 sm:px-4 py-3 align-middle text-sm ${
-                      column.hideOnMobile ? "hidden sm:table-cell" : ""
-                    } ${column.className ?? ""}`}
+                      column.hideOnMobile ? 'hidden sm:table-cell' : ''
+                    } ${column.className ?? ''}`}
                   >
                     {column.accessor(row)}
                   </td>

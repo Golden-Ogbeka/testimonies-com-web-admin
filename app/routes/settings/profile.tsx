@@ -1,16 +1,22 @@
-import { useEffect, useState } from "react";
-import { AdminAuthApi } from "../../api/adminAuth";
-import PageHeader from "../../common/page-header";
-import PasswordInput from "../../common/password-input";
-import { getResponseData } from "../../functions/api-response";
-import { sendCatchFeedback, sendSuccessFeedback } from "../../functions/feedback";
-import { getPasswordStrengthMessage, isStrongPassword } from "../../functions/security";
-import type { AdminProfile } from "../../types/auth";
+import { useEffect, useState } from 'react';
+import { AdminAuthApi } from '../../api/adminAuth';
+import PageHeader from '../../common/page-header';
+import PasswordInput from '../../common/password-input';
+import { getResponseData } from '../../functions/api-response';
+import {
+  sendCatchFeedback,
+  sendSuccessFeedback,
+} from '../../functions/feedback';
+import {
+  getPasswordStrengthMessage,
+  isStrongPassword,
+} from '../../functions/security';
+import type { AdminProfile } from '../../types/auth';
 
 export function meta() {
   return [
-    { title: "Profile settings | Testimonies Admin" },
-    { name: "description", content: "Manage your admin profile and password." },
+    { title: 'Profile settings | Testimonies Admin' },
+    { name: 'description', content: 'Manage your admin profile and password.' },
   ];
 }
 
@@ -18,12 +24,12 @@ export default function ProfileSettings() {
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
@@ -36,7 +42,7 @@ export default function ProfileSettings() {
         setProfile(admin);
         setFirstName(admin.firstName);
         setLastName(admin.lastName);
-        setPhoneNumber(admin.phoneNumber || "");
+        setPhoneNumber(admin.phoneNumber || '');
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -64,7 +70,7 @@ export default function ProfileSettings() {
         phoneNumber: phoneNumber || undefined,
       });
       setProfile(getResponseData<AdminProfile>(data));
-      sendSuccessFeedback("Profile updated successfully");
+      sendSuccessFeedback('Profile updated successfully');
     } catch (error) {
       sendCatchFeedback(error);
     } finally {
@@ -74,17 +80,21 @@ export default function ProfileSettings() {
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      sendCatchFeedback(new Error("Passwords do not match"));
+      sendCatchFeedback(new Error('Passwords do not match'));
       return;
     }
-    
+
     if (!isStrongPassword(newPassword)) {
-      sendCatchFeedback(new Error(passwordError || "Password does not meet requirements"));
+      sendCatchFeedback(
+        new Error(passwordError || 'Password does not meet requirements'),
+      );
       return;
     }
 
     if (newPassword === currentPassword) {
-      sendCatchFeedback(new Error("New password must be different from current password"));
+      sendCatchFeedback(
+        new Error('New password must be different from current password'),
+      );
       return;
     }
 
@@ -94,10 +104,10 @@ export default function ProfileSettings() {
         currentPassword,
         newPassword,
       });
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      sendSuccessFeedback("Password changed successfully");
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      sendSuccessFeedback('Password changed successfully');
     } catch (error) {
       sendCatchFeedback(error);
     } finally {
@@ -172,11 +182,11 @@ export default function ProfileSettings() {
             </div>
             <div className="flex items-center gap-4 text-xs text-gray-600">
               <div>
-                <span className="font-medium">Role:</span>{" "}
+                <span className="font-medium">Role:</span>{' '}
                 <span className="capitalize">{profile.role}</span>
               </div>
               <div>
-                <span className="font-medium">Status:</span>{" "}
+                <span className="font-medium">Status:</span>{' '}
                 {profile.active ? (
                   <span className="text-emerald-600">Active</span>
                 ) : (
@@ -184,7 +194,7 @@ export default function ProfileSettings() {
                 )}
               </div>
               <div>
-                <span className="font-medium">Email verified:</span>{" "}
+                <span className="font-medium">Email verified:</span>{' '}
                 {profile.emailIsVerified ? (
                   <span className="text-emerald-600">Yes</span>
                 ) : (
@@ -198,26 +208,32 @@ export default function ProfileSettings() {
               disabled={saving}
               className="btn-primary"
             >
-              {saving ? "Saving…" : "Save changes"}
+              {saving ? 'Saving…' : 'Save changes'}
             </button>
           </div>
         </div>
 
         <div className="card">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900">Change password</h3>
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+            Change password
+          </h3>
           <div className="space-y-4">
             <PasswordInput
               id="current-password"
               label="Current password"
               value={currentPassword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setCurrentPassword(e.target.value)
+              }
               autoComplete="current-password"
             />
             <PasswordInput
               id="new-password"
               label="New password"
               value={newPassword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewPassword(e.target.value)
+              }
               autoComplete="new-password"
               error={passwordError || undefined}
             />
@@ -225,7 +241,9 @@ export default function ProfileSettings() {
               id="confirm-password"
               label="Confirm new password"
               value={confirmPassword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setConfirmPassword(e.target.value)
+              }
               autoComplete="new-password"
             />
             <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-800">
@@ -249,7 +267,7 @@ export default function ProfileSettings() {
               }
               className="btn-primary"
             >
-              {changingPassword ? "Changing…" : "Change password"}
+              {changingPassword ? 'Changing…' : 'Change password'}
             </button>
           </div>
         </div>

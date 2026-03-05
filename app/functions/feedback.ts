@@ -1,17 +1,17 @@
-import { AxiosError } from "axios";
-import { toast, type TypeOptions } from "react-toastify";
+import { AxiosError } from 'axios';
+import { toast, type TypeOptions } from 'react-toastify';
 
 type Message = string;
 
-export const sendFeedback = (message: Message, type: TypeOptions = "info") => {
+export const sendFeedback = (message: Message, type: TypeOptions = 'info') => {
   toast(message, {
     type,
-    toastId: "global-toast",
+    toastId: 'global-toast',
   });
 };
 
 export const sendSuccessFeedback = (message: Message) => {
-  toast.success(message, { toastId: "global-toast" });
+  toast.success(message, { toastId: 'global-toast' });
 };
 
 export const sendCatchFeedback = (error: unknown) => {
@@ -29,13 +29,12 @@ export const sendCatchFeedback = (error: unknown) => {
       responseData?.detail ??
       responseData?.message ??
       responseData?.error ??
-      "Request unsuccessful";
+      'Request unsuccessful';
 
-    toast.error(message, { toastId: "global-toast" });
+    toast.error(message, { toastId: 'global-toast' });
   } else if (error instanceof Error) {
-    toast.error(error.message, { toastId: "global-toast" });
+    toast.error(error.message, { toastId: 'global-toast' });
   } else {
-    toast.error("An unknown error occurred", { toastId: "global-toast" });
+    toast.error('An unknown error occurred', { toastId: 'global-toast' });
   }
 };
-

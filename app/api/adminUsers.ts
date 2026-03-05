@@ -1,10 +1,10 @@
-import { appAxios } from "./axios";
+import { appAxios } from './axios';
 import type {
   AdminUserSummary,
   AdminUserStats,
   ApiSuccessResponse,
   PaginationMeta,
-} from "../types";
+} from '../types';
 
 export interface ListUsersQuery {
   page?: number;
@@ -22,16 +22,21 @@ export interface ListUsersResponse {
 
 export const AdminUsersApi = {
   list(params: ListUsersQuery) {
-    return appAxios.get<ApiSuccessResponse<AdminUserSummary[]>>("/admin/user", {
+    return appAxios.get<ApiSuccessResponse<AdminUserSummary[]>>('/admin/user', {
       params,
     });
   },
 
   getById(id: string) {
-    return appAxios.get<ApiSuccessResponse<AdminUserSummary>>(`/admin/user/details/${id}`);
+    return appAxios.get<ApiSuccessResponse<AdminUserSummary>>(
+      `/admin/user/details/${id}`,
+    );
   },
 
-  update(id: string, payload: Partial<Pick<AdminUserSummary, "isFlagged" | "active">>) {
+  update(
+    id: string,
+    payload: Partial<Pick<AdminUserSummary, 'isFlagged' | 'active'>>,
+  ) {
     return appAxios.patch<ApiSuccessResponse<AdminUserSummary>>(
       `/admin/user/${id}`,
       payload,
@@ -39,19 +44,26 @@ export const AdminUsersApi = {
   },
 
   deactivate(id: string) {
-    return appAxios.post<ApiSuccessResponse<unknown>>(`/admin/user/deactivate/${id}`);
+    return appAxios.post<ApiSuccessResponse<unknown>>(
+      `/admin/user/deactivate/${id}`,
+    );
   },
 
   activate(id: string) {
-    return appAxios.post<ApiSuccessResponse<unknown>>(`/admin/user/activate/${id}`);
+    return appAxios.post<ApiSuccessResponse<unknown>>(
+      `/admin/user/activate/${id}`,
+    );
   },
 
   statsAll() {
-    return appAxios.get<ApiSuccessResponse<AdminUserStats>>("/admin/user/stats/all");
+    return appAxios.get<ApiSuccessResponse<AdminUserStats>>(
+      '/admin/user/stats/all',
+    );
   },
 
   statsByUser(id: string) {
-    return appAxios.get<ApiSuccessResponse<AdminUserStats>>(`/admin/user/${id}/stats`);
+    return appAxios.get<ApiSuccessResponse<AdminUserStats>>(
+      `/admin/user/${id}/stats`,
+    );
   },
 };
-

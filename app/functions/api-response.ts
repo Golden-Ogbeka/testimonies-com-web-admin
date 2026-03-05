@@ -1,12 +1,12 @@
-import type { ApiSuccessResponse, PaginationMeta } from "../types";
+import type { ApiSuccessResponse, PaginationMeta } from '../types';
 
 type UnknownRecord = Record<string, unknown>;
 
 const isRecord = (value: unknown): value is UnknownRecord =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const toNumber = (value: unknown, fallback = 0): number => {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
@@ -14,7 +14,7 @@ const toNumber = (value: unknown, fallback = 0): number => {
 const normalizePagination = (value: unknown): PaginationMeta => {
   const record = isRecord(value) ? value : {};
 
-  if ("totalDocs" in record) {
+  if ('totalDocs' in record) {
     return {
       totalResults: toNumber(record.totalDocs),
       resultsPerPage: toNumber(record.limit),
@@ -40,7 +40,10 @@ const findPaginatedObject = (value: unknown): UnknownRecord | null => {
   if (Array.isArray(value.results) || Array.isArray(value.docs)) return value;
 
   for (const nested of Object.values(value)) {
-    if (isRecord(nested) && (Array.isArray(nested.results) || Array.isArray(nested.docs))) {
+    if (
+      isRecord(nested) &&
+      (Array.isArray(nested.results) || Array.isArray(nested.docs))
+    ) {
       return nested;
     }
   }
@@ -74,7 +77,9 @@ export const getPaginatedResponse = <T>(
   payload: ApiSuccessResponse<unknown>,
   key?: string,
 ): { results: T[]; pagination: PaginationMeta } => {
-  const source = key ? getResponseResource<unknown>(payload, key) : payload.data;
+  const source = key
+    ? getResponseResource<unknown>(payload, key)
+    : payload.data;
   const paginated = findPaginatedObject(source);
 
   if (!paginated) {
@@ -112,7 +117,9 @@ export const getPaginatedResponse = <T>(
       ? paginated.docs
       : [];
 
-  const pagination = normalizePagination(paginated.pagination ?? paginated.meta ?? paginated);
+  const pagination = normalizePagination(
+    paginated.pagination ?? paginated.meta ?? paginated,
+  );
 
   return { results: rawResults as T[], pagination };
 };

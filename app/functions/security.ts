@@ -6,7 +6,7 @@
  * Sanitize HTML to prevent XSS attacks
  */
 export const sanitizeHtml = (html: string): string => {
-  const div = document.createElement("div");
+  const div = document.createElement('div');
   div.textContent = html;
   return div.innerHTML;
 };
@@ -40,14 +40,15 @@ export const isStrongPassword = (password: string): boolean => {
  * Get password strength message
  */
 export const getPasswordStrengthMessage = (password: string): string | null => {
-  if (password.length < 8) return "Password must be at least 8 characters long";
+  if (password.length < 8) return 'Password must be at least 8 characters long';
   if (!/[A-Z]/.test(password))
-    return "Password must contain at least one uppercase letter";
+    return 'Password must contain at least one uppercase letter';
   if (!/[a-z]/.test(password))
-    return "Password must contain at least one lowercase letter";
-  if (!/[0-9]/.test(password)) return "Password must contain at least one number";
+    return 'Password must contain at least one lowercase letter';
+  if (!/[0-9]/.test(password))
+    return 'Password must contain at least one number';
   if (!/[!@#$%^&*]/.test(password))
-    return "Password must contain at least one special character (!@#$%^&*)";
+    return 'Password must contain at least one special character (!@#$%^&*)';
   return null;
 };
 
@@ -63,11 +64,11 @@ export const isValidObjectId = (id: string): boolean => {
  */
 export const escapeHtml = (text: string): string => {
   const map: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
   };
   return text.replace(/[&<>"']/g, (char) => map[char]);
 };
@@ -85,7 +86,9 @@ export const isSessionExpired = (expiryTime: number): boolean => {
 export const generateSecureToken = (length: number = 32): string => {
   const array = new Uint8Array(length);
   crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join(
+    '',
+  );
 };
 
 /**
@@ -94,7 +97,7 @@ export const generateSecureToken = (length: number = 32): string => {
 export const isValidPhoneNumber = (phone: string): boolean => {
   // Basic validation: 10-15 digits, may start with +
   const phoneRegex = /^\+?[1-9]\d{9,14}$/;
-  return phoneRegex.test(phone.replace(/[\s-()]/g, ""));
+  return phoneRegex.test(phone.replace(/[\s-()]/g, ''));
 };
 
 /**

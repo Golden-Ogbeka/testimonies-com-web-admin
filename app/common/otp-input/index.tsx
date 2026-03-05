@@ -1,4 +1,4 @@
-import OTPInput from "react-otp-input";
+import OTPInput from 'react-otp-input';
 
 interface OtpInputProps {
   value: string;
@@ -12,13 +12,15 @@ export default function OtpInput({
   value,
   onChange,
   numInputs = 6,
-  label = "One-time password",
+  label = 'One-time password',
   error,
 }: OtpInputProps) {
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
+        <label className="block text-sm font-medium text-gray-700">
+          {label}
+        </label>
       )}
       <OTPInput
         value={value}

@@ -1,71 +1,70 @@
-import type React from "react";
-import { RoutePaths } from "../routes/route-paths";
+import type React from 'react';
+import { RoutePaths } from '../routes/route-paths';
 import {
-  AuditLogIcon,
-  ContentIcon,
-  DashboardIcon,
-  PromotionsIcon,
-  RolesIcon,
-  SettingsIcon,
-  SubscriptionsIcon,
-  TestimoniesIcon,
+  Squares2X2Icon,
   UsersIcon,
-} from "./navIcons";
+  ChatBubbleLeftRightIcon,
+  CreditCardIcon,
+  TagIcon,
+  ShieldCheckIcon,
+  DocumentTextIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+} from '@heroicons/react/24/outline';
 
 export interface NavItem {
   label: string;
   href: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<any>;
 }
 
 export const mainLinks: NavItem[] = [
   {
-    label: "Dashboard",
+    label: 'Dashboard',
     href: RoutePaths.DASHBOARD,
-    icon: <DashboardIcon />,
+    icon: Squares2X2Icon,
   },
   {
-    label: "Users",
+    label: 'Users',
     href: RoutePaths.USERS,
-    icon: <UsersIcon />,
+    icon: UsersIcon,
   },
   {
-    label: "Testimonies",
+    label: 'Testimonies',
     href: RoutePaths.TESTIMONIES,
-    icon: <TestimoniesIcon />,
+    icon: ChatBubbleLeftRightIcon,
   },
   {
-    label: "Subscriptions",
+    label: 'Subscriptions',
     href: RoutePaths.SUBSCRIPTION_PLANS,
-    icon: <SubscriptionsIcon />,
+    icon: CreditCardIcon,
   },
   {
-    label: "Promotions",
+    label: 'Promotions',
     href: RoutePaths.PROMOTIONS,
-    icon: <PromotionsIcon />,
+    icon: TagIcon,
   },
 ];
 
 export const secondaryLinks: NavItem[] = [
   {
-    label: "Roles & Permissions",
+    label: 'Roles & Permissions',
     href: RoutePaths.PERMISSIONS,
-    icon: <RolesIcon />,
+    icon: ShieldCheckIcon,
   },
   {
-    label: "Content",
+    label: 'Content',
     href: RoutePaths.FAQS,
-    icon: <ContentIcon />,
+    icon: DocumentTextIcon,
   },
   {
-    label: "Audit Logs",
+    label: 'Audit Logs',
     href: RoutePaths.AUDIT_LOGS,
-    icon: <AuditLogIcon />,
+    icon: ClockIcon,
   },
   {
-    label: "Settings",
+    label: 'Settings',
     href: RoutePaths.PROFILE_SETTINGS,
-    icon: <SettingsIcon />,
+    icon: Cog6ToothIcon,
   },
 ];
-

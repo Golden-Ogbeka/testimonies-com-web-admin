@@ -1,24 +1,27 @@
-import { useEffect, useState } from "react";
-import { AdminRolesPermissionsApi } from "../../api/adminRolesPermissions";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import Modal from "../../common/modal";
-import { getPaginatedResponse } from "../../functions/api-response";
-import type { AdminPermission } from "../../types";
-import { sendCatchFeedback } from "../../functions/feedback";
+import { useEffect, useState } from 'react';
+import { AdminRolesPermissionsApi } from '../../api/adminRolesPermissions';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import Modal from '../../common/modal';
+import { getPaginatedResponse } from '../../functions/api-response';
+import type { AdminPermission } from '../../types';
+import { sendCatchFeedback } from '../../functions/feedback';
 
 export function meta() {
   return [
-    { title: "Permissions | Testimonies Admin" },
-    { name: "description", content: "Configure fine-grained admin permissions." },
+    { title: 'Permissions | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'Configure fine-grained admin permissions.',
+    },
   ];
 }
 
-type PermissionFormState = Pick<AdminPermission, "name" | "description">;
+type PermissionFormState = Pick<AdminPermission, 'name' | 'description'>;
 
 const emptyForm: PermissionFormState = {
-  name: "",
-  description: "",
+  name: '',
+  description: '',
 };
 
 export default function PermissionsPage() {
@@ -36,7 +39,10 @@ export default function PermissionsPage() {
           page: 1,
           limit: 100,
         });
-        const { results } = getPaginatedResponse<AdminPermission>(data, "permissions");
+        const { results } = getPaginatedResponse<AdminPermission>(
+          data,
+          'permissions',
+        );
         setItems(results);
       } catch (error) {
         sendCatchFeedback(error);
@@ -50,22 +56,22 @@ export default function PermissionsPage() {
 
   const columns: TableColumn<AdminPermission>[] = [
     {
-      id: "name",
-      header: "Permission",
+      id: 'name',
+      header: 'Permission',
       accessor: (perm) => (
         <span className="text-sm font-medium text-gray-900">{perm.name}</span>
       ),
     },
     {
-      id: "description",
-      header: "Description",
+      id: 'description',
+      header: 'Description',
       accessor: (perm) => (
         <span className="text-xs text-gray-600">{perm.description}</span>
       ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (perm) => (
         <button
           type="button"
@@ -78,7 +84,7 @@ export default function PermissionsPage() {
           Edit
         </button>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -86,10 +92,13 @@ export default function PermissionsPage() {
     try {
       setSaving(true);
       if (editing) {
-        const { data } = await AdminRolesPermissionsApi.updatePermission(editing._id, {
-          name: form.name,
-          description: form.description,
-        });
+        const { data } = await AdminRolesPermissionsApi.updatePermission(
+          editing._id,
+          {
+            name: form.name,
+            description: form.description,
+          },
+        );
         setItems((prev) =>
           prev.map((p) => (p._id === editing._id ? data.data : p)),
         );
@@ -129,8 +138,8 @@ export default function PermissionsPage() {
 
       <Modal
         open={editing !== null || form.name.length > 0}
-        title={editing ? "Edit permission" : "New permission"}
-        primaryLabel={editing ? "Save changes" : "Create permission"}
+        title={editing ? 'Edit permission' : 'New permission'}
+        primaryLabel={editing ? 'Save changes' : 'Create permission'}
         onPrimary={handleSave}
         onClose={() => {
           setEditing(null);
@@ -155,7 +164,10 @@ export default function PermissionsPage() {
               id="perm-description"
               value={form.description}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, description: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  description: event.target.value,
+                }))
               }
               rows={3}
             />

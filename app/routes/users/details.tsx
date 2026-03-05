@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { AdminUsersApi } from "../../api/adminUsers";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { getResponseResource } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AdminUserSummary } from "../../types";
-import { RoutePaths } from "../route-paths";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { AdminUsersApi } from '../../api/adminUsers';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { getResponseResource } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminUserSummary } from '../../types';
+import { RoutePaths } from '../route-paths';
 
 export function meta() {
   return [
-    { title: "User details | Testimonies Admin" },
-    { name: "description", content: "View detailed user information." },
+    { title: 'User details | Testimonies Admin' },
+    { name: 'description', content: 'View detailed user information.' },
   ];
 }
 
@@ -20,7 +20,9 @@ export default function UserDetails() {
   const navigate = useNavigate();
   const [user, setUser] = useState<AdminUserSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [toggleAction, setToggleAction] = useState<"activate" | "deactivate" | null>(null);
+  const [toggleAction, setToggleAction] = useState<
+    'activate' | 'deactivate' | null
+  >(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function UserDetails() {
       try {
         setLoading(true);
         const { data } = await AdminUsersApi.getById(id);
-        setUser(getResponseResource<AdminUserSummary>(data, "user"));
+        setUser(getResponseResource<AdminUserSummary>(data, 'user'));
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -43,7 +45,7 @@ export default function UserDetails() {
     if (!user || !toggleAction) return;
     try {
       setSubmitting(true);
-      if (toggleAction === "activate") {
+      if (toggleAction === 'activate') {
         await AdminUsersApi.activate(user._id);
         setUser({ ...user, active: true });
       } else {
@@ -97,10 +99,12 @@ export default function UserDetails() {
             </button>
             <button
               type="button"
-              onClick={() => setToggleAction(user.active ? "deactivate" : "activate")}
+              onClick={() =>
+                setToggleAction(user.active ? 'deactivate' : 'activate')
+              }
               className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-primary/90"
             >
-              {user.active ? "Deactivate" : "Activate"}
+              {user.active ? 'Deactivate' : 'Activate'}
             </button>
           </div>
         }
@@ -122,7 +126,9 @@ export default function UserDetails() {
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="text-xs font-medium text-gray-500">Status</label>
+              <label className="text-xs font-medium text-gray-500">
+                Status
+              </label>
               <div className="mt-1">
                 {user.active ? (
                   <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
@@ -137,7 +143,9 @@ export default function UserDetails() {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500">Flagged</label>
+              <label className="text-xs font-medium text-gray-500">
+                Flagged
+              </label>
               <div className="mt-1">
                 {user.isFlagged ? (
                   <span className="inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
@@ -150,8 +158,12 @@ export default function UserDetails() {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500">Account type</label>
-              <p className="mt-1 text-sm capitalize text-gray-900">{user.accountType}</p>
+              <label className="text-xs font-medium text-gray-500">
+                Account type
+              </label>
+              <p className="mt-1 text-sm capitalize text-gray-900">
+                {user.accountType}
+              </p>
             </div>
 
             {user.subscriptionType && (
@@ -167,18 +179,24 @@ export default function UserDetails() {
 
             {user.username && (
               <div>
-                <label className="text-xs font-medium text-gray-500">Username</label>
+                <label className="text-xs font-medium text-gray-500">
+                  Username
+                </label>
                 <p className="mt-1 text-sm text-gray-900">{user.username}</p>
               </div>
             )}
 
             <div>
-              <label className="text-xs font-medium text-gray-500">User ID</label>
+              <label className="text-xs font-medium text-gray-500">
+                User ID
+              </label>
               <p className="mt-1 font-mono text-xs text-gray-900">{user._id}</p>
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500">Created at</label>
+              <label className="text-xs font-medium text-gray-500">
+                Created at
+              </label>
               <p className="mt-1 text-sm text-gray-900">
                 {new Date(user.createdAt).toLocaleString()}
               </p>
@@ -189,7 +207,7 @@ export default function UserDetails() {
 
       <Modal
         open={toggleAction !== null}
-        title={`${toggleAction === "activate" ? "Activate" : "Deactivate"} user`}
+        title={`${toggleAction === 'activate' ? 'Activate' : 'Deactivate'} user`}
         primaryLabel="Confirm"
         onPrimary={handleConfirm}
         onClose={() => setToggleAction(null)}

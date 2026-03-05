@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
-import { AdminAuditLogsApi } from "../../api/adminAuditLogs";
-import FilterBar from "../../common/filter-bar";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AuditLogItem } from "../../types";
-import { RoutePaths } from "../route-paths";
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { AdminAuditLogsApi } from '../../api/adminAuditLogs';
+import FilterBar from '../../common/filter-bar';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AuditLogItem } from '../../types';
+import { RoutePaths } from '../route-paths';
 
 export function meta() {
   return [
-    { title: "Audit logs | Testimonies Admin" },
-    { name: "description", content: "View system audit logs and admin activity." },
+    { title: 'Audit logs | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'View system audit logs and admin activity.',
+    },
   ];
 }
 
@@ -20,14 +23,17 @@ export default function AuditLogsIndex() {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminAuditLogsApi.list({ page: 1, limit: 100 });
-        const { results } = getPaginatedResponse<AuditLogItem>(data, "auditLogs");
+        const { results } = getPaginatedResponse<AuditLogItem>(
+          data,
+          'auditLogs',
+        );
         setLogs(results);
       } catch (error) {
         sendCatchFeedback(error);
@@ -41,38 +47,41 @@ export default function AuditLogsIndex() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return logs;
-    return logs.filter((log) =>
-      log.action.toLowerCase().includes(query) ||
-      log.category.toLowerCase().includes(query) ||
-      log.level.toLowerCase().includes(query)
+    return logs.filter(
+      (log) =>
+        log.action.toLowerCase().includes(query) ||
+        log.category.toLowerCase().includes(query) ||
+        log.level.toLowerCase().includes(query),
     );
   }, [logs, search]);
 
   const columns: TableColumn<AuditLogItem>[] = [
     {
-      id: "action",
-      header: "Action",
+      id: 'action',
+      header: 'Action',
       accessor: (log) => (
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-gray-900">{log.action}</span>
+          <span className="text-sm font-medium text-gray-900">
+            {log.action}
+          </span>
           <span className="text-xs text-gray-500">{log.category}</span>
         </div>
       ),
     },
     {
-      id: "level",
-      header: "Level",
+      id: 'level',
+      header: 'Level',
       accessor: (log) => {
         const colors: Record<string, string> = {
-          info: "bg-blue-50 text-blue-700",
-          warning: "bg-yellow-50 text-yellow-700",
-          error: "bg-red-50 text-red-700",
-          critical: "bg-red-100 text-red-800",
+          info: 'bg-blue-50 text-blue-700',
+          warning: 'bg-yellow-50 text-yellow-700',
+          error: 'bg-red-50 text-red-700',
+          critical: 'bg-red-100 text-red-800',
         };
         return (
           <span
             className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-              colors[log.level] || "bg-gray-100 text-gray-600"
+              colors[log.level] || 'bg-gray-100 text-gray-600'
             }`}
           >
             {log.level}
@@ -81,15 +90,17 @@ export default function AuditLogsIndex() {
       },
     },
     {
-      id: "userType",
-      header: "User type",
+      id: 'userType',
+      header: 'User type',
       accessor: (log) => (
-        <span className="text-xs capitalize text-gray-600">{log.userType || "—"}</span>
+        <span className="text-xs capitalize text-gray-600">
+          {log.userType || '—'}
+        </span>
       ),
     },
     {
-      id: "timestamp",
-      header: "Timestamp",
+      id: 'timestamp',
+      header: 'Timestamp',
       accessor: (log) => (
         <span className="text-xs text-gray-600">
           {new Date(log.createdAt).toLocaleString()}
@@ -97,8 +108,8 @@ export default function AuditLogsIndex() {
       ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (log) => (
         <button
           type="button"
@@ -108,7 +119,7 @@ export default function AuditLogsIndex() {
           View details
         </button>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 

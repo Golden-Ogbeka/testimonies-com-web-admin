@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
-import { AdminContentApi } from "../../api/adminContent";
-import PageHeader from "../../common/page-header";
-import { sendCatchFeedback, sendSuccessFeedback } from "../../functions/feedback";
-import type { SystemContentItem } from "../../types";
+import { useEffect, useState } from 'react';
+import { AdminContentApi } from '../../api/adminContent';
+import PageHeader from '../../common/page-header';
+import TextInput from '../../common/text-input';
+import {
+  sendCatchFeedback,
+  sendSuccessFeedback,
+} from '../../functions/feedback';
+import type { SystemContentItem } from '../../types';
 
 export function meta() {
   return [
-    { title: "Community guidelines | Testimonies Admin" },
-    { name: "description", content: "Manage the community guidelines content." },
+    { title: 'Community guidelines | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'Manage the community guidelines content.',
+    },
   ];
 }
 
@@ -15,9 +22,9 @@ export default function CommunityGuidelinesPage() {
   const [content, setContent] = useState<SystemContentItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [version, setVersion] = useState("");
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [version, setVersion] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -27,7 +34,7 @@ export default function CommunityGuidelinesPage() {
         setContent(data.data);
         setTitle(data.data.title);
         setBody(data.data.content);
-        setVersion(data.data.version || "");
+        setVersion(data.data.version || '');
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -46,7 +53,7 @@ export default function CommunityGuidelinesPage() {
         version: version || undefined,
       });
       setContent(data.data);
-      sendSuccessFeedback("Community guidelines updated successfully");
+      sendSuccessFeedback('Community guidelines updated successfully');
     } catch (error) {
       sendCatchFeedback(error);
     } finally {
@@ -74,30 +81,28 @@ export default function CommunityGuidelinesPage() {
             disabled={saving}
             className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
           >
-            {saving ? "Saving…" : "Save changes"}
+            {saving ? 'Saving…' : 'Save changes'}
           </button>
         }
       />
 
       <div className="card">
         <div className="space-y-4">
-          <div className="inputContainer">
-            <label htmlFor="cg-title">Title</label>
-            <input
-              id="cg-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-          <div className="inputContainer">
-            <label htmlFor="cg-version">Version (optional)</label>
-            <input
-              id="cg-version"
-              value={version}
-              onChange={(e) => setVersion(e.target.value)}
-              placeholder="e.g., 1.0.0"
-            />
-          </div>
+          <TextInput
+            id="cg-title"
+            label="Title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <TextInput
+            id="cg-version"
+            label="Version (optional)"
+            type="text"
+            value={version}
+            onChange={(e) => setVersion(e.target.value)}
+            placeholder="e.g., 1.0.0"
+          />
           <div className="inputContainer">
             <label htmlFor="cg-content">Content</label>
             <textarea

@@ -1,12 +1,15 @@
-import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
-import { AdminAuthApi } from "../../api/adminAuth";
-import OtpInput from "../../common/otp-input";
-import { sendCatchFeedback, sendFeedback } from "../../functions/feedback";
-import { RoutePaths } from "../../routes/route-paths";
-import { useAppDispatch } from "../../store/hooks";
-import { updateAdmin, updateToken } from "../../store/slices/admin";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router';
+import { AdminAuthApi } from '../../api/adminAuth';
+import OtpInput from '../../common/otp-input';
+import TextInput from '../../common/text-input';
+import { sendCatchFeedback, sendFeedback } from '../../functions/feedback';
+import { RoutePaths } from '../../routes/route-paths';
+import { verifyOtpSchema, type VerifyOtpFormData } from '../../schemas';
+import { useAppDispatch } from '../../store/hooks';
+import { updateAdmin, updateToken } from '../../store/slices/admin';
 
 interface VerifyOtpState {
   email: string;
@@ -20,10 +23,10 @@ interface LocationState {
 
 export function meta() {
   return [
-    { title: "Verify OTP | Testimonies Admin" },
+    { title: 'Verify OTP | Testimonies Admin' },
     {
-      name: "description",
-      content: "Verify your one-time password to access the admin dashboard.",
+      name: 'description',
+      content: 'Verify your one-time password to access the admin dashboard.',
     },
   ];
 }
@@ -32,72 +35,53 @@ export default function VerifyOtpRoute() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const [state, setState] = useState<VerifyOtpState>({
-    email: "",
-    otp: "",
-    submitting: false,
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<VerifyOtpFormData>({
+    resolver: zodResolver(verifyOtpSchema),
   });
+
+  const otp = watch('otp');
 
   useEffect(() => {
     const locationState = location.state as LocationState | null;
     if (locationState?.email) {
-      setState((prev) => ({ ...prev, email: locationState.email || "" }));
+      setValue('email', locationState.email);
     }
-  }, [location.state]);
+  }, [location.state, setValue]);
 
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setState((prev) => ({ ...prev, email: event.target.value }));
-  };
-
-  const handleOtpChange = (otp: string) => {
-    setState((prev) => ({ ...prev, otp }));
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!state.email || !state.otp) {
-      sendFeedback("Provide your email and OTP code", "warning");
-      return;
-    }
-
-    if (state.otp.length !== 6) {
-      sendFeedback("OTP must be 6 digits", "warning");
-      return;
-    }
-
+  const onSubmit = async (data: VerifyOtpFormData) => {
     try {
-      setState((prev) => ({ ...prev, submitting: true }));
-      const { data } = await AdminAuthApi.verifyOtp({
-        email: state.email,
-        otp: state.otp,
-      });
+      const { data: response } = await AdminAuthApi.verifyOtp(data);
+      const { token, admin } = response as any;
 
-      const { token, admin } = data.data;
-      
       // Store token and admin profile
       dispatch(updateToken({ token: { token } }));
       dispatch(updateAdmin({ profile: admin }));
 
-      sendFeedback("Verification successful", "success");
-      
+      sendFeedback('Verification successful', 'success');
+
       // Navigate to dashboard
       navigate(RoutePaths.DASHBOARD, { replace: true });
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setState((prev) => ({ ...prev, submitting: false }));
     }
   };
 
   const handleResendOtp = async () => {
-    if (!state.email) {
-      sendFeedback("Enter your email address first", "warning");
+    const email = watch('email');
+    if (!email) {
+      sendFeedback('Enter your email address first', 'warning');
       return;
     }
 
     try {
-      await AdminAuthApi.resendOtp(state.email);
-      sendFeedback("OTP sent to your email", "success");
+      await AdminAuthApi.resendOtp(email);
+      sendFeedback('OTP sent to your email', 'success');
     } catch (error) {
       sendCatchFeedback(error);
     }
@@ -112,23 +96,22 @@ export default function VerifyOtpRoute() {
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="inputContainer">
-          <label htmlFor="email">Email address</label>
-          <input
-            id="email"
-            type="email"
-            value={state.email}
-            onChange={handleEmailChange}
-            placeholder="you@example.com"
-            autoComplete="email"
-          />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <TextInput
+          id="email"
+          label="Email address"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          error={errors.email?.message}
+          {...register('email')}
+        />
 
         <OtpInput
-          value={state.otp}
-          onChange={handleOtpChange}
+          value={otp || ''}
+          onChange={(value) => setValue('otp', value)}
           label="One-time password"
+          error={errors.otp?.message}
         />
 
         <div className="flex items-center justify-between text-xs text-slate-500">
@@ -144,12 +127,11 @@ export default function VerifyOtpRoute() {
         <button
           type="submit"
           className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
-          disabled={state.submitting}
+          disabled={isSubmitting}
         >
-          {state.submitting ? "Verifying..." : "Verify and continue"}
+          {isSubmitting ? 'Verifying...' : 'Verify and continue'}
         </button>
       </form>
     </div>
   );
 }
-

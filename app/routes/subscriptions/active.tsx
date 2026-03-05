@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
-import { AdminSubscriptionsApi } from "../../api/adminSubscriptions";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse } from "../../functions/api-response";
-import type { SubscriptionSummary } from "../../types";
-import { sendCatchFeedback } from "../../functions/feedback";
+import { useEffect, useState } from 'react';
+import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import type { SubscriptionSummary } from '../../types';
+import { sendCatchFeedback } from '../../functions/feedback';
 
 export function meta() {
   return [
-    { title: "Active subscriptions | Testimonies Admin" },
-    { name: "description", content: "View active subscriptions across the platform." },
+    { title: 'Active subscriptions | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'View active subscriptions across the platform.',
+    },
   ];
 }
 
@@ -21,10 +24,13 @@ export default function ActiveSubscriptions() {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminSubscriptionsApi.listActive({ page: 1, limit: 50 });
+        const { data } = await AdminSubscriptionsApi.listActive({
+          page: 1,
+          limit: 50,
+        });
         const { results } = getPaginatedResponse<SubscriptionSummary>(
           data,
-          "subscriptions",
+          'subscriptions',
         );
         setItems(results);
       } catch (error) {
@@ -38,8 +44,8 @@ export default function ActiveSubscriptions() {
 
   const columns: TableColumn<SubscriptionSummary>[] = [
     {
-      id: "user",
-      header: "User ID",
+      id: 'user',
+      header: 'User ID',
       accessor: (sub) => (
         <span className="text-xs font-mono text-gray-600">
           {sub.userId.slice(0, 8)}…
@@ -47,8 +53,8 @@ export default function ActiveSubscriptions() {
       ),
     },
     {
-      id: "plan",
-      header: "Plan ID",
+      id: 'plan',
+      header: 'Plan ID',
       accessor: (sub) => (
         <span className="text-xs font-mono text-gray-600">
           {sub.planId.slice(0, 8)}…
@@ -56,18 +62,18 @@ export default function ActiveSubscriptions() {
       ),
     },
     {
-      id: "status",
-      header: "Status",
+      id: 'status',
+      header: 'Status',
       accessor: (sub) => (
         <span className="text-xs font-medium text-emerald-700">Active</span>
       ),
     },
     {
-      id: "dates",
-      header: "Period",
+      id: 'dates',
+      header: 'Period',
       accessor: (sub) => (
         <span className="text-xs text-gray-600">
-          {new Date(sub.startDate).toLocaleDateString()} –{" "}
+          {new Date(sub.startDate).toLocaleDateString()} –{' '}
           {new Date(sub.endDate).toLocaleDateString()}
         </span>
       ),

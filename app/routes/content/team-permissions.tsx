@@ -1,41 +1,49 @@
-import { useEffect, useMemo, useState } from "react";
-import { AdminContentApi } from "../../api/adminContent";
-import FilterBar from "../../common/filter-bar";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse, getResponseData } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { TeamPermissionItem } from "../../types";
+import { useEffect, useMemo, useState } from 'react';
+import { AdminContentApi } from '../../api/adminContent';
+import FilterBar from '../../common/filter-bar';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import {
+  getPaginatedResponse,
+  getResponseData,
+} from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { TeamPermissionItem } from '../../types';
 
 export function meta() {
   return [
-    { title: "Team permissions | Testimonies Admin" },
-    { name: "description", content: "Manage team permission definitions." },
+    { title: 'Team permissions | Testimonies Admin' },
+    { name: 'description', content: 'Manage team permission definitions.' },
   ];
 }
 
-type PermissionFormState = Pick<TeamPermissionItem, "permission" | "description">;
+type PermissionFormState = Pick<
+  TeamPermissionItem,
+  'permission' | 'description'
+>;
 
 const emptyForm: PermissionFormState = {
-  permission: "",
-  description: "",
+  permission: '',
+  description: '',
 };
 
-type TeamPermissionApiItem = Omit<TeamPermissionItem, "permission"> & {
+type TeamPermissionApiItem = Omit<TeamPermissionItem, 'permission'> & {
   name?: string;
   permission?: string;
 };
 
-const mapTeamPermission = (item: TeamPermissionApiItem): TeamPermissionItem => ({
+const mapTeamPermission = (
+  item: TeamPermissionApiItem,
+): TeamPermissionItem => ({
   ...item,
-  permission: item.permission ?? item.name ?? "",
+  permission: item.permission ?? item.name ?? '',
 });
 
 export default function TeamPermissionsPage() {
   const [permissions, setPermissions] = useState<TeamPermissionItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<TeamPermissionItem | null>(null);
   const [form, setForm] = useState<PermissionFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -46,10 +54,13 @@ export default function TeamPermissionsPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminContentApi.listTeamPermissions({ page: 1, limit: 100 });
+        const { data } = await AdminContentApi.listTeamPermissions({
+          page: 1,
+          limit: 100,
+        });
         const { results } = getPaginatedResponse<TeamPermissionApiItem>(
           data,
-          "teamPermissions",
+          'teamPermissions',
         );
         setPermissions(results.map(mapTeamPermission));
       } catch (error) {
@@ -64,26 +75,29 @@ export default function TeamPermissionsPage() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return permissions;
-    return permissions.filter((perm) =>
-      perm.permission.toLowerCase().includes(query) ||
-      perm.description.toLowerCase().includes(query)
+    return permissions.filter(
+      (perm) =>
+        perm.permission.toLowerCase().includes(query) ||
+        perm.description.toLowerCase().includes(query),
     );
   }, [permissions, search]);
 
   const columns: TableColumn<TeamPermissionItem>[] = [
     {
-      id: "permission",
-      header: "Permission",
+      id: 'permission',
+      header: 'Permission',
       accessor: (perm) => (
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-gray-900">{perm.permission}</span>
+          <span className="text-sm font-medium text-gray-900">
+            {perm.permission}
+          </span>
           <span className="text-xs text-gray-500">{perm.description}</span>
         </div>
       ),
     },
     {
-      id: "created",
-      header: "Created",
+      id: 'created',
+      header: 'Created',
       accessor: (perm) => (
         <span className="text-xs text-gray-600">
           {new Date(perm.createdAt).toLocaleDateString()}
@@ -91,8 +105,8 @@ export default function TeamPermissionsPage() {
       ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (perm) => (
         <div className="flex justify-end gap-2">
           <button
@@ -117,7 +131,7 @@ export default function TeamPermissionsPage() {
           </button>
         </div>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -125,12 +139,21 @@ export default function TeamPermissionsPage() {
     try {
       setSaving(true);
       if (editing) {
-        const { data } = await AdminContentApi.updateTeamPermission(editing._id, form);
-        const updated = mapTeamPermission(getResponseData<TeamPermissionApiItem>(data));
-        setPermissions((prev) => prev.map((p) => (p._id === editing._id ? updated : p)));
+        const { data } = await AdminContentApi.updateTeamPermission(
+          editing._id,
+          form,
+        );
+        const updated = mapTeamPermission(
+          getResponseData<TeamPermissionApiItem>(data),
+        );
+        setPermissions((prev) =>
+          prev.map((p) => (p._id === editing._id ? updated : p)),
+        );
       } else {
         const { data } = await AdminContentApi.createTeamPermission(form);
-        const created = mapTeamPermission(getResponseData<TeamPermissionApiItem>(data));
+        const created = mapTeamPermission(
+          getResponseData<TeamPermissionApiItem>(data),
+        );
         setPermissions((prev) => [created, ...prev]);
       }
       setEditing(null);
@@ -183,8 +206,8 @@ export default function TeamPermissionsPage() {
 
       <Modal
         open={editing !== null || form.permission.length > 0}
-        title={editing ? "Edit permission" : "New permission"}
-        primaryLabel={editing ? "Save changes" : "Create permission"}
+        title={editing ? 'Edit permission' : 'New permission'}
+        primaryLabel={editing ? 'Save changes' : 'Create permission'}
         onPrimary={handleSave}
         onClose={() => {
           setEditing(null);
@@ -228,7 +251,8 @@ export default function TeamPermissionsPage() {
         loading={deleting}
       >
         <p className="text-sm text-gray-700">
-          Are you sure you want to delete this permission? This action cannot be undone.
+          Are you sure you want to delete this permission? This action cannot be
+          undone.
         </p>
       </Modal>
     </>

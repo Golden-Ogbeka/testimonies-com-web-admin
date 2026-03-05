@@ -1,10 +1,10 @@
 import type {
-    ApiSuccessResponse,
-    PromotionSummary,
-    PromotionTargetAudience,
-    PromotionType
-} from "../types";
-import { appAxios } from "./axios";
+  ApiSuccessResponse,
+  PromotionSummary,
+  PromotionTargetAudience,
+  PromotionType,
+} from '../types';
+import { appAxios } from './axios';
 
 export interface ListPromotionsQuery {
   page?: number;
@@ -17,14 +17,22 @@ export interface ListPromotionsQuery {
 
 export const AdminPromotionsApi = {
   list(params: ListPromotionsQuery) {
-    return appAxios.get<ApiSuccessResponse<PromotionSummary[]>>("/admin/promotion", {
-      params,
-    });
+    return appAxios.get<ApiSuccessResponse<PromotionSummary[]>>(
+      '/admin/promotion',
+      {
+        params,
+      },
+    );
   },
 
-  create(payload: Omit<PromotionSummary, "_id" | "createdAt" | "updatedAt" | "isFlagged">) {
+  create(
+    payload: Omit<
+      PromotionSummary,
+      '_id' | 'createdAt' | 'updatedAt' | 'isFlagged'
+    >,
+  ) {
     return appAxios.post<ApiSuccessResponse<PromotionSummary>>(
-      "/admin/promotion",
+      '/admin/promotion',
       payload,
     );
   },
@@ -70,9 +78,8 @@ export const AdminPromotionsApi = {
 
   listFlagged(params: { page?: number; limit?: number }) {
     return appAxios.get<ApiSuccessResponse<PromotionSummary[]>>(
-      "/admin/promotion/flagged",
+      '/admin/promotion/flagged',
       { params },
     );
   },
 };
-

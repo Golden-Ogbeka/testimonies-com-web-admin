@@ -1,5 +1,5 @@
-import { appAxios } from "./axios";
-import type { ApiSuccessResponse } from "../types";
+import { appAxios } from './axios';
+import type { ApiSuccessResponse } from '../types';
 
 export interface ListAuditLogsQuery {
   page?: number;
@@ -12,10 +12,9 @@ export interface ListAuditLogsQuery {
 
 export const AdminAuditLogsApi = {
   list(params: ListAuditLogsQuery) {
-    return appAxios.get<ApiSuccessResponse<unknown>>(
-      "/admin/audit-log",
-      { params },
-    );
+    return appAxios.get<ApiSuccessResponse<unknown>>('/admin/audit-log', {
+      params,
+    });
   },
 
   getById(id: string) {

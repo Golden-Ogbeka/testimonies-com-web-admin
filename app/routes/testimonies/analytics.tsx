@@ -1,23 +1,34 @@
-import { useEffect, useState } from "react";
-import { AdminTestimoniesApi } from "../../api/adminTestimonies";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getResponseResource } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AdminTestimonyAnalyticsItem } from "../../types";
+import { useEffect, useState } from 'react';
+import { AdminTestimoniesApi } from '../../api/adminTestimonies';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getResponseResource } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminTestimonyAnalyticsItem } from '../../types';
 
 export function meta() {
   return [
-    { title: "Testimony analytics | Testimonies Admin" },
-    { name: "description", content: "View testimony engagement and performance metrics." },
+    { title: 'Testimony analytics | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'View testimony engagement and performance metrics.',
+    },
   ];
 }
 
 export default function TestimonyAnalytics() {
-  const [highestEngagement, setHighestEngagement] = useState<AdminTestimonyAnalyticsItem[]>([]);
-  const [highestLikes, setHighestLikes] = useState<AdminTestimonyAnalyticsItem[]>([]);
-  const [highestViews, setHighestViews] = useState<AdminTestimonyAnalyticsItem[]>([]);
-  const [mostActiveUsers, setMostActiveUsers] = useState<AdminTestimonyAnalyticsItem[]>([]);
+  const [highestEngagement, setHighestEngagement] = useState<
+    AdminTestimonyAnalyticsItem[]
+  >([]);
+  const [highestLikes, setHighestLikes] = useState<
+    AdminTestimonyAnalyticsItem[]
+  >([]);
+  const [highestViews, setHighestViews] = useState<
+    AdminTestimonyAnalyticsItem[]
+  >([]);
+  const [mostActiveUsers, setMostActiveUsers] = useState<
+    AdminTestimonyAnalyticsItem[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,23 +44,26 @@ export default function TestimonyAnalytics() {
         setHighestEngagement(
           getResponseResource<AdminTestimonyAnalyticsItem[]>(
             engagement.data,
-            "testimonies",
+            'testimonies',
           ),
         );
         setHighestLikes(
           getResponseResource<AdminTestimonyAnalyticsItem[]>(
             likes.data,
-            "testimonies",
+            'testimonies',
           ),
         );
         setHighestViews(
           getResponseResource<AdminTestimonyAnalyticsItem[]>(
             views.data,
-            "testimonies",
+            'testimonies',
           ),
         );
         setMostActiveUsers(
-          getResponseResource<AdminTestimonyAnalyticsItem[]>(active.data, "users"),
+          getResponseResource<AdminTestimonyAnalyticsItem[]>(
+            active.data,
+            'users',
+          ),
         );
       } catch (error) {
         sendCatchFeedback(error);
@@ -62,12 +76,12 @@ export default function TestimonyAnalytics() {
 
   const testimonyColumns: TableColumn<AdminTestimonyAnalyticsItem>[] = [
     {
-      id: "testimony",
-      header: "Testimony",
+      id: 'testimony',
+      header: 'Testimony',
       accessor: (item) => (
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-900">
-            {item.title || "Untitled"}
+            {item.title || 'Untitled'}
           </span>
           <span className="text-xs font-mono text-gray-500">
             {item.testimonyId.slice(0, 12)}…
@@ -76,8 +90,8 @@ export default function TestimonyAnalytics() {
       ),
     },
     {
-      id: "count",
-      header: "Count",
+      id: 'count',
+      header: 'Count',
       accessor: (item) => (
         <span className="text-sm font-semibold text-primary">{item.count}</span>
       ),
@@ -86,8 +100,8 @@ export default function TestimonyAnalytics() {
 
   const userColumns: TableColumn<AdminTestimonyAnalyticsItem>[] = [
     {
-      id: "user",
-      header: "User",
+      id: 'user',
+      header: 'User',
       accessor: (item) => (
         <span className="text-sm font-mono text-gray-900">
           {item.userId.slice(0, 12)}…
@@ -95,8 +109,8 @@ export default function TestimonyAnalytics() {
       ),
     },
     {
-      id: "count",
-      header: "Count",
+      id: 'count',
+      header: 'Count',
       accessor: (item) => (
         <span className="text-sm font-semibold text-primary">{item.count}</span>
       ),
@@ -123,17 +137,33 @@ export default function TestimonyAnalytics() {
           <h3 className="mb-4 text-sm font-semibold text-gray-900">
             Highest engagement
           </h3>
-          <Table columns={testimonyColumns} data={highestEngagement} loading={false} />
+          <Table
+            columns={testimonyColumns}
+            data={highestEngagement}
+            loading={false}
+          />
         </div>
 
         <div className="card">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900">Most likes</h3>
-          <Table columns={testimonyColumns} data={highestLikes} loading={false} />
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+            Most likes
+          </h3>
+          <Table
+            columns={testimonyColumns}
+            data={highestLikes}
+            loading={false}
+          />
         </div>
 
         <div className="card">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900">Most views</h3>
-          <Table columns={testimonyColumns} data={highestViews} loading={false} />
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+            Most views
+          </h3>
+          <Table
+            columns={testimonyColumns}
+            data={highestViews}
+            loading={false}
+          />
         </div>
 
         <div className="card">

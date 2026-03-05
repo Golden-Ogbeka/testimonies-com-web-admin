@@ -1,5 +1,5 @@
-import type React from "react";
-import { Outlet } from "react-router";
+import type React from 'react';
+import { Outlet } from 'react-router';
 
 const AuthLayout: React.FC = () => {
   return (
@@ -14,8 +14,9 @@ const AuthLayout: React.FC = () => {
             Manage testimonies, users and subscriptions with confidence.
           </h1>
           <p className="text-sm text-slate-300 max-w-md">
-            A focused workspace for moderating content, monitoring engagement and managing
-            platform configuration without leaving important context behind.
+            A focused workspace for moderating content, monitoring engagement
+            and managing platform configuration without leaving important
+            context behind.
           </p>
         </section>
 
@@ -30,4 +31,3 @@ const AuthLayout: React.FC = () => {
 };
 
 export default AuthLayout;
-

@@ -1,38 +1,41 @@
-import { useEffect, useMemo, useState } from "react";
-import { AdminRolesPermissionsApi } from "../../api/adminRolesPermissions";
-import FilterBar from "../../common/filter-bar";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AdminAccount, AdminRole } from "../../types";
+import { useEffect, useMemo, useState } from 'react';
+import { AdminRolesPermissionsApi } from '../../api/adminRolesPermissions';
+import FilterBar from '../../common/filter-bar';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminAccount, AdminRole } from '../../types';
 
 export function meta() {
   return [
-    { title: "Admin accounts | Testimonies Admin" },
-    { name: "description", content: "Manage administrator accounts and access." },
+    { title: 'Admin accounts | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'Manage administrator accounts and access.',
+    },
   ];
 }
 
 type AdminFormState = Pick<
   AdminAccount,
-  "firstName" | "lastName" | "email" | "phoneNumber" | "role"
+  'firstName' | 'lastName' | 'email' | 'phoneNumber' | 'role'
 > & { password: string };
 
 const emptyForm: AdminFormState = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phoneNumber: "",
-  role: "admin",
-  password: "",
+  firstName: '',
+  lastName: '',
+  email: '',
+  phoneNumber: '',
+  role: 'admin',
+  password: '',
 };
 
 export default function AdminsPage() {
   const [admins, setAdmins] = useState<AdminAccount[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<AdminAccount | null>(null);
   const [form, setForm] = useState<AdminFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -43,8 +46,11 @@ export default function AdminsPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminRolesPermissionsApi.listAdmins({ page: 1, limit: 100 });
-        const { results } = getPaginatedResponse<AdminAccount>(data, "admins");
+        const { data } = await AdminRolesPermissionsApi.listAdmins({
+          page: 1,
+          limit: 100,
+        });
+        const { results } = getPaginatedResponse<AdminAccount>(data, 'admins');
         setAdmins(results);
       } catch (error) {
         sendCatchFeedback(error);
@@ -60,14 +66,16 @@ export default function AdminsPage() {
     if (!query) return admins;
     return admins.filter((admin) => {
       const fullName = `${admin.firstName} ${admin.lastName}`.toLowerCase();
-      return fullName.includes(query) || admin.email.toLowerCase().includes(query);
+      return (
+        fullName.includes(query) || admin.email.toLowerCase().includes(query)
+      );
     });
   }, [admins, search]);
 
   const columns: TableColumn<AdminAccount>[] = [
     {
-      id: "name",
-      header: "Admin",
+      id: 'name',
+      header: 'Admin',
       accessor: (admin) => (
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
@@ -83,28 +91,30 @@ export default function AdminsPage() {
       ),
     },
     {
-      id: "role",
-      header: "Role",
+      id: 'role',
+      header: 'Role',
       accessor: (admin) => (
         <span className="text-xs capitalize text-gray-600">{admin.role}</span>
       ),
     },
     {
-      id: "status",
-      header: "Status",
+      id: 'status',
+      header: 'Status',
       accessor: (admin) => (
         <span
           className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-            admin.active ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
+            admin.active
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-gray-100 text-gray-600'
           }`}
         >
-          {admin.active ? "Active" : "Inactive"}
+          {admin.active ? 'Active' : 'Inactive'}
         </span>
       ),
     },
     {
-      id: "verified",
-      header: "Verified",
+      id: 'verified',
+      header: 'Verified',
       accessor: (admin) =>
         admin.emailIsVerified ? (
           <span className="text-xs text-emerald-600">Yes</span>
@@ -113,8 +123,8 @@ export default function AdminsPage() {
         ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (admin) => (
         <div className="flex justify-end gap-2">
           <button
@@ -126,9 +136,9 @@ export default function AdminsPage() {
                 firstName: admin.firstName,
                 lastName: admin.lastName,
                 email: admin.email,
-                phoneNumber: admin.phoneNumber || "",
+                phoneNumber: admin.phoneNumber || '',
                 role: admin.role,
-                password: "",
+                password: '',
               });
             }}
           >
@@ -139,11 +149,11 @@ export default function AdminsPage() {
             onClick={() => setToggleId(admin._id)}
             className="text-xs font-medium text-primary hover:underline"
           >
-            {admin.active ? "Deactivate" : "Activate"}
+            {admin.active ? 'Deactivate' : 'Activate'}
           </button>
         </div>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -151,12 +161,17 @@ export default function AdminsPage() {
     try {
       setSaving(true);
       if (editing) {
-        const { data } = await AdminRolesPermissionsApi.updateAdmin(editing._id, {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          phoneNumber: form.phoneNumber || undefined,
-        });
-        setAdmins((prev) => prev.map((a) => (a._id === editing._id ? data.data : a)));
+        const { data } = await AdminRolesPermissionsApi.updateAdmin(
+          editing._id,
+          {
+            firstName: form.firstName,
+            lastName: form.lastName,
+            phoneNumber: form.phoneNumber || undefined,
+          },
+        );
+        setAdmins((prev) =>
+          prev.map((a) => (a._id === editing._id ? data.data : a)),
+        );
       } else {
         const { data } = await AdminRolesPermissionsApi.createAdmin({
           ...form,
@@ -183,12 +198,12 @@ export default function AdminsPage() {
       if (admin.active) {
         await AdminRolesPermissionsApi.deactivateAdmin(admin._id);
         setAdmins((prev) =>
-          prev.map((a) => (a._id === admin._id ? { ...a, active: false } : a))
+          prev.map((a) => (a._id === admin._id ? { ...a, active: false } : a)),
         );
       } else {
         await AdminRolesPermissionsApi.activateAdmin(admin._id);
         setAdmins((prev) =>
-          prev.map((a) => (a._id === admin._id ? { ...a, active: true } : a))
+          prev.map((a) => (a._id === admin._id ? { ...a, active: true } : a)),
         );
       }
     } catch (error) {
@@ -226,8 +241,8 @@ export default function AdminsPage() {
 
       <Modal
         open={editing !== null || form.email.length > 0}
-        title={editing ? "Edit admin" : "New admin"}
-        primaryLabel={editing ? "Save changes" : "Create admin"}
+        title={editing ? 'Edit admin' : 'New admin'}
+        primaryLabel={editing ? 'Save changes' : 'Create admin'}
         onPrimary={handleSave}
         onClose={() => {
           setEditing(null);
@@ -264,7 +279,9 @@ export default function AdminsPage() {
               id="admin-email"
               type="email"
               value={form.email}
-              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, email: e.target.value }))
+              }
               disabled={!!editing}
             />
           </div>
@@ -298,7 +315,10 @@ export default function AdminsPage() {
                   id="admin-role"
                   value={form.role}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, role: e.target.value as AdminRole }))
+                    setForm((prev) => ({
+                      ...prev,
+                      role: e.target.value as AdminRole,
+                    }))
                   }
                 >
                   <option value="admin">Admin</option>
@@ -319,9 +339,11 @@ export default function AdminsPage() {
         loading={toggling}
       >
         <p className="text-sm text-gray-700">
-          Are you sure you want to{" "}
-          {admins.find((a) => a._id === toggleId)?.active ? "deactivate" : "activate"} this
-          admin account?
+          Are you sure you want to{' '}
+          {admins.find((a) => a._id === toggleId)?.active
+            ? 'deactivate'
+            : 'activate'}{' '}
+          this admin account?
         </p>
       </Modal>
     </>

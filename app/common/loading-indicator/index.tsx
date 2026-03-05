@@ -7,7 +7,10 @@ const LoadingIndicator = ({ text, size = 32 }: LoadingIndicatorProps) => {
   const dimension = `${size}px`;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3" data-testid="loading-container">
+    <div
+      className="flex flex-col items-center justify-center gap-3"
+      data-testid="loading-container"
+    >
       <div
         className="rounded-full border-2 border-primary border-t-transparent animate-spin"
         style={{ width: dimension, height: dimension }}
@@ -19,4 +22,3 @@ const LoadingIndicator = ({ text, size = 32 }: LoadingIndicatorProps) => {
 };
 
 export default LoadingIndicator;
-

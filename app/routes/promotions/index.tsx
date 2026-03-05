@@ -1,38 +1,45 @@
-import { useEffect, useMemo, useState } from "react";
-import { AdminPromotionsApi } from "../../api/adminPromotions";
-import FilterBar from "../../common/filter-bar";
-import Modal from "../../common/modal";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse, getResponseData } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { PromotionSummary, PromotionTargetAudience, PromotionType } from "../../types";
+import { useEffect, useMemo, useState } from 'react';
+import { AdminPromotionsApi } from '../../api/adminPromotions';
+import FilterBar from '../../common/filter-bar';
+import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import {
+  getPaginatedResponse,
+  getResponseData,
+} from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type {
+  PromotionSummary,
+  PromotionTargetAudience,
+  PromotionType,
+} from '../../types';
 
 export function meta() {
   return [
-    { title: "Promotions | Testimonies Admin" },
-    { name: "description", content: "Manage promotions and announcements." },
+    { title: 'Promotions | Testimonies Admin' },
+    { name: 'description', content: 'Manage promotions and announcements.' },
   ];
 }
 
 type PromotionFormState = Pick<
   PromotionSummary,
-  "title" | "description" | "type" | "targetAudience" | "startDate"
+  'title' | 'description' | 'type' | 'targetAudience' | 'startDate'
 > & { endDate?: string };
 
 const emptyForm: PromotionFormState = {
-  title: "",
-  description: "",
-  type: "announcement",
-  targetAudience: "all",
-  startDate: new Date().toISOString().split("T")[0],
-  endDate: "",
+  title: '',
+  description: '',
+  type: 'announcement',
+  targetAudience: 'all',
+  startDate: new Date().toISOString().split('T')[0],
+  endDate: '',
 };
 
 export default function PromotionsIndex() {
   const [promotions, setPromotions] = useState<PromotionSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<PromotionSummary | null>(null);
   const [form, setForm] = useState<PromotionFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -42,7 +49,10 @@ export default function PromotionsIndex() {
       try {
         setLoading(true);
         const { data } = await AdminPromotionsApi.list({ page: 1, limit: 50 });
-        const { results } = getPaginatedResponse<PromotionSummary>(data, "promotions");
+        const { results } = getPaginatedResponse<PromotionSummary>(
+          data,
+          'promotions',
+        );
         setPromotions(results);
       } catch (error) {
         sendCatchFeedback(error);
@@ -56,53 +66,62 @@ export default function PromotionsIndex() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return promotions;
-    return promotions.filter((promo) =>
-      promo.title.toLowerCase().includes(query) ||
-      promo.description.toLowerCase().includes(query)
+    return promotions.filter(
+      (promo) =>
+        promo.title.toLowerCase().includes(query) ||
+        promo.description.toLowerCase().includes(query),
     );
   }, [promotions, search]);
 
   const columns: TableColumn<PromotionSummary>[] = [
     {
-      id: "title",
-      header: "Promotion",
+      id: 'title',
+      header: 'Promotion',
       accessor: (promo) => (
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-gray-900">{promo.title}</span>
-          <span className="text-xs text-gray-500 line-clamp-1">{promo.description}</span>
+          <span className="text-sm font-medium text-gray-900">
+            {promo.title}
+          </span>
+          <span className="text-xs text-gray-500 line-clamp-1">
+            {promo.description}
+          </span>
         </div>
       ),
     },
     {
-      id: "type",
-      header: "Type",
+      id: 'type',
+      header: 'Type',
       accessor: (promo) => (
         <span className="text-xs capitalize text-gray-600">{promo.type}</span>
       ),
     },
     {
-      id: "audience",
-      header: "Audience",
+      id: 'audience',
+      header: 'Audience',
       accessor: (promo) => (
-        <span className="text-xs capitalize text-gray-600">{promo.targetAudience}</span>
-      ),
-    },
-    {
-      id: "status",
-      header: "Status",
-      accessor: (promo) => (
-        <span
-          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-            promo.isActive ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
-          }`}
-        >
-          {promo.isActive ? "Active" : "Inactive"}
+        <span className="text-xs capitalize text-gray-600">
+          {promo.targetAudience}
         </span>
       ),
     },
     {
-      id: "flagged",
-      header: "Flagged",
+      id: 'status',
+      header: 'Status',
+      accessor: (promo) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+            promo.isActive
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-gray-100 text-gray-600'
+          }`}
+        >
+          {promo.isActive ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      id: 'flagged',
+      header: 'Flagged',
       accessor: (promo) =>
         promo.isFlagged ? (
           <span className="text-xs font-medium text-red-600">Yes</span>
@@ -111,8 +130,8 @@ export default function PromotionsIndex() {
         ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       accessor: (promo) => (
         <div className="flex justify-end gap-2">
           <button
@@ -125,8 +144,8 @@ export default function PromotionsIndex() {
                 description: promo.description,
                 type: promo.type,
                 targetAudience: promo.targetAudience,
-                startDate: promo.startDate.split("T")[0],
-                endDate: promo.endDate ? promo.endDate.split("T")[0] : "",
+                startDate: promo.startDate.split('T')[0],
+                endDate: promo.endDate ? promo.endDate.split('T')[0] : '',
               });
             }}
           >
@@ -137,11 +156,11 @@ export default function PromotionsIndex() {
             className="text-xs font-medium text-primary hover:underline"
             onClick={() => handleToggleStatus(promo)}
           >
-            {promo.isActive ? "Deactivate" : "Activate"}
+            {promo.isActive ? 'Deactivate' : 'Activate'}
           </button>
         </div>
       ),
-      className: "text-right",
+      className: 'text-right',
     },
   ];
 
@@ -153,7 +172,9 @@ export default function PromotionsIndex() {
         await AdminPromotionsApi.activate(promo._id);
       }
       setPromotions((prev) =>
-        prev.map((p) => (p._id === promo._id ? { ...p, isActive: !p.isActive } : p))
+        prev.map((p) =>
+          p._id === promo._id ? { ...p, isActive: !p.isActive } : p,
+        ),
       );
     } catch (error) {
       sendCatchFeedback(error);
@@ -169,7 +190,9 @@ export default function PromotionsIndex() {
           endDate: form.endDate || undefined,
         } as PromotionSummary);
         const updatedPromotion = getResponseData<PromotionSummary>(data);
-        setPromotions((prev) => prev.map((p) => (p._id === editing._id ? updatedPromotion : p)));
+        setPromotions((prev) =>
+          prev.map((p) => (p._id === editing._id ? updatedPromotion : p)),
+        );
       } else {
         const { data } = await AdminPromotionsApi.create({
           ...form,
@@ -215,8 +238,8 @@ export default function PromotionsIndex() {
 
       <Modal
         open={editing !== null || form.title.length > 0}
-        title={editing ? "Edit promotion" : "New promotion"}
-        primaryLabel={editing ? "Save changes" : "Create promotion"}
+        title={editing ? 'Edit promotion' : 'New promotion'}
+        primaryLabel={editing ? 'Save changes' : 'Create promotion'}
         onPrimary={handleSave}
         onClose={() => {
           setEditing(null);
@@ -230,7 +253,9 @@ export default function PromotionsIndex() {
             <input
               id="promo-title"
               value={form.title}
-              onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, title: e.target.value }))
+              }
             />
           </div>
           <div className="inputContainer">
@@ -238,7 +263,9 @@ export default function PromotionsIndex() {
             <textarea
               id="promo-description"
               value={form.description}
-              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, description: e.target.value }))
+              }
               rows={3}
             />
           </div>
@@ -249,7 +276,10 @@ export default function PromotionsIndex() {
                 id="promo-type"
                 value={form.type}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, type: e.target.value as PromotionType }))
+                  setForm((prev) => ({
+                    ...prev,
+                    type: e.target.value as PromotionType,
+                  }))
                 }
               >
                 <option value="announcement">Announcement</option>
@@ -295,7 +325,9 @@ export default function PromotionsIndex() {
                 id="promo-end"
                 type="date"
                 value={form.endDate}
-                onChange={(e) => setForm((prev) => ({ ...prev, endDate: e.target.value }))}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, endDate: e.target.value }))
+                }
               />
             </div>
           </div>

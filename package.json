@@ -6,24 +6,42 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "lint": "eslint app --ext .ts,.tsx",
+    "lint:fix": "eslint app --ext .ts,.tsx --fix",
+    "format": "prettier --write \"app/**/*.{ts,tsx,js,jsx,json,css}\"",
+    "format:check": "prettier --check \"app/**/*.{ts,tsx,js,jsx,json,css}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "app/**/*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "app/**/*.{json,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.9.0",
     "@heroicons/react": "^2.2.0",
+    "@hookform/resolvers": "^5.2.2",
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
     "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.13.6",
     "crypto-js": "^4.2.0",
     "isbot": "^5.1.27",
+    "lucide-react": "^0.468.0",
     "react": "^19.1.0",
     "react-click-away-listener": "^2.4.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.71.2",
     "react-otp-input": "^3.1.1",
     "react-redux": "^9.2.0",
     "react-router": "^7.7.1",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@react-router/dev": "^7.7.1",
@@ -32,6 +50,13 @@
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",

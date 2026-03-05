@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
-import { AdminSubscriptionsApi } from "../../api/adminSubscriptions";
-import PageHeader from "../../common/page-header";
-import { Table, type TableColumn } from "../../common/table";
-import { getPaginatedResponse } from "../../functions/api-response";
-import { sendCatchFeedback } from "../../functions/feedback";
-import type { AdminUserSummary } from "../../types";
+import { useEffect, useState } from 'react';
+import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
+import PageHeader from '../../common/page-header';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminUserSummary } from '../../types';
 
 export function meta() {
   return [
-    { title: "Unsubscribed users | Testimonies Admin" },
-    { name: "description", content: "Users who do not have an active subscription." },
+    { title: 'Unsubscribed users | Testimonies Admin' },
+    {
+      name: 'description',
+      content: 'Users who do not have an active subscription.',
+    },
   ];
 }
 
@@ -37,23 +40,26 @@ export default function UnsubscribedUsers() {
           createdAt?: string;
         };
 
-        const { results: users } = getPaginatedResponse<AdminUserSummary>(data, "users");
-        const { results: organizations } = getPaginatedResponse<OrganizationItem>(
+        const { results: users } = getPaginatedResponse<AdminUserSummary>(
           data,
-          "organizations",
+          'users',
         );
-        const mappedOrganizations: AdminUserSummary[] = organizations.map((org) => ({
-          _id: org._id,
-          firstName: org.businessName || "Organization",
-          lastName: "",
-          email: org.businessEmail || "",
-          username: org.username,
-          active: org.active ?? true,
-          isFlagged: org.isFlagged ?? false,
-          accountType: org.accountType ?? "organization",
-          subscriptionType: org.subscriptionType,
-          createdAt: org.createdAt || new Date().toISOString(),
-        }));
+        const { results: organizations } =
+          getPaginatedResponse<OrganizationItem>(data, 'organizations');
+        const mappedOrganizations: AdminUserSummary[] = organizations.map(
+          (org) => ({
+            _id: org._id,
+            firstName: org.businessName || 'Organization',
+            lastName: '',
+            email: org.businessEmail || '',
+            username: org.username,
+            active: org.active ?? true,
+            isFlagged: org.isFlagged ?? false,
+            accountType: org.accountType ?? 'organization',
+            subscriptionType: org.subscriptionType,
+            createdAt: org.createdAt || new Date().toISOString(),
+          }),
+        );
 
         setItems([...users, ...mappedOrganizations]);
       } catch (error) {
@@ -67,22 +73,25 @@ export default function UnsubscribedUsers() {
 
   const columns: TableColumn<AdminUserSummary>[] = [
     {
-      id: "user",
-      header: "User",
+      id: 'user',
+      header: 'User',
       accessor: (user) => (
         <div className="flex flex-col">
           <span className="text-sm text-gray-900">
-            {[user.firstName, user.lastName].filter(Boolean).join(" ").trim() || "Unknown"}
+            {[user.firstName, user.lastName].filter(Boolean).join(' ').trim() ||
+              'Unknown'}
           </span>
           <span className="text-xs text-gray-600">{user.email}</span>
         </div>
       ),
     },
     {
-      id: "type",
-      header: "User type",
+      id: 'type',
+      header: 'User type',
       accessor: (user) => (
-        <span className="text-xs capitalize text-gray-600">{user.accountType}</span>
+        <span className="text-xs capitalize text-gray-600">
+          {user.accountType}
+        </span>
       ),
     },
   ];

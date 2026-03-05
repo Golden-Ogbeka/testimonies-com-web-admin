@@ -1,10 +1,9 @@
-export type AuditLogLevel = "info" | "warning" | "error" | "critical";
+export type AuditLogLevel = 'info' | 'warning' | 'error' | 'critical';
 
 export type AuditLogCategory =
-  | "auth"
-  | "user"
-  | "testimony"
-  | "system"
-  | "data"
-  | "security";
-
+  | 'auth'
+  | 'user'
+  | 'testimony'
+  | 'system'
+  | 'data'
+  | 'security';

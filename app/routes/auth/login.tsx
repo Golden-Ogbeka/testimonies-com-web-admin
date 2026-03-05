@@ -1,15 +1,20 @@
-import type { FormEvent } from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-import { AdminAuthApi } from "../../api/adminAuth";
-import PasswordInput from "../../common/password-input";
-import { sendCatchFeedback, sendFeedback } from "../../functions/feedback";
-import { RoutePaths } from "../../routes/route-paths";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
+import { AdminAuthApi } from '../../api/adminAuth';
+import PasswordInput from '../../common/password-input';
+import TextInput from '../../common/text-input';
+import { sendCatchFeedback, sendFeedback } from '../../functions/feedback';
+import { RoutePaths } from '../../routes/route-paths';
+import { loginSchema, type LoginFormData } from '../../schemas';
 
 export function meta() {
   return [
-    { title: "Admin Login | Testimonies" },
-    { name: "description", content: "Secure admin access for Testimonies platform." },
+    { title: 'Admin Login | Testimonies' },
+    {
+      name: 'description',
+      content: 'Secure admin access for Testimonies platform.',
+    },
   ];
 }
 
@@ -21,40 +26,23 @@ interface LoginFormState {
 
 export default function LoginRoute() {
   const navigate = useNavigate();
-  const [form, setForm] = useState<LoginFormState>({
-    email: "",
-    password: "",
-    submitting: false,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const handleChange = (field: keyof Omit<LoginFormState, "submitting">) => {
-    return (event: React.ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({ ...prev, [field]: event.target.value }));
-    };
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!form.email || !form.password) {
-      sendFeedback("Enter your email and password", "warning");
-      return;
-    }
-
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      setForm((prev) => ({ ...prev, submitting: true }));
-      const { data } = await AdminAuthApi.login({
-        email: form.email,
-        password: form.password,
-      });
-
-      sendFeedback(data.message, "success");
+      const { data: response } = await AdminAuthApi.login(data);
+      sendFeedback(response.message, 'success');
       navigate(RoutePaths.VERIFY_OTP, {
-        state: { email: form.email },
+        state: { email: data.email },
       });
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setForm((prev) => ({ ...prev, submitting: false }));
     }
   };
 
@@ -67,26 +55,24 @@ export default function LoginRoute() {
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="inputContainer">
-          <label htmlFor="email">Email address</label>
-          <input
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange("email")}
-            placeholder="you@example.com"
-            autoComplete="email"
-          />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <TextInput
+          id="email"
+          label="Email address"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          error={errors.email?.message}
+          {...register('email')}
+        />
 
         <PasswordInput
           id="password"
           label="Password"
-          value={form.password}
-          onChange={handleChange("password")}
           placeholder="••••••••"
           autoComplete="current-password"
+          error={errors.password?.message}
+          {...register('password')}
         />
 
         <div className="flex items-center justify-between text-xs text-slate-500">
@@ -102,12 +88,11 @@ export default function LoginRoute() {
         <button
           type="submit"
           className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
-          disabled={form.submitting}
+          disabled={isSubmitting}
         >
-          {form.submitting ? "Sending OTP..." : "Continue"}
+          {isSubmitting ? 'Sending OTP...' : 'Continue'}
         </button>
       </form>
     </div>
   );
 }
-

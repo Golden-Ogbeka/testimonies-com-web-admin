@@ -1,9 +1,9 @@
 import type {
-    AdminAccount,
-    AdminPermission,
-    ApiSuccessResponse
-} from "../types";
-import { appAxios } from "./axios";
+  AdminAccount,
+  AdminPermission,
+  ApiSuccessResponse,
+} from '../types';
+import { appAxios } from './axios';
 
 export interface ListPermissionsQuery {
   page?: number;
@@ -20,14 +20,14 @@ export interface ListAdminsQuery {
 export const AdminRolesPermissionsApi = {
   listPermissions(params: ListPermissionsQuery) {
     return appAxios.get<ApiSuccessResponse<AdminPermission[]>>(
-      "/admin/role-permission/permission",
+      '/admin/role-permission/permission',
       { params },
     );
   },
 
-  createPermission(payload: Pick<AdminPermission, "name" | "description">) {
+  createPermission(payload: Pick<AdminPermission, 'name' | 'description'>) {
     return appAxios.post<ApiSuccessResponse<AdminPermission>>(
-      "/admin/role-permission/permission",
+      '/admin/role-permission/permission',
       payload,
     );
   },
@@ -40,7 +40,7 @@ export const AdminRolesPermissionsApi = {
 
   updatePermission(
     id: string,
-    payload: Partial<Pick<AdminPermission, "name" | "description">>,
+    payload: Partial<Pick<AdminPermission, 'name' | 'description'>>,
   ) {
     return appAxios.put<ApiSuccessResponse<AdminPermission>>(
       `/admin/role-permission/permission/${id}`,
@@ -56,7 +56,7 @@ export const AdminRolesPermissionsApi = {
 
   listAdmins(params: ListAdminsQuery) {
     return appAxios.get<ApiSuccessResponse<AdminAccount[]>>(
-      "/admin/role-permission/admin",
+      '/admin/role-permission/admin',
       { params },
     );
   },
@@ -64,11 +64,16 @@ export const AdminRolesPermissionsApi = {
   createAdmin(
     payload: Pick<
       AdminAccount,
-      "firstName" | "lastName" | "email" | "phoneNumber" | "role" | "permissions"
+      | 'firstName'
+      | 'lastName'
+      | 'email'
+      | 'phoneNumber'
+      | 'role'
+      | 'permissions'
     > & { password: string },
   ) {
     return appAxios.post<ApiSuccessResponse<AdminAccount>>(
-      "/admin/role-permission/admin",
+      '/admin/role-permission/admin',
       payload,
     );
   },
@@ -81,7 +86,9 @@ export const AdminRolesPermissionsApi = {
 
   updateAdmin(
     id: string,
-    payload: Partial<Pick<AdminAccount, "firstName" | "lastName" | "phoneNumber">>,
+    payload: Partial<
+      Pick<AdminAccount, 'firstName' | 'lastName' | 'phoneNumber'>
+    >,
   ) {
     return appAxios.put<ApiSuccessResponse<AdminAccount>>(
       `/admin/role-permission/admin/${id}`,
@@ -89,7 +96,7 @@ export const AdminRolesPermissionsApi = {
     );
   },
 
-  updateAdminRole(id: string, role: AdminAccount["role"]) {
+  updateAdminRole(id: string, role: AdminAccount['role']) {
     return appAxios.post<ApiSuccessResponse<AdminAccount>>(
       `/admin/role-permission/admin/update-role/${id}`,
       { role },
@@ -115,4 +122,3 @@ export const AdminRolesPermissionsApi = {
     );
   },
 };
-
