@@ -4,6 +4,7 @@ import FilterBar from "../../common/filter-bar";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AdminUserSummary } from "../../types";
 
@@ -26,7 +27,38 @@ export default function UsersIndex() {
       try {
         setLoading(true);
         const { data } = await AdminUsersApi.list({ page: 1, limit: 50 });
-        setUsers(data.data);
+        const { results: userResults } = getPaginatedResponse<AdminUserSummary>(
+          data,
+          "users",
+        );
+        type OrganizationItem = {
+          _id: string;
+          businessName?: string;
+          businessEmail?: string;
+          username?: string;
+          active?: boolean;
+          isFlagged?: boolean;
+          accountType?: string;
+          subscriptionType?: string;
+          createdAt?: string;
+        };
+        const { results: organizationResults } = getPaginatedResponse<OrganizationItem>(
+          data,
+          "organizations",
+        );
+        const mappedOrganizations: AdminUserSummary[] = organizationResults.map((org) => ({
+          _id: org._id,
+          firstName: org.businessName || "Organization",
+          lastName: "",
+          email: org.businessEmail || "",
+          username: org.username,
+          active: org.active ?? true,
+          isFlagged: org.isFlagged ?? false,
+          accountType: org.accountType ?? "organization",
+          subscriptionType: org.subscriptionType,
+          createdAt: org.createdAt || new Date().toISOString(),
+        }));
+        setUsers([...userResults, ...mappedOrganizations]);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -168,4 +200,3 @@ export default function UsersIndex() {
     </>
   );
 }
-

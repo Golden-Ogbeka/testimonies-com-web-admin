@@ -3,6 +3,7 @@ import { AdminSubscriptionsApi } from "../../api/adminSubscriptions";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { SubscriptionPlan } from "../../types";
 
@@ -38,7 +39,8 @@ export default function SubscriptionPlans() {
       try {
         setLoading(true);
         const { data } = await AdminSubscriptionsApi.listPlans({ page: 1, limit: 50 });
-        setPlans(data.data);
+        const { results } = getPaginatedResponse<SubscriptionPlan>(data, "plans");
+        setPlans(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -260,4 +262,3 @@ export default function SubscriptionPlans() {
     </>
   );
 }
-

@@ -4,6 +4,7 @@ import FilterBar from "../../common/filter-bar";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse, getResponseData } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { TeamPermissionItem } from "../../types";
 
@@ -21,6 +22,16 @@ const emptyForm: PermissionFormState = {
   description: "",
 };
 
+type TeamPermissionApiItem = Omit<TeamPermissionItem, "permission"> & {
+  name?: string;
+  permission?: string;
+};
+
+const mapTeamPermission = (item: TeamPermissionApiItem): TeamPermissionItem => ({
+  ...item,
+  permission: item.permission ?? item.name ?? "",
+});
+
 export default function TeamPermissionsPage() {
   const [permissions, setPermissions] = useState<TeamPermissionItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +47,11 @@ export default function TeamPermissionsPage() {
       try {
         setLoading(true);
         const { data } = await AdminContentApi.listTeamPermissions({ page: 1, limit: 100 });
-        setPermissions(data.data);
+        const { results } = getPaginatedResponse<TeamPermissionApiItem>(
+          data,
+          "teamPermissions",
+        );
+        setPermissions(results.map(mapTeamPermission));
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -111,12 +126,12 @@ export default function TeamPermissionsPage() {
       setSaving(true);
       if (editing) {
         const { data } = await AdminContentApi.updateTeamPermission(editing._id, form);
-        setPermissions((prev) =>
-          prev.map((p) => (p._id === editing._id ? data.data : p))
-        );
+        const updated = mapTeamPermission(getResponseData<TeamPermissionApiItem>(data));
+        setPermissions((prev) => prev.map((p) => (p._id === editing._id ? updated : p)));
       } else {
         const { data } = await AdminContentApi.createTeamPermission(form);
-        setPermissions((prev) => [data.data, ...prev]);
+        const created = mapTeamPermission(getResponseData<TeamPermissionApiItem>(data));
+        setPermissions((prev) => [created, ...prev]);
       }
       setEditing(null);
       setForm(emptyForm);

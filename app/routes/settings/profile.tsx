@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AdminAuthApi } from "../../api/adminAuth";
 import PageHeader from "../../common/page-header";
 import PasswordInput from "../../common/password-input";
+import { getResponseData } from "../../functions/api-response";
 import { sendCatchFeedback, sendSuccessFeedback } from "../../functions/feedback";
 import { getPasswordStrengthMessage, isStrongPassword } from "../../functions/security";
 import type { AdminProfile } from "../../types/auth";
@@ -31,10 +32,11 @@ export default function ProfileSettings() {
       try {
         setLoading(true);
         const { data } = await AdminAuthApi.getProfile();
-        setProfile(data.data.admin);
-        setFirstName(data.data.admin.firstName);
-        setLastName(data.data.admin.lastName);
-        setPhoneNumber(data.data.admin.phoneNumber || "");
+        const admin = getResponseData<AdminProfile>(data);
+        setProfile(admin);
+        setFirstName(admin.firstName);
+        setLastName(admin.lastName);
+        setPhoneNumber(admin.phoneNumber || "");
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -61,7 +63,7 @@ export default function ProfileSettings() {
         lastName,
         phoneNumber: phoneNumber || undefined,
       });
-      setProfile(data.data.admin);
+      setProfile(getResponseData<AdminProfile>(data));
       sendSuccessFeedback("Profile updated successfully");
     } catch (error) {
       sendCatchFeedback(error);

@@ -4,6 +4,7 @@ import FilterBar from "../../common/filter-bar";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AdminAccount, AdminRole } from "../../types";
 
@@ -43,7 +44,8 @@ export default function AdminsPage() {
       try {
         setLoading(true);
         const { data } = await AdminRolesPermissionsApi.listAdmins({ page: 1, limit: 100 });
-        setAdmins(data.data);
+        const { results } = getPaginatedResponse<AdminAccount>(data, "admins");
+        setAdmins(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

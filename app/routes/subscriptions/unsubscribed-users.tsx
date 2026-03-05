@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { AdminSubscriptionsApi } from "../../api/adminSubscriptions";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
-import type { SubscriptionSummary } from "../../types";
+import type { AdminUserSummary } from "../../types";
 
 export function meta() {
   return [
@@ -13,7 +14,7 @@ export function meta() {
 }
 
 export default function UnsubscribedUsers() {
-  const [items, setItems] = useState<SubscriptionSummary[]>([]);
+  const [items, setItems] = useState<AdminUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +25,37 @@ export default function UnsubscribedUsers() {
           page: 1,
           limit: 50,
         });
-        setItems(data.data);
+        type OrganizationItem = {
+          _id: string;
+          businessName?: string;
+          businessEmail?: string;
+          username?: string;
+          active?: boolean;
+          isFlagged?: boolean;
+          accountType?: string;
+          subscriptionType?: string;
+          createdAt?: string;
+        };
+
+        const { results: users } = getPaginatedResponse<AdminUserSummary>(data, "users");
+        const { results: organizations } = getPaginatedResponse<OrganizationItem>(
+          data,
+          "organizations",
+        );
+        const mappedOrganizations: AdminUserSummary[] = organizations.map((org) => ({
+          _id: org._id,
+          firstName: org.businessName || "Organization",
+          lastName: "",
+          email: org.businessEmail || "",
+          username: org.username,
+          active: org.active ?? true,
+          isFlagged: org.isFlagged ?? false,
+          accountType: org.accountType ?? "organization",
+          subscriptionType: org.subscriptionType,
+          createdAt: org.createdAt || new Date().toISOString(),
+        }));
+
+        setItems([...users, ...mappedOrganizations]);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -34,21 +65,24 @@ export default function UnsubscribedUsers() {
     load();
   }, []);
 
-  const columns: TableColumn<SubscriptionSummary>[] = [
+  const columns: TableColumn<AdminUserSummary>[] = [
     {
       id: "user",
-      header: "User ID",
-      accessor: (sub) => (
-        <span className="text-xs font-mono text-gray-600">
-          {sub.userId.slice(0, 8)}…
-        </span>
+      header: "User",
+      accessor: (user) => (
+        <div className="flex flex-col">
+          <span className="text-sm text-gray-900">
+            {[user.firstName, user.lastName].filter(Boolean).join(" ").trim() || "Unknown"}
+          </span>
+          <span className="text-xs text-gray-600">{user.email}</span>
+        </div>
       ),
     },
     {
       id: "type",
       header: "User type",
-      accessor: (sub) => (
-        <span className="text-xs capitalize text-gray-600">{sub.userType}</span>
+      accessor: (user) => (
+        <span className="text-xs capitalize text-gray-600">{user.accountType}</span>
       ),
     },
   ];
@@ -63,4 +97,3 @@ export default function UnsubscribedUsers() {
     </>
   );
 }
-

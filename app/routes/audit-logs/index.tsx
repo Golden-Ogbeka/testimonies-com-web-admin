@@ -4,6 +4,7 @@ import { AdminAuditLogsApi } from "../../api/adminAuditLogs";
 import FilterBar from "../../common/filter-bar";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AuditLogItem } from "../../types";
 import { RoutePaths } from "../route-paths";
@@ -26,7 +27,8 @@ export default function AuditLogsIndex() {
       try {
         setLoading(true);
         const { data } = await AdminAuditLogsApi.list({ page: 1, limit: 100 });
-        setLogs(data.data.auditLogs.docs);
+        const { results } = getPaginatedResponse<AuditLogItem>(data, "auditLogs");
+        setLogs(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

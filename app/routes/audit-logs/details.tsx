@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { AdminAuditLogsApi } from "../../api/adminAuditLogs";
 import PageHeader from "../../common/page-header";
+import { getResponseResource } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AuditLogItem } from "../../types";
 import { RoutePaths } from "../route-paths";
@@ -25,7 +26,7 @@ export default function AuditLogDetails() {
       try {
         setLoading(true);
         const { data } = await AdminAuditLogsApi.getById(id);
-        setLog(data.data.auditLog);
+        setLog(getResponseResource<AuditLogItem>(data, "auditLog"));
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

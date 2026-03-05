@@ -1,11 +1,8 @@
 export interface PaginationMeta {
-  totalDocs: number;
-  limit: number;
+  totalResults: number;
+  resultsPerPage: number;
   totalPages: number;
-  page: number;
-  pagingCounter: number;
-  hasPrevPage: boolean;
-  hasNextPage: boolean;
+  currentPage: number;
   prevPage: number | null;
   nextPage: number | null;
 }
@@ -13,8 +10,7 @@ export interface PaginationMeta {
 export interface ApiSuccessResponse<T> {
   message: string;
   data: T;
-  requestId: string;
-  meta?: PaginationMeta;
+  requestId?: string;
 }
 
 export interface ApiErrorResponse {
@@ -22,4 +18,3 @@ export interface ApiErrorResponse {
   code?: string;
   requestId?: string;
 }
-

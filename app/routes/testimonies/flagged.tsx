@@ -4,6 +4,7 @@ import FilterBar from "../../common/filter-bar";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AdminTestimonySummary } from "../../types";
 
@@ -27,7 +28,11 @@ export default function FlaggedTestimonies() {
       try {
         setLoading(true);
         const { data } = await AdminTestimoniesApi.listFlagged({ page: 1, limit: 100 });
-        setItems(data.data);
+        const { results } = getPaginatedResponse<AdminTestimonySummary>(
+          data,
+          "testimonies",
+        );
+        setItems(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { AdminUsersApi } from "../../api/adminUsers";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
+import { getResponseResource } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AdminUserSummary } from "../../types";
 import { RoutePaths } from "../route-paths";
@@ -28,7 +29,7 @@ export default function UserDetails() {
       try {
         setLoading(true);
         const { data } = await AdminUsersApi.getById(id);
-        setUser(data.data);
+        setUser(getResponseResource<AdminUserSummary>(data, "user"));
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { AdminTestimoniesApi } from "../../api/adminTestimonies";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
+import { getResponseResource } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AdminTestimonySummary } from "../../types";
 import { RoutePaths } from "../route-paths";
@@ -29,7 +30,7 @@ export default function TestimonyDetails() {
       try {
         setLoading(true);
         const { data } = await AdminTestimoniesApi.getById(id);
-        setTestimony(data.data);
+        setTestimony(getResponseResource<AdminTestimonySummary>(data, "testimony"));
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

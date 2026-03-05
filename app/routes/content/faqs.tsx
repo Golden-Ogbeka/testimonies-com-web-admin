@@ -4,6 +4,7 @@ import FilterBar from "../../common/filter-bar";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse, getResponseData } from "../../functions/api-response";
 import { sendCatchFeedback, sendSuccessFeedback } from "../../functions/feedback";
 import type { FaqItem } from "../../types";
 
@@ -28,7 +29,7 @@ export default function FaqsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalDocs, setTotalDocs] = useState(0);
+  const [totalResults, setTotalResults] = useState(0);
   const [editing, setEditing] = useState<FaqItem | null>(null);
   const [form, setForm] = useState<FaqFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -43,12 +44,12 @@ export default function FaqsPage() {
         page: currentPage, 
         limit: 20 
       });
-      
-      const paginatedData = data.data.faqs;
-      setFaqs(paginatedData.docs || []);
-      setTotalPages(paginatedData.totalPages || 1);
-      setTotalDocs(paginatedData.totalDocs || 0);
-      setPage(currentPage);
+
+      const { results, pagination } = getPaginatedResponse<FaqItem>(data, "faqs");
+      setFaqs(results);
+      setTotalPages(pagination.totalPages || 1);
+      setTotalResults(pagination.totalResults || 0);
+      setPage(pagination.currentPage || currentPage);
     } catch (error) {
       sendCatchFeedback(error);
     } finally {
@@ -133,7 +134,8 @@ export default function FaqsPage() {
   const handleToggleStatus = async (faq: FaqItem) => {
     try {
       const { data } = await AdminContentApi.toggleFaqStatus(faq._id, !faq.isActive);
-      setFaqs((prev) => prev.map((f) => (f._id === faq._id ? data.data.faq : f)));
+      const updatedFaq = getResponseData<FaqItem>(data);
+      setFaqs((prev) => prev.map((f) => (f._id === faq._id ? updatedFaq : f)));
       sendSuccessFeedback(`FAQ ${!faq.isActive ? "activated" : "deactivated"} successfully`);
     } catch (error) {
       sendCatchFeedback(error);
@@ -150,7 +152,8 @@ export default function FaqsPage() {
       setSaving(true);
       if (editing) {
         const { data } = await AdminContentApi.updateFaq(editing._id, form);
-        setFaqs((prev) => prev.map((f) => (f._id === editing._id ? data.data.faq : f)));
+        const updatedFaq = getResponseData<FaqItem>(data);
+        setFaqs((prev) => prev.map((f) => (f._id === editing._id ? updatedFaq : f)));
         sendSuccessFeedback("FAQ updated successfully");
       } else {
         await AdminContentApi.createFaq(form);
@@ -230,7 +233,7 @@ export default function FaqsPage() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
           <div className="text-sm text-gray-700">
             Showing <span className="font-medium">{faqs.length}</span> of{" "}
-            <span className="font-medium">{totalDocs}</span> results
+            <span className="font-medium">{totalResults}</span> results
           </div>
           <div className="flex items-center gap-2">
             <button

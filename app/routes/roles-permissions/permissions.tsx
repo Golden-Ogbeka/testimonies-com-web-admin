@@ -3,6 +3,7 @@ import { AdminRolesPermissionsApi } from "../../api/adminRolesPermissions";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
 import Modal from "../../common/modal";
+import { getPaginatedResponse } from "../../functions/api-response";
 import type { AdminPermission } from "../../types";
 import { sendCatchFeedback } from "../../functions/feedback";
 
@@ -35,7 +36,8 @@ export default function PermissionsPage() {
           page: 1,
           limit: 100,
         });
-        setItems(data.data);
+        const { results } = getPaginatedResponse<AdminPermission>(data, "permissions");
+        setItems(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -163,4 +165,3 @@ export default function PermissionsPage() {
     </>
   );
 }
-

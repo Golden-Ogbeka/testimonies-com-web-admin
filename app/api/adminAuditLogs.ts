@@ -1,5 +1,5 @@
 import { appAxios } from "./axios";
-import type { ApiSuccessResponse, AuditLogItem } from "../types";
+import type { ApiSuccessResponse } from "../types";
 
 export interface ListAuditLogsQuery {
   page?: number;
@@ -12,23 +12,22 @@ export interface ListAuditLogsQuery {
 
 export const AdminAuditLogsApi = {
   list(params: ListAuditLogsQuery) {
-    return appAxios.get<ApiSuccessResponse<{ auditLogs: { docs: AuditLogItem[] } }>>(
+    return appAxios.get<ApiSuccessResponse<unknown>>(
       "/admin/audit-log",
       { params },
     );
   },
 
   getById(id: string) {
-    return appAxios.get<ApiSuccessResponse<{ auditLog: AuditLogItem }>>(
+    return appAxios.get<ApiSuccessResponse<unknown>>(
       `/admin/audit-log/details/${id}`,
     );
   },
 
   listByAdmin(adminId: string, params: { page?: number; limit?: number }) {
-    return appAxios.get<ApiSuccessResponse<{ auditLogs: { docs: AuditLogItem[] } }>>(
+    return appAxios.get<ApiSuccessResponse<unknown>>(
       `/admin/audit-log/admin-logs/${adminId}`,
       { params },
     );
   },
 };
-

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AdminTestimoniesApi } from "../../api/adminTestimonies";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getResponseResource } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { AdminTestimonyAnalyticsItem } from "../../types";
 
@@ -29,10 +30,27 @@ export default function TestimonyAnalytics() {
           AdminTestimoniesApi.analyticsHighestViews(10),
           AdminTestimoniesApi.analyticsMostActiveUsers(10),
         ]);
-        setHighestEngagement(engagement.data.data);
-        setHighestLikes(likes.data.data);
-        setHighestViews(views.data.data);
-        setMostActiveUsers(active.data.data);
+        setHighestEngagement(
+          getResponseResource<AdminTestimonyAnalyticsItem[]>(
+            engagement.data,
+            "testimonies",
+          ),
+        );
+        setHighestLikes(
+          getResponseResource<AdminTestimonyAnalyticsItem[]>(
+            likes.data,
+            "testimonies",
+          ),
+        );
+        setHighestViews(
+          getResponseResource<AdminTestimonyAnalyticsItem[]>(
+            views.data,
+            "testimonies",
+          ),
+        );
+        setMostActiveUsers(
+          getResponseResource<AdminTestimonyAnalyticsItem[]>(active.data, "users"),
+        );
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AdminUsersApi } from "../../api/adminUsers";
 import { AdminTestimoniesApi } from "../../api/adminTestimonies";
 import PageHeader from "../../common/page-header";
+import { getResponseResource } from "../../functions/api-response";
 import type { AdminUserStats, AdminTestimonyAnalyticsItem } from "../../types";
 import { sendCatchFeedback } from "../../functions/feedback";
 
@@ -34,7 +35,10 @@ export default function DashboardIndex() {
         ]);
         setState({
           userStats: usersRes.data.data,
-          topEngagement: engagementRes.data.data,
+          topEngagement: getResponseResource<AdminTestimonyAnalyticsItem[]>(
+            engagementRes.data,
+            "testimonies",
+          ),
         });
       } catch (error) {
         sendCatchFeedback(error);
@@ -131,4 +135,3 @@ function MetricCard({ label, value, loading }: MetricCardProps) {
     </div>
   );
 }
-

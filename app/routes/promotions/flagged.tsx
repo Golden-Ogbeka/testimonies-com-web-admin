@@ -4,6 +4,7 @@ import FilterBar from "../../common/filter-bar";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { PromotionSummary } from "../../types";
 
@@ -26,7 +27,8 @@ export default function FlaggedPromotions() {
       try {
         setLoading(true);
         const { data } = await AdminPromotionsApi.listFlagged({ page: 1, limit: 50 });
-        setPromotions(data.data);
+        const { results } = getPaginatedResponse<PromotionSummary>(data, "promotions");
+        setPromotions(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {

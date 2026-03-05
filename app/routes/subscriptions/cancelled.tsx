@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AdminSubscriptionsApi } from "../../api/adminSubscriptions";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import type { SubscriptionSummary } from "../../types";
 import { sendCatchFeedback } from "../../functions/feedback";
 
@@ -21,7 +22,11 @@ export default function CancelledSubscriptions() {
       try {
         setLoading(true);
         const { data } = await AdminSubscriptionsApi.listCancelled({ page: 1, limit: 50 });
-        setItems(data.data);
+        const { results } = getPaginatedResponse<SubscriptionSummary>(
+          data,
+          "subscriptions",
+        );
+        setItems(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -77,4 +82,3 @@ export default function CancelledSubscriptions() {
     </>
   );
 }
-

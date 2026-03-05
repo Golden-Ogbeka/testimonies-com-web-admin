@@ -4,6 +4,7 @@ import FilterBar from "../../common/filter-bar";
 import Modal from "../../common/modal";
 import PageHeader from "../../common/page-header";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse, getResponseData } from "../../functions/api-response";
 import { sendCatchFeedback } from "../../functions/feedback";
 import type { PromotionSummary, PromotionTargetAudience, PromotionType } from "../../types";
 
@@ -41,7 +42,8 @@ export default function PromotionsIndex() {
       try {
         setLoading(true);
         const { data } = await AdminPromotionsApi.list({ page: 1, limit: 50 });
-        setPromotions(data.data);
+        const { results } = getPaginatedResponse<PromotionSummary>(data, "promotions");
+        setPromotions(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -166,16 +168,16 @@ export default function PromotionsIndex() {
           ...form,
           endDate: form.endDate || undefined,
         } as PromotionSummary);
-        setPromotions((prev) =>
-          prev.map((p) => (p._id === editing._id ? data.data : p))
-        );
+        const updatedPromotion = getResponseData<PromotionSummary>(data);
+        setPromotions((prev) => prev.map((p) => (p._id === editing._id ? updatedPromotion : p)));
       } else {
         const { data } = await AdminPromotionsApi.create({
           ...form,
           endDate: form.endDate || undefined,
           isActive: true,
         } as PromotionSummary);
-        setPromotions((prev) => [data.data, ...prev]);
+        const createdPromotion = getResponseData<PromotionSummary>(data);
+        setPromotions((prev) => [createdPromotion, ...prev]);
       }
       setEditing(null);
       setForm(emptyForm);

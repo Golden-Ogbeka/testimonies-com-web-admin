@@ -3,6 +3,7 @@ import { AdminTestimoniesApi } from "../../api/adminTestimonies";
 import PageHeader from "../../common/page-header";
 import FilterBar from "../../common/filter-bar";
 import { Table, type TableColumn } from "../../common/table";
+import { getPaginatedResponse } from "../../functions/api-response";
 import type { AdminTestimonySummary } from "../../types";
 import { sendCatchFeedback } from "../../functions/feedback";
 import Modal from "../../common/modal";
@@ -28,7 +29,11 @@ export default function TestimoniesIndex() {
       try {
         setLoading(true);
         const { data } = await AdminTestimoniesApi.list({ page: 1, limit: 50 });
-        setItems(data.data);
+        const { results } = getPaginatedResponse<AdminTestimonySummary>(
+          data,
+          "testimonies",
+        );
+        setItems(results);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -162,4 +167,3 @@ export default function TestimoniesIndex() {
     </>
   );
 }
-
