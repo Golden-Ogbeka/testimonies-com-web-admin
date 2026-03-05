@@ -11,12 +11,6 @@ import { verifyOtpSchema, type VerifyOtpFormData } from '../../schemas';
 import { useAppDispatch } from '../../store/hooks';
 import { updateAdmin, updateToken } from '../../store/slices/admin';
 
-interface VerifyOtpState {
-  email: string;
-  otp: string;
-  submitting: boolean;
-}
-
 interface LocationState {
   email?: string;
 }
@@ -57,7 +51,7 @@ export default function VerifyOtpRoute() {
   const onSubmit = async (data: VerifyOtpFormData) => {
     try {
       const { data: response } = await AdminAuthApi.verifyOtp(data);
-      const { token, admin } = response as any;
+      const { token, admin } = response.data;
 
       // Store token and admin profile
       dispatch(updateToken({ token: { token } }));

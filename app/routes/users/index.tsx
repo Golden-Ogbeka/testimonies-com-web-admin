@@ -4,6 +4,7 @@ import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
 import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
@@ -209,42 +210,42 @@ export default function UsersIndex() {
       />
 
       <FilterBar searchValue={search} onSearchChange={setSearch}>
-        <select
+        <SelectInput
           value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value as 'all' | 'active' | 'inactive');
+          onChange={(value) => {
+            setStatusFilter(value as 'all' | 'active' | 'inactive');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <select
+          options={[
+            { value: 'all', label: 'All statuses' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
+        <SelectInput
           value={flagFilter}
-          onChange={(e) => {
-            setFlagFilter(e.target.value as 'all' | 'flagged' | 'clean');
+          onChange={(value) => {
+            setFlagFilter(value as 'all' | 'flagged' | 'clean');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All flags</option>
-          <option value="flagged">Flagged</option>
-          <option value="clean">Not flagged</option>
-        </select>
-        <select
+          options={[
+            { value: 'all', label: 'All flags' },
+            { value: 'flagged', label: 'Flagged' },
+            { value: 'clean', label: 'Not flagged' },
+          ]}
+        />
+        <SelectInput
           value={accountTypeFilter}
-          onChange={(e) => {
-            setAccountTypeFilter(e.target.value as 'all' | 'user' | 'organization');
+          onChange={(value) => {
+            setAccountTypeFilter(value as 'all' | 'user' | 'organization');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All account types</option>
-          <option value="user">User</option>
-          <option value="organization">Organization</option>
-        </select>
+          options={[
+            { value: 'all', label: 'All account types' },
+            { value: 'user', label: 'User' },
+            { value: 'organization', label: 'Organization' },
+          ]}
+        />
       </FilterBar>
 
       <Table

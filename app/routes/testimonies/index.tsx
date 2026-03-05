@@ -4,6 +4,7 @@ import PageHeader from '../../common/page-header';
 import FilterBar from '../../common/filter-bar';
 import PaginationControls from '../../common/pagination-controls';
 import { Table, type TableColumn } from '../../common/table';
+import SelectInput from '../../common/select-input';
 import { getPaginatedResponse } from '../../functions/api-response';
 import type { AdminTestimonySummary, PaginationMeta } from '../../types';
 import { sendCatchFeedback } from '../../functions/feedback';
@@ -163,18 +164,18 @@ export default function TestimoniesIndex() {
       />
 
       <FilterBar searchValue={search} onSearchChange={setSearch}>
-        <select
+        <SelectInput
           value={isFlaggedFilter}
-          onChange={(event) => {
-            setIsFlaggedFilter(event.target.value as 'all' | 'true' | 'false');
+          onChange={(value) => {
+            setIsFlaggedFilter(value as 'all' | 'true' | 'false');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All statuses</option>
-          <option value="true">Flagged only</option>
-          <option value="false">Unflagged only</option>
-        </select>
+          options={[
+            { value: 'all', label: 'All statuses' },
+            { value: 'true', label: 'Flagged only' },
+            { value: 'false', label: 'Unflagged only' },
+          ]}
+        />
       </FilterBar>
 
       <Table

@@ -14,7 +14,7 @@ export interface ListFaqQuery {
 
 export const AdminContentApi = {
   listFaq(params: ListFaqQuery) {
-    return appAxios.get<ApiSuccessResponse<{ faqs: any }>>('/admin/faq', {
+    return appAxios.get<ApiSuccessResponse<{ faqs: FaqItem[] }>>('/admin/faq', {
       params,
     });
   },

@@ -3,6 +3,7 @@ import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
 import Modal from '../../common/modal';
 import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
@@ -222,33 +223,31 @@ export default function SubscriptionPlans() {
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <select
+        <SelectInput
           value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value as 'all' | 'active' | 'inactive');
+          onChange={(value) => {
+            setStatusFilter(value as 'all' | 'active' | 'inactive');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <select
+          options={[
+            { value: 'all', label: 'All statuses' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
+        <SelectInput
           value={cycleFilter}
-          onChange={(event) => {
-            setCycleFilter(
-              event.target.value as 'all' | 'monthly' | 'yearly' | 'quarterly',
-            );
+          onChange={(value) => {
+            setCycleFilter(value as 'all' | 'monthly' | 'yearly' | 'quarterly');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All billing cycles</option>
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-          <option value="yearly">Yearly</option>
-        </select>
+          options={[
+            { value: 'all', label: 'All billing cycles' },
+            { value: 'monthly', label: 'Monthly' },
+            { value: 'quarterly', label: 'Quarterly' },
+            { value: 'yearly', label: 'Yearly' },
+          ]}
+        />
       </div>
 
       <Table

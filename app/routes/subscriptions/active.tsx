@@ -75,7 +75,7 @@ export default function ActiveSubscriptions() {
     {
       id: 'status',
       header: 'Status',
-      accessor: (sub) => (
+      accessor: (_sub) => (
         <span className="text-xs font-medium text-emerald-700">Active</span>
       ),
     },

@@ -11,7 +11,6 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { mainLinks, secondaryLinks } from '../navLinks';
-import styles from '../styles.module.css';
 
 interface SidebarProps {
   isMobileOpen?: boolean;
@@ -38,8 +37,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const renderNavLinks = (iconsOnly: boolean, isMobile: boolean = false) => {
-    const allLinks = [...mainLinks, ...secondaryLinks];
-
     return (
       <div className="mt-4 flex-1 space-y-1 px-3">
         <nav aria-label="Dashboard navigation" className="flex flex-col gap-1">

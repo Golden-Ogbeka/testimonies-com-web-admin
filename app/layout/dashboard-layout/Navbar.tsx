@@ -1,6 +1,5 @@
 import autoAnimate from '@formkit/auto-animate';
 import { useEffect, useRef, useState } from 'react';
-import ClickAwayListener from 'react-click-away-listener';
 import { Link, useLocation } from 'react-router';
 import { RoutePaths } from '../../routes/route-paths';
 import { useAppSelector } from '../../store/hooks';
@@ -214,10 +213,10 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
                         requestClose();
                         setLogoutConfirmOpen(true);
                       }}
-                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
                     >
                       <ArrowRightOnRectangleIcon
-                        className="h-4 w-4 shrink-0"
+                        className="h-4 w-4 shrink-0 text-red-600"
                         aria-hidden
                       />
                       Logout

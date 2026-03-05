@@ -18,12 +18,6 @@ export function meta() {
   ];
 }
 
-interface LoginFormState {
-  email: string;
-  password: string;
-  submitting: boolean;
-}
-
 export default function LoginRoute() {
   const navigate = useNavigate();
   const {

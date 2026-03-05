@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AdminContentApi } from '../../api/adminContent';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import {
   getPaginatedResponse,
@@ -73,6 +75,16 @@ export default function FaqsPage() {
   useEffect(() => {
     loadFaqs(1);
   }, [statusFilter]);
+
+  const filteredFaqs = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return faqs;
+    return faqs.filter(
+      (faq) =>
+        faq.question.toLowerCase().includes(query) ||
+        faq.answer.toLowerCase().includes(query),
+    );
+  }, [faqs, search]);
 
   const columns: TableColumn<FaqItem>[] = [
     {
@@ -223,9 +235,8 @@ export default function FaqsPage() {
   };
 
   const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      loadFaqs(newPage);
-    }
+    if (newPage < 1 || newPage > totalPages) return;
+    loadFaqs(newPage);
   };
 
   return (
@@ -249,23 +260,23 @@ export default function FaqsPage() {
         onSearchChange={setSearch}
         searchPlaceholder="Search FAQs..."
       >
-        <select
+        <SelectInput
           value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value as 'all' | 'active' | 'inactive');
+          onChange={(value) => {
+            setStatusFilter(value as 'all' | 'active' | 'inactive');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+          options={[
+            { value: 'all', label: 'All statuses' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
       </FilterBar>
 
       <Table
         columns={columns}
-        data={faqs}
+        data={filteredFaqs}
         loading={loading}
         emptyMessage="No FAQs found"
         getRowKey={(faq) => faq._id}
@@ -299,36 +310,12 @@ export default function FaqsPage() {
         )}
       />
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
-          <div className="text-sm text-gray-700">
-            Showing <span className="font-medium">{faqs.length}</span> of{' '}
-            <span className="font-medium">{totalResults}</span> results
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handlePageChange(page - 1)}
-              disabled={page === 1}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => handlePageChange(page + 1)}
-              disabled={page === totalPages}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+      <PaginationControls
+        page={page}
+        totalPages={totalPages}
+        totalResults={totalResults}
+        onPageChange={handlePageChange}
+      />
 
       {/* Create/Edit Modal */}
       <Modal

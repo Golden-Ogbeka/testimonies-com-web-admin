@@ -4,6 +4,7 @@ import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
 import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
@@ -254,30 +255,30 @@ export default function AdminsPage() {
       />
 
       <FilterBar searchValue={search} onSearchChange={setSearch}>
-        <select
+        <SelectInput
           value={roleFilter}
-          onChange={(event) => {
-            setRoleFilter(event.target.value as 'all' | AdminRole);
+          onChange={(value) => {
+            setRoleFilter(value as 'all' | AdminRole);
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All roles</option>
-          <option value="admin">Admin</option>
-          <option value="super-admin">Super admin</option>
-        </select>
-        <select
+          options={[
+            { value: 'all', label: 'All roles' },
+            { value: 'admin', label: 'Admin' },
+            { value: 'super-admin', label: 'Super admin' },
+          ]}
+        />
+        <SelectInput
           value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value as 'all' | 'active' | 'inactive');
+          onChange={(value) => {
+            setStatusFilter(value as 'all' | 'active' | 'inactive');
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+          options={[
+            { value: 'all', label: 'All statuses' },
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
       </FilterBar>
 
       <Table

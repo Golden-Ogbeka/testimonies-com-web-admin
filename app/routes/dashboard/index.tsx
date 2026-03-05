@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import { AdminUsersApi } from '../../api/adminUsers';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import SelectInput from '../../common/select-input';
 import { getResponseResource } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import type { AdminTestimonyAnalyticsItem, AdminUserStats } from '../../types';
@@ -24,6 +26,10 @@ export function meta() {
 export default function DashboardIndex() {
   const [state, setState] = useState<DashboardState>({});
   const [loading, setLoading] = useState(true);
+  const [engagementPage, setEngagementPage] = useState(1);
+  const [engagementPageSize, setEngagementPageSize] = useState<'5' | '10' | 'all'>(
+    '5',
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -31,7 +37,7 @@ export default function DashboardIndex() {
         setLoading(true);
         const [usersRes, engagementRes] = await Promise.all([
           AdminUsersApi.statsAll(),
-          AdminTestimoniesApi.analyticsHighestEngagement(5),
+          AdminTestimoniesApi.analyticsHighestEngagement(50),
         ]);
         setState({
           userStats: usersRes.data.data,
@@ -50,6 +56,18 @@ export default function DashboardIndex() {
   }, []);
 
   const { userStats, topEngagement } = state;
+  const resolvedPageSize =
+    engagementPageSize === 'all' ? topEngagement?.length || 0 : Number(engagementPageSize);
+  const totalEngagementPages = topEngagement?.length
+    ? Math.max(1, Math.ceil(topEngagement.length / Math.max(resolvedPageSize, 1)))
+    : 1;
+  const visibleEngagement =
+    engagementPageSize === 'all'
+      ? topEngagement || []
+      : (topEngagement || []).slice(
+          (engagementPage - 1) * resolvedPageSize,
+          engagementPage * resolvedPageSize,
+        );
 
   return (
     <div className="space-y-6">
@@ -106,15 +124,31 @@ export default function DashboardIndex() {
             </div>
           )}
           {!loading && topEngagement && topEngagement.length > 0 && (
-            <ul className="space-y-3">
-              {topEngagement.map((item, index) => (
+            <>
+              <div className="mb-3 flex justify-end">
+                <SelectInput
+                  value={engagementPageSize}
+                  onChange={(value) => {
+                    setEngagementPageSize(value as '5' | '10' | 'all');
+                    setEngagementPage(1);
+                  }}
+                  options={[
+                    { value: '5', label: 'Top 5' },
+                    { value: '10', label: 'Top 10' },
+                    { value: 'all', label: 'All' },
+                  ]}
+                  widthClassName="w-[130px]"
+                />
+              </div>
+              <ul className="space-y-3">
+                {visibleEngagement.map((item, index) => (
                 <li
                   key={item.testimonyId ?? `${item.userId}-${index}`}
                   className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm transition-colors hover:bg-slate-100"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                      {index + 1}
+                      {(engagementPage - 1) * (resolvedPageSize || 1) + index + 1}
                     </div>
                     <span className="truncate font-medium text-slate-900">
                       {item.title ?? `Testimony ${item.testimonyId?.slice(-6) ?? index + 1}`}
@@ -125,8 +159,17 @@ export default function DashboardIndex() {
                     {item.count.toLocaleString()} interactions
                   </span>
                 </li>
-              ))}
-            </ul>
+                ))}
+              </ul>
+              {engagementPageSize !== 'all' && (
+                <PaginationControls
+                  page={engagementPage}
+                  totalPages={totalEngagementPages}
+                  totalResults={topEngagement?.length || 0}
+                  onPageChange={setEngagementPage}
+                />
+              )}
+            </>
           )}
         </div>
       </section>

@@ -4,6 +4,7 @@ import { AdminAuditLogsApi } from '../../api/adminAuditLogs';
 import FilterBar from '../../common/filter-bar';
 import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
@@ -149,36 +150,36 @@ export default function AuditLogsIndex() {
       />
 
       <FilterBar searchValue={search} onSearchChange={setSearch}>
-        <select
+        <SelectInput
           value={levelFilter}
-          onChange={(event) => {
-            setLevelFilter(event.target.value);
+          onChange={(value) => {
+            setLevelFilter(value);
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="">All levels</option>
-          <option value="info">Info</option>
-          <option value="warning">Warning</option>
-          <option value="error">Error</option>
-          <option value="critical">Critical</option>
-        </select>
-        <select
+          options={[
+            { value: '', label: 'All levels' },
+            { value: 'info', label: 'Info' },
+            { value: 'warning', label: 'Warning' },
+            { value: 'error', label: 'Error' },
+            { value: 'critical', label: 'Critical' },
+          ]}
+        />
+        <SelectInput
           value={categoryFilter}
-          onChange={(event) => {
-            setCategoryFilter(event.target.value);
+          onChange={(value) => {
+            setCategoryFilter(value);
             setPage(1);
           }}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="">All categories</option>
-          <option value="auth">Auth</option>
-          <option value="user">User</option>
-          <option value="testimony">Testimony</option>
-          <option value="system">System</option>
-          <option value="data">Data</option>
-          <option value="security">Security</option>
-        </select>
+          options={[
+            { value: '', label: 'All categories' },
+            { value: 'auth', label: 'Auth' },
+            { value: 'user', label: 'User' },
+            { value: 'testimony', label: 'Testimony' },
+            { value: 'system', label: 'System' },
+            { value: 'data', label: 'Data' },
+            { value: 'security', label: 'Security' },
+          ]}
+        />
       </FilterBar>
 
       <Table

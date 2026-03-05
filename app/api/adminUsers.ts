@@ -57,13 +57,13 @@ export const AdminUsersApi = {
 
   statsAll() {
     return appAxios.get<ApiSuccessResponse<AdminUserStats>>(
-      '/admin/user/stats/all',
+      '/admin/user/profile-stats',
     );
   },
 
   statsByUser(id: string) {
     return appAxios.get<ApiSuccessResponse<AdminUserStats>>(
-      `/admin/user/${id}/stats`,
+      `/admin/user/profile-stats/user/${id}`,
     );
   },
 };

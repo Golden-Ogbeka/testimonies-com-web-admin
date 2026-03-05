@@ -11,13 +11,14 @@ export default function PaginationControls({
   totalResults,
   onPageChange,
 }: PaginationControlsProps) {
-  if (totalPages <= 1) return null;
+  const safeTotalPages = Math.max(totalPages, 1);
+  const safePage = Math.min(Math.max(page, 1), safeTotalPages);
 
   return (
     <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="text-sm text-slate-600">
-        Page <span className="font-semibold text-slate-900">{page}</span> of{' '}
-        <span className="font-semibold text-slate-900">{totalPages}</span>
+        Page <span className="font-semibold text-slate-900">{safePage}</span> of{' '}
+        <span className="font-semibold text-slate-900">{safeTotalPages}</span>
         {typeof totalResults === 'number' && (
           <>
             {' '}
@@ -29,16 +30,16 @@ export default function PaginationControls({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1}
+          onClick={() => onPageChange(safePage - 1)}
+          disabled={safePage <= 1}
           className="btn-secondary cursor-pointer"
         >
           Previous
         </button>
         <button
           type="button"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= totalPages}
+          onClick={() => onPageChange(safePage + 1)}
+          disabled={safePage >= safeTotalPages}
           className="btn-secondary cursor-pointer"
         >
           Next
