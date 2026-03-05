@@ -16,7 +16,7 @@ export default function SelectInput({
   value,
   options,
   onChange,
-  widthClassName = 'min-w-[170px]',
+  widthClassName = 'w-full sm:min-w-[170px] sm:w-auto',
 }: SelectInputProps) {
   const selectedOption = options.find((option) => option.value === value) ?? null;
 

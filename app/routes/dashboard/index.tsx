@@ -156,7 +156,7 @@ export default function DashboardIndex() {
                   </div>
                   <span className="flex items-center gap-1 text-xs font-medium text-slate-600">
                     <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    {item.count.toLocaleString()} interactions
+                    {Number(item.count ?? 0).toLocaleString()} interactions
                   </span>
                 </li>
                 ))}
@@ -190,6 +190,7 @@ function MetricCard({
   loading,
   color = 'blue',
 }: MetricCardProps) {
+  const safeValue = Number.isFinite(value) ? value : 0;
   const colorClasses = {
     blue: 'bg-blue-50 text-blue-700 border-blue-200',
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -217,7 +218,7 @@ function MetricCard({
         </div>
       </div>
       <p className="mt-3 text-2xl font-bold text-slate-900">
-        {loading ? '…' : value.toLocaleString()}
+        {loading ? '…' : safeValue.toLocaleString()}
       </p>
     </div>
   );
