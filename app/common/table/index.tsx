@@ -119,7 +119,9 @@ export function Table<T>({
                   </h3>
                 )}
                 {mobileSubtitle && (
-                  <p className="mt-1 text-xs text-slate-500">{mobileSubtitle(row)}</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {mobileSubtitle(row)}
+                  </p>
                 )}
               </div>
             )}

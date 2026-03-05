@@ -68,10 +68,8 @@ export default function TeamPermissionsPage() {
           page,
           limit: 20,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<TeamPermissionApiItem>(
-          data,
-          'teamPermissions',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<TeamPermissionApiItem>(data, 'teamPermissions');
         setPermissions(results.map(mapTeamPermission));
         setPagination(pageMeta);
       } catch (error) {

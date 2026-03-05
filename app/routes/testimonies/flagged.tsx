@@ -44,10 +44,8 @@ export default function FlaggedTestimonies() {
           page,
           limit: 20,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<AdminTestimonySummary>(
-          data,
-          'testimonies',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<AdminTestimonySummary>(data, 'testimonies');
         setItems(results);
         setPagination(pageMeta);
       } catch (error) {
@@ -62,7 +60,9 @@ export default function FlaggedTestimonies() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return items;
-    return items.filter((item) => getTestimonyText(item).toLowerCase().includes(query));
+    return items.filter((item) =>
+      getTestimonyText(item).toLowerCase().includes(query),
+    );
   }, [items, search]);
 
   const columns: TableColumn<AdminTestimonySummary>[] = [

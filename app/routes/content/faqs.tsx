@@ -44,9 +44,9 @@ export default function FaqsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>(
-    'all',
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all');
 
   const loadFaqs = async (currentPage = 1) => {
     try {
@@ -54,7 +54,8 @@ export default function FaqsPage() {
       const { data } = await AdminContentApi.listFaq({
         page: currentPage,
         limit: 20,
-        isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+        isActive:
+          statusFilter === 'all' ? undefined : statusFilter === 'active',
       });
 
       const { results, pagination } = getPaginatedResponse<FaqItem>(

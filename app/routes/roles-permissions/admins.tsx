@@ -45,7 +45,9 @@ export default function AdminsPage() {
   const [toggling, setToggling] = useState(false);
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState<'all' | AdminRole>('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all');
   const [pagination, setPagination] = useState<PaginationMeta>({
     totalResults: 0,
     resultsPerPage: 20,
@@ -63,12 +65,11 @@ export default function AdminsPage() {
           page,
           limit: 20,
           role: roleFilter === 'all' ? undefined : roleFilter,
-          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+          isActive:
+            statusFilter === 'all' ? undefined : statusFilter === 'active',
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<AdminAccount>(
-          data,
-          'admins',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<AdminAccount>(data, 'admins');
         setAdmins(results);
         setPagination(pageMeta);
       } catch (error) {

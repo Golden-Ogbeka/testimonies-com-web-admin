@@ -18,7 +18,8 @@ export default function SelectInput({
   onChange,
   widthClassName = 'w-full sm:min-w-[170px] sm:w-auto',
 }: SelectInputProps) {
-  const selectedOption = options.find((option) => option.value === value) ?? null;
+  const selectedOption =
+    options.find((option) => option.value === value) ?? null;
 
   return (
     <div className={widthClassName}>
@@ -27,14 +28,18 @@ export default function SelectInput({
         value={selectedOption}
         onChange={(option) => onChange(option?.value ?? '')}
         isSearchable={false}
-        menuPortalTarget={typeof window !== 'undefined' ? document.body : undefined}
+        menuPortalTarget={
+          typeof window !== 'undefined' ? document.body : undefined
+        }
         styles={{
           control: (base, state) => ({
             ...base,
             minHeight: 40,
             borderRadius: 10,
             borderColor: state.isFocused ? '#136dec' : '#e5e7eb',
-            boxShadow: state.isFocused ? '0 0 0 2px rgba(19,109,236,0.2)' : 'none',
+            boxShadow: state.isFocused
+              ? '0 0 0 2px rgba(19,109,236,0.2)'
+              : 'none',
             '&:hover': { borderColor: state.isFocused ? '#136dec' : '#d1d5db' },
           }),
           valueContainer: (base) => ({

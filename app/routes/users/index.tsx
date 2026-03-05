@@ -35,11 +35,15 @@ export default function UsersIndex() {
     prevPage: null,
     nextPage: null,
   });
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [flagFilter, setFlagFilter] = useState<'all' | 'flagged' | 'clean'>('all');
-  const [accountTypeFilter, setAccountTypeFilter] = useState<'all' | 'user' | 'organization'>(
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all');
+  const [flagFilter, setFlagFilter] = useState<'all' | 'flagged' | 'clean'>(
     'all',
   );
+  const [accountTypeFilter, setAccountTypeFilter] = useState<
+    'all' | 'user' | 'organization'
+  >('all');
 
   useEffect(() => {
     const load = async () => {
@@ -48,15 +52,15 @@ export default function UsersIndex() {
         const { data } = await AdminUsersApi.list({
           page,
           limit: 20,
-          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
-          isFlagged: flagFilter === 'all' ? undefined : flagFilter === 'flagged',
-          accountType: accountTypeFilter === 'all' ? undefined : accountTypeFilter,
+          isActive:
+            statusFilter === 'all' ? undefined : statusFilter === 'active',
+          isFlagged:
+            flagFilter === 'all' ? undefined : flagFilter === 'flagged',
+          accountType:
+            accountTypeFilter === 'all' ? undefined : accountTypeFilter,
         });
         const { results: userResults, pagination: pageMeta } =
-          getPaginatedResponse<AdminUserSummary>(
-          data,
-          'users',
-        );
+          getPaginatedResponse<AdminUserSummary>(data, 'users');
         type OrganizationItem = {
           _id: string;
           businessName?: string;

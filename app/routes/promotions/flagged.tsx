@@ -40,10 +40,8 @@ export default function FlaggedPromotions() {
           page,
           limit: 20,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<PromotionSummary>(
-          data,
-          'promotions',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<PromotionSummary>(data, 'promotions');
         setPromotions(results);
         setPagination(pageMeta);
       } catch (error) {

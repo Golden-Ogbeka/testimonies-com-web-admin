@@ -48,10 +48,8 @@ export default function AuditLogsIndex() {
           level: levelFilter || undefined,
           category: categoryFilter || undefined,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<AuditLogItem>(
-          data,
-          'auditLogs',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<AuditLogItem>(data, 'auditLogs');
         setLogs(results);
         setPagination(pageMeta);
       } catch (error) {
@@ -192,7 +190,9 @@ export default function AuditLogsIndex() {
         mobileActions={(log) => (
           <button
             type="button"
-            onClick={() => navigate(`${RoutePaths.AUDIT_LOG_DETAILS}/${log._id}`)}
+            onClick={() =>
+              navigate(`${RoutePaths.AUDIT_LOG_DETAILS}/${log._id}`)
+            }
             className="text-xs font-medium text-primary hover:underline"
           >
             View details

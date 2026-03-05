@@ -50,10 +50,8 @@ export default function UnsubscribedUsers() {
           createdAt?: string;
         };
 
-        const { results: users, pagination: pageMeta } = getPaginatedResponse<AdminUserSummary>(
-          data,
-          'users',
-        );
+        const { results: users, pagination: pageMeta } =
+          getPaginatedResponse<AdminUserSummary>(data, 'users');
         const { results: organizations } =
           getPaginatedResponse<OrganizationItem>(data, 'organizations');
         const mappedOrganizations: AdminUserSummary[] = organizations.map(

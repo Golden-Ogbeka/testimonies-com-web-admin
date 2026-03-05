@@ -38,10 +38,8 @@ export default function ActiveSubscriptions() {
           page,
           limit: 20,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<SubscriptionSummary>(
-          data,
-          'subscriptions',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<SubscriptionSummary>(data, 'subscriptions');
         setItems(results);
         setPagination(pageMeta);
       } catch (error) {

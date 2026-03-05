@@ -22,7 +22,10 @@ export default function PaginationControls({
         {typeof totalResults === 'number' && (
           <>
             {' '}
-            • <span className="font-semibold text-slate-900">{totalResults}</span>{' '}
+            •{' '}
+            <span className="font-semibold text-slate-900">
+              {totalResults}
+            </span>{' '}
             total
           </>
         )}

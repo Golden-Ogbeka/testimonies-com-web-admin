@@ -47,8 +47,12 @@ export default function PromotionsIndex() {
   const [form, setForm] = useState<PromotionFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [flagFilter, setFlagFilter] = useState<'all' | 'flagged' | 'clean'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all');
+  const [flagFilter, setFlagFilter] = useState<'all' | 'flagged' | 'clean'>(
+    'all',
+  );
   const [typeFilter, setTypeFilter] = useState<'all' | PromotionType>('all');
   const [pagination, setPagination] = useState<PaginationMeta>({
     totalResults: 0,
@@ -66,14 +70,14 @@ export default function PromotionsIndex() {
         const { data } = await AdminPromotionsApi.list({
           page,
           limit: 20,
-          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
-          isFlagged: flagFilter === 'all' ? undefined : flagFilter === 'flagged',
+          isActive:
+            statusFilter === 'all' ? undefined : statusFilter === 'active',
+          isFlagged:
+            flagFilter === 'all' ? undefined : flagFilter === 'flagged',
           type: typeFilter === 'all' ? undefined : typeFilter,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<PromotionSummary>(
-          data,
-          'promotions',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<PromotionSummary>(data, 'promotions');
         setPromotions(results);
         setPagination(pageMeta);
       } catch (error) {

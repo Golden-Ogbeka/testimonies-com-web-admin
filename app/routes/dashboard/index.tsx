@@ -27,9 +27,9 @@ export default function DashboardIndex() {
   const [state, setState] = useState<DashboardState>({});
   const [loading, setLoading] = useState(true);
   const [engagementPage, setEngagementPage] = useState(1);
-  const [engagementPageSize, setEngagementPageSize] = useState<'5' | '10' | 'all'>(
-    '5',
-  );
+  const [engagementPageSize, setEngagementPageSize] = useState<
+    '5' | '10' | 'all'
+  >('5');
 
   useEffect(() => {
     const load = async () => {
@@ -57,9 +57,14 @@ export default function DashboardIndex() {
 
   const { userStats, topEngagement } = state;
   const resolvedPageSize =
-    engagementPageSize === 'all' ? topEngagement?.length || 0 : Number(engagementPageSize);
+    engagementPageSize === 'all'
+      ? topEngagement?.length || 0
+      : Number(engagementPageSize);
   const totalEngagementPages = topEngagement?.length
-    ? Math.max(1, Math.ceil(topEngagement.length / Math.max(resolvedPageSize, 1)))
+    ? Math.max(
+        1,
+        Math.ceil(topEngagement.length / Math.max(resolvedPageSize, 1)),
+      )
     : 1;
   const visibleEngagement =
     engagementPageSize === 'all'
@@ -142,23 +147,26 @@ export default function DashboardIndex() {
               </div>
               <ul className="space-y-3">
                 {visibleEngagement.map((item, index) => (
-                <li
-                  key={item.testimonyId ?? `${item.userId}-${index}`}
-                  className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm transition-colors hover:bg-slate-100"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                      {(engagementPage - 1) * (resolvedPageSize || 1) + index + 1}
+                  <li
+                    key={item.testimonyId ?? `${item.userId}-${index}`}
+                    className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm transition-colors hover:bg-slate-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                        {(engagementPage - 1) * (resolvedPageSize || 1) +
+                          index +
+                          1}
+                      </div>
+                      <span className="truncate font-medium text-slate-900">
+                        {item.title ??
+                          `Testimony ${item.testimonyId?.slice(-6) ?? index + 1}`}
+                      </span>
                     </div>
-                    <span className="truncate font-medium text-slate-900">
-                      {item.title ?? `Testimony ${item.testimonyId?.slice(-6) ?? index + 1}`}
+                    <span className="flex items-center gap-1 text-xs font-medium text-slate-600">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                      {Number(item.count ?? 0).toLocaleString()} interactions
                     </span>
-                  </div>
-                  <span className="flex items-center gap-1 text-xs font-medium text-slate-600">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    {Number(item.count ?? 0).toLocaleString()} interactions
-                  </span>
-                </li>
+                  </li>
                 ))}
               </ul>
               {engagementPageSize !== 'all' && (

@@ -34,9 +34,9 @@ export default function TestimoniesIndex() {
     prevPage: null,
     nextPage: null,
   });
-  const [isFlaggedFilter, setIsFlaggedFilter] = useState<'all' | 'true' | 'false'>(
-    'all',
-  );
+  const [isFlaggedFilter, setIsFlaggedFilter] = useState<
+    'all' | 'true' | 'false'
+  >('all');
 
   const getTestimonyText = (item: AdminTestimonySummary) =>
     item.description || item.content || item.title || '(No content)';
@@ -51,10 +51,8 @@ export default function TestimoniesIndex() {
           isFlagged:
             isFlaggedFilter === 'all' ? undefined : isFlaggedFilter === 'true',
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<AdminTestimonySummary>(
-          data,
-          'testimonies',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<AdminTestimonySummary>(data, 'testimonies');
         setItems(results);
         setPagination(pageMeta);
       } catch (error) {
@@ -69,7 +67,9 @@ export default function TestimoniesIndex() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return items;
-    return items.filter((item) => getTestimonyText(item).toLowerCase().includes(query));
+    return items.filter((item) =>
+      getTestimonyText(item).toLowerCase().includes(query),
+    );
   }, [items, search]);
 
   const columns: TableColumn<AdminTestimonySummary>[] = [

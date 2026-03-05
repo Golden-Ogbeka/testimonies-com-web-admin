@@ -49,10 +49,8 @@ export default function PermissionsPage() {
           page,
           limit: 20,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<AdminPermission>(
-          data,
-          'permissions',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<AdminPermission>(data, 'permissions');
         setItems(results);
         setPagination(pageMeta);
       } catch (error) {

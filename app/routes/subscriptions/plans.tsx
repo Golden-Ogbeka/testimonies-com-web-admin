@@ -39,10 +39,12 @@ export default function SubscriptionPlans() {
   const [form, setForm] = useState<PlanFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [cycleFilter, setCycleFilter] = useState<'all' | 'monthly' | 'yearly' | 'quarterly'>(
-    'all',
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive'
+  >('all');
+  const [cycleFilter, setCycleFilter] = useState<
+    'all' | 'monthly' | 'yearly' | 'quarterly'
+  >('all');
   const [pagination, setPagination] = useState<PaginationMeta>({
     totalResults: 0,
     resultsPerPage: 20,
@@ -59,13 +61,12 @@ export default function SubscriptionPlans() {
         const { data } = await AdminSubscriptionsApi.listPlans({
           page,
           limit: 20,
-          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+          isActive:
+            statusFilter === 'all' ? undefined : statusFilter === 'active',
           billingCycle: cycleFilter === 'all' ? undefined : cycleFilter,
         });
-        const { results, pagination: pageMeta } = getPaginatedResponse<SubscriptionPlan>(
-          data,
-          'plans',
-        );
+        const { results, pagination: pageMeta } =
+          getPaginatedResponse<SubscriptionPlan>(data, 'plans');
         setPlans(results);
         setPagination(pageMeta);
       } catch (error) {
