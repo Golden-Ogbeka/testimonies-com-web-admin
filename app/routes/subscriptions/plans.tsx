@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { SubscriptionPlan } from '../../types';
+import type { PaginationMeta, SubscriptionPlan } from '../../types';
 
 export function meta() {
   return [
@@ -36,20 +37,36 @@ export default function SubscriptionPlans() {
   const [editing, setEditing] = useState<SubscriptionPlan | null>(null);
   const [form, setForm] = useState<PlanFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [cycleFilter, setCycleFilter] = useState<'all' | 'monthly' | 'yearly' | 'quarterly'>(
+    'all',
+  );
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminSubscriptionsApi.listPlans({
-          page: 1,
-          limit: 50,
+          page,
+          limit: 20,
+          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+          billingCycle: cycleFilter === 'all' ? undefined : cycleFilter,
         });
-        const { results } = getPaginatedResponse<SubscriptionPlan>(
+        const { results, pagination: pageMeta } = getPaginatedResponse<SubscriptionPlan>(
           data,
           'plans',
         );
         setPlans(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -57,7 +74,7 @@ export default function SubscriptionPlans() {
       }
     };
     load();
-  }, []);
+  }, [page, statusFilter, cycleFilter]);
 
   const columns: TableColumn<SubscriptionPlan>[] = [
     {
@@ -204,7 +221,79 @@ export default function SubscriptionPlans() {
         }
       />
 
-      <Table columns={columns} data={plans} loading={loading} />
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <select
+          value={statusFilter}
+          onChange={(event) => {
+            setStatusFilter(event.target.value as 'all' | 'active' | 'inactive');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select
+          value={cycleFilter}
+          onChange={(event) => {
+            setCycleFilter(
+              event.target.value as 'all' | 'monthly' | 'yearly' | 'quarterly',
+            );
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All billing cycles</option>
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+
+      <Table
+        columns={columns}
+        data={plans}
+        loading={loading}
+        getRowKey={(plan) => plan._id}
+        mobileTitle={(plan) => plan.name}
+        mobileSubtitle={(plan) =>
+          `${plan.currency} ${plan.price.toLocaleString()} • ${plan.billingCycle}`
+        }
+        mobileActions={(plan) => (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="text-xs font-medium text-gray-600 hover:underline"
+              onClick={() => {
+                setEditing(plan);
+                setForm({
+                  name: plan.name,
+                  description: plan.description,
+                  price: plan.price,
+                  billingCycle: plan.billingCycle,
+                  currency: plan.currency,
+                });
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="text-xs font-medium text-primary hover:underline"
+              onClick={() => handleToggleStatus(plan)}
+            >
+              {plan.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          </div>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={editing !== null || form.name.length > 0}

@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminPromotionsApi } from '../../api/adminPromotions';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { PromotionSummary } from '../../types';
+import type { PaginationMeta, PromotionSummary } from '../../types';
 
 export function meta() {
   return [
@@ -21,20 +22,30 @@ export default function FlaggedPromotions() {
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminPromotionsApi.listFlagged({
-          page: 1,
-          limit: 50,
+          page,
+          limit: 20,
         });
-        const { results } = getPaginatedResponse<PromotionSummary>(
+        const { results, pagination: pageMeta } = getPaginatedResponse<PromotionSummary>(
           data,
           'promotions',
         );
         setPromotions(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -42,7 +53,7 @@ export default function FlaggedPromotions() {
       }
     };
     load();
-  }, []);
+  }, [page]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -141,7 +152,29 @@ export default function FlaggedPromotions() {
 
       <FilterBar searchValue={search} onSearchChange={setSearch} />
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(promo) => promo._id}
+        mobileTitle={(promo) => promo.title}
+        mobileSubtitle={(promo) => promo.description}
+        mobileActions={(promo) => (
+          <button
+            type="button"
+            onClick={() => setSelectedId(promo._id)}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            Unflag
+          </button>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={selectedId !== null}

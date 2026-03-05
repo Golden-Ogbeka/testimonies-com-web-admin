@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { AdminRolesPermissionsApi } from '../../api/adminRolesPermissions';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import Modal from '../../common/modal';
 import { getPaginatedResponse } from '../../functions/api-response';
-import type { AdminPermission } from '../../types';
+import type { AdminPermission, PaginationMeta } from '../../types';
 import { sendCatchFeedback } from '../../functions/feedback';
 
 export function meta() {
@@ -30,20 +31,30 @@ export default function PermissionsPage() {
   const [editing, setEditing] = useState<AdminPermission | null>(null);
   const [form, setForm] = useState<PermissionFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminRolesPermissionsApi.listPermissions({
-          page: 1,
-          limit: 100,
+          page,
+          limit: 20,
         });
-        const { results } = getPaginatedResponse<AdminPermission>(
+        const { results, pagination: pageMeta } = getPaginatedResponse<AdminPermission>(
           data,
           'permissions',
         );
         setItems(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -52,7 +63,7 @@ export default function PermissionsPage() {
     };
 
     load();
-  }, []);
+  }, [page]);
 
   const columns: TableColumn<AdminPermission>[] = [
     {
@@ -134,7 +145,32 @@ export default function PermissionsPage() {
         }
       />
 
-      <Table columns={columns} data={items} loading={loading} />
+      <Table
+        columns={columns}
+        data={items}
+        loading={loading}
+        getRowKey={(perm) => perm._id}
+        mobileTitle={(perm) => perm.name}
+        mobileSubtitle={(perm) => perm.description}
+        mobileActions={(perm) => (
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(perm);
+              setForm({ name: perm.name, description: perm.description });
+            }}
+            className="text-xs font-medium text-gray-600 hover:underline"
+          >
+            Edit
+          </button>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={editing !== null || form.name.length > 0}

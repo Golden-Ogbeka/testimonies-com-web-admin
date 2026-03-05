@@ -13,6 +13,7 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
   collapsed = false,
 }) => {
   const location = useLocation();
+  const Icon = item.icon;
 
   const isActive =
     location.pathname === item.href ||
@@ -21,7 +22,7 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
   return (
     <Link to={item.href}>
       <li className={isActive ? styles.activeNavLink : styles.navLink}>
-        {item.icon}
+        <Icon className={styles.navIcon} />
         {!collapsed && <span>{item.label}</span>}
       </li>
     </Link>

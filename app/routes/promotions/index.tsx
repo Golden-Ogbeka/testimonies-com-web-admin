@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminPromotionsApi } from '../../api/adminPromotions';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import {
@@ -10,6 +11,7 @@ import {
 } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import type {
+  PaginationMeta,
   PromotionSummary,
   PromotionTargetAudience,
   PromotionType,
@@ -43,17 +45,36 @@ export default function PromotionsIndex() {
   const [editing, setEditing] = useState<PromotionSummary | null>(null);
   const [form, setForm] = useState<PromotionFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [flagFilter, setFlagFilter] = useState<'all' | 'flagged' | 'clean'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | PromotionType>('all');
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminPromotionsApi.list({ page: 1, limit: 50 });
-        const { results } = getPaginatedResponse<PromotionSummary>(
+        const { data } = await AdminPromotionsApi.list({
+          page,
+          limit: 20,
+          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+          isFlagged: flagFilter === 'all' ? undefined : flagFilter === 'flagged',
+          type: typeFilter === 'all' ? undefined : typeFilter,
+        });
+        const { results, pagination: pageMeta } = getPaginatedResponse<PromotionSummary>(
           data,
           'promotions',
         );
         setPromotions(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -61,7 +82,7 @@ export default function PromotionsIndex() {
       }
     };
     load();
-  }, []);
+  }, [page, statusFilter, flagFilter, typeFilter]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -232,9 +253,89 @@ export default function PromotionsIndex() {
         }
       />
 
-      <FilterBar searchValue={search} onSearchChange={setSearch} />
+      <FilterBar searchValue={search} onSearchChange={setSearch}>
+        <select
+          value={typeFilter}
+          onChange={(event) => {
+            setTypeFilter(event.target.value as 'all' | PromotionType);
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All types</option>
+          <option value="announcement">Announcement</option>
+          <option value="discount">Discount</option>
+          <option value="offer">Offer</option>
+          <option value="feature">Feature</option>
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(event) => {
+            setStatusFilter(event.target.value as 'all' | 'active' | 'inactive');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select
+          value={flagFilter}
+          onChange={(event) => {
+            setFlagFilter(event.target.value as 'all' | 'flagged' | 'clean');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All flags</option>
+          <option value="flagged">Flagged</option>
+          <option value="clean">Not flagged</option>
+        </select>
+      </FilterBar>
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(promo) => promo._id}
+        mobileTitle={(promo) => promo.title}
+        mobileSubtitle={(promo) => promo.description}
+        mobileActions={(promo) => (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="text-xs font-medium text-gray-600 hover:underline"
+              onClick={() => {
+                setEditing(promo);
+                setForm({
+                  title: promo.title,
+                  description: promo.description,
+                  type: promo.type,
+                  targetAudience: promo.targetAudience,
+                  startDate: promo.startDate.split('T')[0],
+                  endDate: promo.endDate ? promo.endDate.split('T')[0] : '',
+                });
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="text-xs font-medium text-primary hover:underline"
+              onClick={() => handleToggleStatus(promo)}
+            >
+              {promo.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          </div>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={editing !== null || form.title.length > 0}

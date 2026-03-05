@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AdminAuditLogsApi } from '../../api/adminAuditLogs';
 import FilterBar from '../../common/filter-bar';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { AuditLogItem } from '../../types';
+import type { AuditLogItem, PaginationMeta } from '../../types';
 import { RoutePaths } from '../route-paths';
 
 export function meta() {
@@ -24,17 +25,34 @@ export default function AuditLogsIndex() {
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [levelFilter, setLevelFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminAuditLogsApi.list({ page: 1, limit: 100 });
-        const { results } = getPaginatedResponse<AuditLogItem>(
+        const { data } = await AdminAuditLogsApi.list({
+          page,
+          limit: 20,
+          level: levelFilter || undefined,
+          category: categoryFilter || undefined,
+        });
+        const { results, pagination: pageMeta } = getPaginatedResponse<AuditLogItem>(
           data,
           'auditLogs',
         );
         setLogs(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -42,7 +60,7 @@ export default function AuditLogsIndex() {
       }
     };
     load();
-  }, []);
+  }, [page, levelFilter, categoryFilter]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -130,9 +148,62 @@ export default function AuditLogsIndex() {
         description="Track all administrative actions and system events."
       />
 
-      <FilterBar searchValue={search} onSearchChange={setSearch} />
+      <FilterBar searchValue={search} onSearchChange={setSearch}>
+        <select
+          value={levelFilter}
+          onChange={(event) => {
+            setLevelFilter(event.target.value);
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="">All levels</option>
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+          <option value="error">Error</option>
+          <option value="critical">Critical</option>
+        </select>
+        <select
+          value={categoryFilter}
+          onChange={(event) => {
+            setCategoryFilter(event.target.value);
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="">All categories</option>
+          <option value="auth">Auth</option>
+          <option value="user">User</option>
+          <option value="testimony">Testimony</option>
+          <option value="system">System</option>
+          <option value="data">Data</option>
+          <option value="security">Security</option>
+        </select>
+      </FilterBar>
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(log) => log._id}
+        mobileTitle={(log) => log.action}
+        mobileSubtitle={(log) => new Date(log.createdAt).toLocaleString()}
+        mobileActions={(log) => (
+          <button
+            type="button"
+            onClick={() => navigate(`${RoutePaths.AUDIT_LOG_DETAILS}/${log._id}`)}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            View details
+          </button>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
     </>
   );
 }

@@ -26,6 +26,9 @@ export default function TestimonyDetails() {
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const getTestimonyText = (item: AdminTestimonySummary) =>
+    item.description || item.content || item.title || '(No content)';
+
   useEffect(() => {
     const load = async () => {
       if (!id) return;
@@ -145,7 +148,7 @@ export default function TestimonyDetails() {
           <div>
             <label className="text-xs font-medium text-gray-500">Content</label>
             <p className="mt-1 whitespace-pre-wrap text-sm text-gray-900">
-              {testimony.content}
+              {getTestimonyText(testimony)}
             </p>
           </div>
 

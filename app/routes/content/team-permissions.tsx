@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminContentApi } from '../../api/adminContent';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import {
@@ -9,7 +10,7 @@ import {
   getResponseData,
 } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { TeamPermissionItem } from '../../types';
+import type { PaginationMeta, TeamPermissionItem } from '../../types';
 
 export function meta() {
   return [
@@ -49,20 +50,30 @@ export default function TeamPermissionsPage() {
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminContentApi.listTeamPermissions({
-          page: 1,
-          limit: 100,
+          page,
+          limit: 20,
         });
-        const { results } = getPaginatedResponse<TeamPermissionApiItem>(
+        const { results, pagination: pageMeta } = getPaginatedResponse<TeamPermissionApiItem>(
           data,
           'teamPermissions',
         );
         setPermissions(results.map(mapTeamPermission));
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -70,7 +81,7 @@ export default function TeamPermissionsPage() {
       }
     };
     load();
-  }, []);
+  }, [page]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -202,7 +213,44 @@ export default function TeamPermissionsPage() {
 
       <FilterBar searchValue={search} onSearchChange={setSearch} />
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(perm) => perm._id}
+        mobileTitle={(perm) => perm.permission}
+        mobileSubtitle={(perm) => perm.description}
+        mobileActions={(perm) => (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="text-xs font-medium text-gray-600 hover:underline"
+              onClick={() => {
+                setEditing(perm);
+                setForm({
+                  permission: perm.permission,
+                  description: perm.description,
+                });
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="text-xs font-medium text-red-600 hover:underline"
+              onClick={() => setDeleteId(perm._id)}
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={editing !== null || form.permission.length > 0}

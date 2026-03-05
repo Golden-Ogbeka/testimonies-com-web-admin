@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import PageHeader from '../../common/page-header';
 import FilterBar from '../../common/filter-bar';
+import PaginationControls from '../../common/pagination-controls';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
-import type { AdminTestimonySummary } from '../../types';
+import type { AdminTestimonySummary, PaginationMeta } from '../../types';
 import { sendCatchFeedback } from '../../functions/feedback';
 import Modal from '../../common/modal';
 
@@ -23,17 +24,38 @@ export default function TestimoniesIndex() {
   const [flagAction, setFlagAction] = useState<'flag' | 'unflag' | null>(null);
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
+  const [isFlaggedFilter, setIsFlaggedFilter] = useState<'all' | 'true' | 'false'>(
+    'all',
+  );
+
+  const getTestimonyText = (item: AdminTestimonySummary) =>
+    item.description || item.content || item.title || '(No content)';
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminTestimoniesApi.list({ page: 1, limit: 50 });
-        const { results } = getPaginatedResponse<AdminTestimonySummary>(
+        const { data } = await AdminTestimoniesApi.list({
+          page,
+          limit: 20,
+          isFlagged:
+            isFlaggedFilter === 'all' ? undefined : isFlaggedFilter === 'true',
+        });
+        const { results, pagination: pageMeta } = getPaginatedResponse<AdminTestimonySummary>(
           data,
           'testimonies',
         );
         setItems(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -41,12 +63,12 @@ export default function TestimoniesIndex() {
       }
     };
     load();
-  }, []);
+  }, [page, isFlaggedFilter]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return items;
-    return items.filter((item) => item.content.toLowerCase().includes(query));
+    return items.filter((item) => getTestimonyText(item).toLowerCase().includes(query));
   }, [items, search]);
 
   const columns: TableColumn<AdminTestimonySummary>[] = [
@@ -55,7 +77,7 @@ export default function TestimoniesIndex() {
       header: 'Content',
       accessor: (item) => (
         <p className="line-clamp-2 max-w-xl text-sm text-gray-800">
-          {item.content}
+          {getTestimonyText(item)}
         </p>
       ),
     },
@@ -140,9 +162,48 @@ export default function TestimoniesIndex() {
         description="Browse, review and flag testimonies that violate community guidelines."
       />
 
-      <FilterBar searchValue={search} onSearchChange={setSearch} />
+      <FilterBar searchValue={search} onSearchChange={setSearch}>
+        <select
+          value={isFlaggedFilter}
+          onChange={(event) => {
+            setIsFlaggedFilter(event.target.value as 'all' | 'true' | 'false');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All statuses</option>
+          <option value="true">Flagged only</option>
+          <option value="false">Unflagged only</option>
+        </select>
+      </FilterBar>
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(item) => item._id}
+        mobileTitle={(item) => getTestimonyText(item)}
+        mobileSubtitle={(item) => `User: ${item.userId}`}
+        mobileActions={(item) => (
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedId(item._id);
+              setFlagAction(item.isFlagged ? 'unflag' : 'flag');
+              setReason('');
+            }}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            {item.isFlagged ? 'Unflag' : 'Flag'}
+          </button>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={selectedId !== null && flagAction !== null}
@@ -163,7 +224,7 @@ export default function TestimoniesIndex() {
           </p>
           {activeItem && (
             <p className="rounded-md bg-gray-50 p-2 text-xs text-gray-600">
-              {activeItem.content}
+              {getTestimonyText(activeItem)}
             </p>
           )}
           <textarea

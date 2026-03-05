@@ -33,10 +33,6 @@ export default function DashboardIndex() {
           AdminUsersApi.statsAll(),
           AdminTestimoniesApi.analyticsHighestEngagement(5),
         ]);
-
-        const testimoniesData = engagementRes.data.data as unknown as {
-          testimonies: any[];
-        };
         setState({
           userStats: usersRes.data.data,
           topEngagement: getResponseResource<AdminTestimonyAnalyticsItem[]>(
@@ -113,7 +109,7 @@ export default function DashboardIndex() {
             <ul className="space-y-3">
               {topEngagement.map((item, index) => (
                 <li
-                  key={item._id}
+                  key={item.testimonyId ?? `${item.userId}-${index}`}
                   className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm transition-colors hover:bg-slate-100"
                 >
                   <div className="flex items-center gap-3">
@@ -121,7 +117,7 @@ export default function DashboardIndex() {
                       {index + 1}
                     </div>
                     <span className="truncate font-medium text-slate-900">
-                      {item.title ?? `Testimony ${item._id.slice(-6)}`}
+                      {item.title ?? `Testimony ${item.testimonyId?.slice(-6) ?? index + 1}`}
                     </span>
                   </div>
                   <span className="flex items-center gap-1 text-xs font-medium text-slate-600">

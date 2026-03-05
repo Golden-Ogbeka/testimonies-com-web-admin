@@ -141,6 +141,9 @@ export default function TestimonyAnalytics() {
             columns={testimonyColumns}
             data={highestEngagement}
             loading={false}
+            getRowKey={(item) => item.testimonyId}
+            mobileTitle={(item) => item.title || item.testimonyId}
+            mobileSubtitle={(item) => `User: ${item.userId}`}
           />
         </div>
 
@@ -152,6 +155,9 @@ export default function TestimonyAnalytics() {
             columns={testimonyColumns}
             data={highestLikes}
             loading={false}
+            getRowKey={(item) => item.testimonyId}
+            mobileTitle={(item) => item.title || item.testimonyId}
+            mobileSubtitle={(item) => `User: ${item.userId}`}
           />
         </div>
 
@@ -163,6 +169,9 @@ export default function TestimonyAnalytics() {
             columns={testimonyColumns}
             data={highestViews}
             loading={false}
+            getRowKey={(item) => item.testimonyId}
+            mobileTitle={(item) => item.title || item.testimonyId}
+            mobileSubtitle={(item) => `User: ${item.userId}`}
           />
         </div>
 
@@ -170,7 +179,13 @@ export default function TestimonyAnalytics() {
           <h3 className="mb-4 text-sm font-semibold text-gray-900">
             Most active users
           </h3>
-          <Table columns={userColumns} data={mostActiveUsers} loading={false} />
+          <Table
+            columns={userColumns}
+            data={mostActiveUsers}
+            loading={false}
+            getRowKey={(item) => `${item.userId}-${item.count}`}
+            mobileTitle={(item) => item.userId}
+          />
         </div>
       </div>
     </>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { AdminUserSummary } from '../../types';
+import type { AdminUserSummary, PaginationMeta } from '../../types';
 
 export function meta() {
   return [
@@ -19,14 +20,23 @@ export function meta() {
 export default function UnsubscribedUsers() {
   const [items, setItems] = useState<AdminUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminSubscriptionsApi.listUnsubscribedUsers({
-          page: 1,
-          limit: 50,
+          page,
+          limit: 20,
         });
         type OrganizationItem = {
           _id: string;
@@ -40,7 +50,7 @@ export default function UnsubscribedUsers() {
           createdAt?: string;
         };
 
-        const { results: users } = getPaginatedResponse<AdminUserSummary>(
+        const { results: users, pagination: pageMeta } = getPaginatedResponse<AdminUserSummary>(
           data,
           'users',
         );
@@ -62,6 +72,7 @@ export default function UnsubscribedUsers() {
         );
 
         setItems([...users, ...mappedOrganizations]);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -69,7 +80,7 @@ export default function UnsubscribedUsers() {
       }
     };
     load();
-  }, []);
+  }, [page]);
 
   const columns: TableColumn<AdminUserSummary>[] = [
     {
@@ -102,7 +113,20 @@ export default function UnsubscribedUsers() {
         title="Unsubscribed users"
         description="Users or organizations without any active subscription."
       />
-      <Table columns={columns} data={items} loading={loading} />
+      <Table
+        columns={columns}
+        data={items}
+        loading={loading}
+        getRowKey={(user) => user._id}
+        mobileTitle={(user) => `${user.firstName} ${user.lastName}`.trim()}
+        mobileSubtitle={(user) => user.email}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
     </>
   );
 }

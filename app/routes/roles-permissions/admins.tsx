@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminRolesPermissionsApi } from '../../api/adminRolesPermissions';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { AdminAccount, AdminRole } from '../../types';
+import type { AdminAccount, AdminRole, PaginationMeta } from '../../types';
 
 export function meta() {
   return [
@@ -41,17 +42,34 @@ export default function AdminsPage() {
   const [saving, setSaving] = useState(false);
   const [toggleId, setToggleId] = useState<string | null>(null);
   const [toggling, setToggling] = useState(false);
+  const [page, setPage] = useState(1);
+  const [roleFilter, setRoleFilter] = useState<'all' | AdminRole>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminRolesPermissionsApi.listAdmins({
-          page: 1,
-          limit: 100,
+          page,
+          limit: 20,
+          role: roleFilter === 'all' ? undefined : roleFilter,
+          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
         });
-        const { results } = getPaginatedResponse<AdminAccount>(data, 'admins');
+        const { results, pagination: pageMeta } = getPaginatedResponse<AdminAccount>(
+          data,
+          'admins',
+        );
         setAdmins(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -59,7 +77,7 @@ export default function AdminsPage() {
       }
     };
     load();
-  }, []);
+  }, [page, roleFilter, statusFilter]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -235,9 +253,75 @@ export default function AdminsPage() {
         }
       />
 
-      <FilterBar searchValue={search} onSearchChange={setSearch} />
+      <FilterBar searchValue={search} onSearchChange={setSearch}>
+        <select
+          value={roleFilter}
+          onChange={(event) => {
+            setRoleFilter(event.target.value as 'all' | AdminRole);
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All roles</option>
+          <option value="admin">Admin</option>
+          <option value="super-admin">Super admin</option>
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(event) => {
+            setStatusFilter(event.target.value as 'all' | 'active' | 'inactive');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </FilterBar>
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(admin) => admin._id}
+        mobileTitle={(admin) => `${admin.firstName} ${admin.lastName}`}
+        mobileSubtitle={(admin) => admin.email}
+        mobileActions={(admin) => (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="text-xs font-medium text-gray-600 hover:underline"
+              onClick={() => {
+                setEditing(admin);
+                setForm({
+                  firstName: admin.firstName,
+                  lastName: admin.lastName,
+                  email: admin.email,
+                  phoneNumber: admin.phoneNumber || '',
+                  role: admin.role,
+                  password: '',
+                });
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => setToggleId(admin._id)}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              {admin.active ? 'Deactivate' : 'Activate'}
+            </button>
+          </div>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={editing !== null || form.email.length > 0}

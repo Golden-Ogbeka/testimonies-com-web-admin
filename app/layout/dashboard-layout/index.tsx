@@ -42,7 +42,7 @@ const DashboardLayout = () => {
             onMenuClick={() => setSidebarOpen(true)}
             ariaExpanded={sidebarOpen}
           />
-          <div className="px-6 py-5 min-h-[calc(100vh-4rem)]">
+          <div className="px-3 py-4 sm:px-5 sm:py-5 lg:px-6 min-h-[calc(100vh-4rem)]">
             <Outlet />
           </div>
         </main>

@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminUsersApi } from '../../api/adminUsers';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { AdminUserSummary } from '../../types';
+import type { AdminUserSummary, PaginationMeta } from '../../types';
 
 export function meta() {
   return [
@@ -24,13 +25,34 @@ export default function UsersIndex() {
   const [search, setSearch] = useState('');
   const [toggleUserId, setToggleUserId] = useState<string | null>(null);
   const [toggling, setToggling] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [flagFilter, setFlagFilter] = useState<'all' | 'flagged' | 'clean'>('all');
+  const [accountTypeFilter, setAccountTypeFilter] = useState<'all' | 'user' | 'organization'>(
+    'all',
+  );
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const { data } = await AdminUsersApi.list({ page: 1, limit: 50 });
-        const { results: userResults } = getPaginatedResponse<AdminUserSummary>(
+        const { data } = await AdminUsersApi.list({
+          page,
+          limit: 20,
+          isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
+          isFlagged: flagFilter === 'all' ? undefined : flagFilter === 'flagged',
+          accountType: accountTypeFilter === 'all' ? undefined : accountTypeFilter,
+        });
+        const { results: userResults, pagination: pageMeta } =
+          getPaginatedResponse<AdminUserSummary>(
           data,
           'users',
         );
@@ -62,6 +84,7 @@ export default function UsersIndex() {
           }),
         );
         setUsers([...userResults, ...mappedOrganizations]);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -69,7 +92,7 @@ export default function UsersIndex() {
       }
     };
     load();
-  }, []);
+  }, [page, statusFilter, flagFilter, accountTypeFilter]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -185,9 +208,68 @@ export default function UsersIndex() {
         description="View and manage users across the Testimonies platform."
       />
 
-      <FilterBar searchValue={search} onSearchChange={setSearch} />
+      <FilterBar searchValue={search} onSearchChange={setSearch}>
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value as 'all' | 'active' | 'inactive');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select
+          value={flagFilter}
+          onChange={(e) => {
+            setFlagFilter(e.target.value as 'all' | 'flagged' | 'clean');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All flags</option>
+          <option value="flagged">Flagged</option>
+          <option value="clean">Not flagged</option>
+        </select>
+        <select
+          value={accountTypeFilter}
+          onChange={(e) => {
+            setAccountTypeFilter(e.target.value as 'all' | 'user' | 'organization');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All account types</option>
+          <option value="user">User</option>
+          <option value="organization">Organization</option>
+        </select>
+      </FilterBar>
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(user) => user._id}
+        mobileTitle={(user) => `${user.firstName} ${user.lastName}`.trim()}
+        mobileSubtitle={(user) => user.email}
+        mobileActions={(user) => (
+          <button
+            type="button"
+            onClick={() => setToggleUserId(user._id)}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            {user.active ? 'Deactivate' : 'Activate'}
+          </button>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={toggleUserId !== null}

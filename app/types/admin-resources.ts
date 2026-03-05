@@ -24,8 +24,11 @@ export interface AdminUserStats {
 export interface AdminTestimonySummary {
   _id: string;
   userId: string;
-  content: string;
+  title?: string;
+  description?: string;
+  content?: string;
   isFlagged: boolean;
+  flagReason?: string;
   createdAt: string;
 }
 

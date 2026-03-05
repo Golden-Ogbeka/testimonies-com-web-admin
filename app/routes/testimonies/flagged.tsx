@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import type { AdminTestimonySummary } from '../../types';
+import type { AdminTestimonySummary, PaginationMeta } from '../../types';
 
 export function meta() {
   return [
@@ -22,20 +23,33 @@ export default function FlaggedTestimonies() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
+
+  const getTestimonyText = (item: AdminTestimonySummary) =>
+    item.description || item.content || item.title || '(No content)';
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminTestimoniesApi.listFlagged({
-          page: 1,
-          limit: 100,
+          page,
+          limit: 20,
         });
-        const { results } = getPaginatedResponse<AdminTestimonySummary>(
+        const { results, pagination: pageMeta } = getPaginatedResponse<AdminTestimonySummary>(
           data,
           'testimonies',
         );
         setItems(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -43,12 +57,12 @@ export default function FlaggedTestimonies() {
       }
     };
     load();
-  }, []);
+  }, [page]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return items;
-    return items.filter((item) => item.content.toLowerCase().includes(query));
+    return items.filter((item) => getTestimonyText(item).toLowerCase().includes(query));
   }, [items, search]);
 
   const columns: TableColumn<AdminTestimonySummary>[] = [
@@ -57,7 +71,7 @@ export default function FlaggedTestimonies() {
       header: 'Content',
       accessor: (item) => (
         <p className="line-clamp-2 max-w-xl text-sm text-gray-800">
-          {item.content}
+          {getTestimonyText(item)}
         </p>
       ),
     },
@@ -125,7 +139,34 @@ export default function FlaggedTestimonies() {
 
       <FilterBar searchValue={search} onSearchChange={setSearch} />
 
-      <Table columns={columns} data={filtered} loading={loading} />
+      <Table
+        columns={columns}
+        data={filtered}
+        loading={loading}
+        getRowKey={(item) => item._id}
+        mobileTitle={(item) => getTestimonyText(item)}
+        mobileSubtitle={(item) =>
+          `Created: ${new Date(item.createdAt).toLocaleDateString()}`
+        }
+        mobileActions={(item) => (
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedId(item._id);
+              setReason('');
+            }}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            Unflag
+          </button>
+        )}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
 
       <Modal
         open={selectedId !== null}
@@ -144,7 +185,7 @@ export default function FlaggedTestimonies() {
           </p>
           {activeItem && (
             <p className="rounded-md bg-gray-50 p-2 text-xs text-gray-600">
-              {activeItem.content}
+              {getTestimonyText(activeItem)}
             </p>
           )}
           <textarea

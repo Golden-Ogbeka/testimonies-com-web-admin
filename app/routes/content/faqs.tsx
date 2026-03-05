@@ -42,6 +42,9 @@ export default function FaqsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>(
+    'all',
+  );
 
   const loadFaqs = async (currentPage = 1) => {
     try {
@@ -49,6 +52,7 @@ export default function FaqsPage() {
       const { data } = await AdminContentApi.listFaq({
         page: currentPage,
         limit: 20,
+        isActive: statusFilter === 'all' ? undefined : statusFilter === 'active',
       });
 
       const { results, pagination } = getPaginatedResponse<FaqItem>(
@@ -68,7 +72,7 @@ export default function FaqsPage() {
 
   useEffect(() => {
     loadFaqs(1);
-  }, []);
+  }, [statusFilter]);
 
   const columns: TableColumn<FaqItem>[] = [
     {
@@ -244,13 +248,55 @@ export default function FaqsPage() {
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search FAQs..."
-      />
+      >
+        <select
+          value={statusFilter}
+          onChange={(event) => {
+            setStatusFilter(event.target.value as 'all' | 'active' | 'inactive');
+            setPage(1);
+          }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </FilterBar>
 
       <Table
         columns={columns}
         data={faqs}
         loading={loading}
         emptyMessage="No FAQs found"
+        getRowKey={(faq) => faq._id}
+        mobileTitle={(faq) => faq.question}
+        mobileSubtitle={(faq) => faq.answer}
+        mobileActions={(faq) => (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="text-xs font-medium text-gray-600 hover:underline"
+              onClick={() => {
+                setEditing(faq);
+                setForm({
+                  question: faq.question,
+                  answer: faq.answer,
+                  order: faq.order,
+                });
+                setShowModal(true);
+              }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              className="text-xs font-medium text-red-600 hover:underline"
+              onClick={() => setDeleteId(faq._id)}
+            >
+              Delete
+            </button>
+          </div>
+        )}
       />
 
       {/* Pagination */}

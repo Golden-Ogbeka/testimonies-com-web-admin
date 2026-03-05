@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
+import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
-import type { SubscriptionSummary } from '../../types';
+import type { PaginationMeta, SubscriptionSummary } from '../../types';
 import { sendCatchFeedback } from '../../functions/feedback';
 
 export function meta() {
@@ -16,20 +17,30 @@ export function meta() {
 export default function CancelledSubscriptions() {
   const [items, setItems] = useState<SubscriptionSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    totalResults: 0,
+    resultsPerPage: 20,
+    totalPages: 1,
+    currentPage: 1,
+    prevPage: null,
+    nextPage: null,
+  });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         const { data } = await AdminSubscriptionsApi.listCancelled({
-          page: 1,
-          limit: 50,
+          page,
+          limit: 20,
         });
-        const { results } = getPaginatedResponse<SubscriptionSummary>(
+        const { results, pagination: pageMeta } = getPaginatedResponse<SubscriptionSummary>(
           data,
           'subscriptions',
         );
         setItems(results);
+        setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -37,7 +48,7 @@ export default function CancelledSubscriptions() {
       }
     };
     load();
-  }, []);
+  }, [page]);
 
   const columns: TableColumn<SubscriptionSummary>[] = [
     {
@@ -83,7 +94,20 @@ export default function CancelledSubscriptions() {
         title="Cancelled subscriptions"
         description="Subscriptions that have been explicitly cancelled."
       />
-      <Table columns={columns} data={items} loading={loading} />
+      <Table
+        columns={columns}
+        data={items}
+        loading={loading}
+        getRowKey={(sub) => sub._id}
+        mobileTitle={(sub) => `User ${sub.userId.slice(0, 8)}…`}
+        mobileSubtitle={(sub) => `Plan ${sub.planId.slice(0, 8)}…`}
+      />
+      <PaginationControls
+        page={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        totalResults={pagination.totalResults}
+        onPageChange={setPage}
+      />
     </>
   );
 }
