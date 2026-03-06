@@ -1,14 +1,16 @@
 import autoAnimate from '@formkit/auto-animate';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { RoutePaths } from '../../routes/route-paths';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   Bars3Icon,
   ArrowRightOnRectangleIcon,
   BuildingOfficeIcon,
 } from '@heroicons/react/24/outline';
 import { mainLinks, secondaryLinks } from '../navLinks';
+import { signOut } from '../../store/slices/admin';
+import { AdminAuthApi } from '../../api/adminAuth';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -19,8 +21,10 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
   const [open, setOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const dispatch = useAppDispatch();
   const { profile } = useAppSelector((state) => state.admin);
   const location = useLocation();
+  const navigate = useNavigate();
   const parentRef = useRef<HTMLDivElement | null>(null);
 
   const allLinks = [...mainLinks, ...secondaryLinks];
@@ -82,6 +86,18 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
       ? `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
       : '';
 
+  const handleLogout = async () => {
+    try {
+      await AdminAuthApi.logout();
+    } catch {
+      // Best-effort: even if the API fails, clear local session.
+    } finally {
+      dispatch(signOut());
+      setLogoutConfirmOpen(false);
+      navigate(RoutePaths.LOGIN);
+    }
+  };
+
   return (
     <>
       {/* Logout Confirmation Dialog */}
@@ -105,10 +121,8 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
               <button
                 type="button"
                 onClick={() => {
-                  setLogoutConfirmOpen(true);
                   setOpen(false);
-                  // Handle logout - you'll need to implement this
-                  window.location.href = RoutePaths.LOGIN;
+                  handleLogout();
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg"
               >

@@ -4,8 +4,6 @@ import { getTokenDetails } from '../functions/userSession';
 import { store } from '../store';
 import { signOut } from '../store/slices/admin';
 
-const initialToken = getTokenDetails();
-
 const createRequestId = (): string => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -26,7 +24,7 @@ appAxios.interceptors.request.use(
     const { admin } = store.getState();
 
     const storeToken = admin.token;
-    const tokenFromSession = initialToken;
+    const tokenFromSession = getTokenDetails();
     const token = storeToken?.token ?? tokenFromSession?.token;
 
     if (ADMIN_API_KEY) {

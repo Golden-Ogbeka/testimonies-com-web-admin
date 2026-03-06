@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router';
 import { RoutePaths } from '../../routes/route-paths';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { signOut } from '../../store/slices/admin';
+import { AdminAuthApi } from '../../api/adminAuth';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -31,9 +32,15 @@ const Sidebar: React.FC<SidebarProps> = ({
   const admin = useAppSelector((state) => state.admin.profile);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
-  const handleLogout = () => {
-    dispatch(signOut());
-    navigate(RoutePaths.LOGIN);
+  const handleLogout = async () => {
+    try {
+      await AdminAuthApi.logout();
+    } catch {
+      // Best-effort: even if the API fails, clear local session.
+    } finally {
+      dispatch(signOut());
+      navigate(RoutePaths.LOGIN);
+    }
   };
 
   const renderNavLinks = (iconsOnly: boolean, isMobile: boolean = false) => {

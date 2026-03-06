@@ -1,28 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router';
+import { useState } from 'react';
+import { Outlet } from 'react-router';
 import FullPageLoader from '../../common/full-page-loader';
-import { sendFeedback } from '../../functions/feedback';
-import { getSessionDetails } from '../../functions/userSession';
-import { RoutePaths } from '../../routes/route-paths';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import { useAuthGuard } from '../../hooks/useAuthGuard';
 
 const DashboardLayout = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-
-  useEffect(() => {
-    const currentAdmin = getSessionDetails();
-
-    if (!currentAdmin) {
-      sendFeedback('Login to continue');
-      navigate(RoutePaths.LOGIN);
-    } else {
-      setLoading(false);
-    }
-  }, [navigate]);
+  const { loading } = useAuthGuard('dashboard');
 
   if (loading) {
     return <FullPageLoader />;

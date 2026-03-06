@@ -1,7 +1,15 @@
 import type React from 'react';
 import { Outlet } from 'react-router';
+import FullPageLoader from '../../common/full-page-loader';
+import { useAuthGuard } from '../../hooks/useAuthGuard';
 
 const AuthLayout: React.FC = () => {
+  const { loading } = useAuthGuard('auth');
+
+  if (loading) {
+    return <FullPageLoader />;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white px-4">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_55%),_radial-gradient(circle_at_bottom,_rgba(45,212,191,0.12),_transparent_55%)] pointer-events-none" />
