@@ -28,6 +28,9 @@ export default function ForgotPasswordRoute() {
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
+    },
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {

@@ -39,6 +39,9 @@ export default function ResetPasswordRoute() {
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       email: locationState?.email ?? '',
+      otp: '',
+      password: '',
+      confirmPassword: '',
     },
   });
 
@@ -86,7 +89,7 @@ export default function ResetPasswordRoute() {
         <OtpInput
           value={watch('otp')}
           onChange={handleOtpChange}
-          label="Reset code"
+          label="OTP"
           error={errors.otp?.message}
         />
 

@@ -1,4 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AdminContentApi } from '../../api/adminContent';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
@@ -10,6 +12,10 @@ import {
   getResponseData,
 } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
+import {
+  createPermissionSchema,
+  type CreatePermissionFormData,
+} from '../../schemas';
 import type { PaginationMeta, TeamPermissionItem } from '../../types';
 
 export function meta() {
@@ -18,16 +24,6 @@ export function meta() {
     { name: 'description', content: 'Manage team permission definitions.' },
   ];
 }
-
-type PermissionFormState = Pick<
-  TeamPermissionItem,
-  'permission' | 'description'
->;
-
-const emptyForm: PermissionFormState = {
-  permission: '',
-  description: '',
-};
 
 type TeamPermissionApiItem = Omit<TeamPermissionItem, 'permission'> & {
   name?: string;
@@ -46,8 +42,6 @@ export default function TeamPermissionsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<TeamPermissionItem | null>(null);
-  const [form, setForm] = useState<PermissionFormState>(emptyForm);
-  const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
@@ -58,6 +52,19 @@ export default function TeamPermissionsPage() {
     currentPage: 1,
     prevPage: null,
     nextPage: null,
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<CreatePermissionFormData>({
+    resolver: zodResolver(createPermissionSchema),
+    defaultValues: {
+      permission: '',
+      description: '',
+    },
   });
 
   useEffect(() => {
@@ -123,7 +130,7 @@ export default function TeamPermissionsPage() {
             className="text-xs font-medium text-gray-600 hover:underline"
             onClick={() => {
               setEditing(perm);
-              setForm({
+              reset({
                 permission: perm.permission,
                 description: perm.description,
               });
@@ -144,33 +151,31 @@ export default function TeamPermissionsPage() {
     },
   ];
 
-  const handleSave = async () => {
+  const onSave = async (data: CreatePermissionFormData) => {
     try {
-      setSaving(true);
       if (editing) {
-        const { data } = await AdminContentApi.updateTeamPermission(
+        const { data: response } = await AdminContentApi.updateTeamPermission(
           editing._id,
-          form,
+          data,
         );
         const updated = mapTeamPermission(
-          getResponseData<TeamPermissionApiItem>(data),
+          getResponseData<TeamPermissionApiItem>(response),
         );
         setPermissions((prev) =>
           prev.map((p) => (p._id === editing._id ? updated : p)),
         );
       } else {
-        const { data } = await AdminContentApi.createTeamPermission(form);
+        const { data: response } =
+          await AdminContentApi.createTeamPermission(data);
         const created = mapTeamPermission(
-          getResponseData<TeamPermissionApiItem>(data),
+          getResponseData<TeamPermissionApiItem>(response),
         );
         setPermissions((prev) => [created, ...prev]);
       }
       setEditing(null);
-      setForm(emptyForm);
+      reset({ permission: '', description: '' });
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -190,7 +195,7 @@ export default function TeamPermissionsPage() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm(emptyForm);
+    reset({ permission: '', description: '' });
   };
 
   return (
@@ -225,7 +230,7 @@ export default function TeamPermissionsPage() {
               className="text-xs font-medium text-gray-600 hover:underline"
               onClick={() => {
                 setEditing(perm);
-                setForm({
+                reset({
                   permission: perm.permission,
                   description: perm.description,
                 });
@@ -251,39 +256,43 @@ export default function TeamPermissionsPage() {
       />
 
       <Modal
-        open={editing !== null || form.permission.length > 0}
+        open={editing !== null || false}
         title={editing ? 'Edit permission' : 'New permission'}
         primaryLabel={editing ? 'Save changes' : 'Create permission'}
-        onPrimary={handleSave}
+        onPrimary={handleSubmit(onSave)}
         onClose={() => {
           setEditing(null);
-          setForm(emptyForm);
+          reset({ permission: '', description: '' });
         }}
-        loading={saving}
+        loading={isSubmitting}
       >
         <div className="space-y-3">
           <div className="inputContainer">
             <label htmlFor="perm-name">Permission name</label>
             <input
               id="perm-name"
-              value={form.permission}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, permission: e.target.value }))
-              }
+              {...register('permission')}
               placeholder="e.g., manage_users"
             />
+            {errors.permission && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.permission.message}
+              </p>
+            )}
           </div>
           <div className="inputContainer">
             <label htmlFor="perm-description">Description</label>
             <textarea
               id="perm-description"
-              value={form.description}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, description: e.target.value }))
-              }
+              {...register('description')}
               rows={3}
               placeholder="Describe what this permission allows…"
             />
+            {errors.description && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.description.message}
+              </p>
+            )}
           </div>
         </div>
       </Modal>

@@ -49,7 +49,7 @@ appAxios.interceptors.response.use(
   (error) => {
     const status = error.response?.status as number | undefined;
 
-    if (status === 401 || status === 403) {
+    if (status === 401) {
       store.dispatch(signOut());
     }
 

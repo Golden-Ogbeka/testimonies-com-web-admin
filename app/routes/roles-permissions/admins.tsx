@@ -1,4 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AdminRolesPermissionsApi } from '../../api/adminRolesPermissions';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
@@ -8,6 +10,12 @@ import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
+import {
+  createAdminSchema,
+  updateAdminSchema,
+  type CreateAdminFormData,
+  type UpdateAdminFormData,
+} from '../../schemas';
 import type { AdminAccount, AdminRole, PaginationMeta } from '../../types';
 
 export function meta() {
@@ -20,27 +28,12 @@ export function meta() {
   ];
 }
 
-type AdminFormState = Pick<
-  AdminAccount,
-  'firstName' | 'lastName' | 'email' | 'phoneNumber' | 'role'
-> & { password: string };
-
-const emptyForm: AdminFormState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumber: '',
-  role: 'admin',
-  password: '',
-};
-
 export default function AdminsPage() {
   const [admins, setAdmins] = useState<AdminAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<AdminAccount | null>(null);
-  const [form, setForm] = useState<AdminFormState>(emptyForm);
-  const [saving, setSaving] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [toggleId, setToggleId] = useState<string | null>(null);
   const [toggling, setToggling] = useState(false);
   const [page, setPage] = useState(1);
@@ -55,6 +48,43 @@ export default function AdminsPage() {
     currentPage: 1,
     prevPage: null,
     nextPage: null,
+  });
+
+  // Create form
+  const {
+    register: registerCreate,
+    handleSubmit: handleCreateSubmit,
+    formState: { errors: createErrors, isSubmitting: isCreating },
+    reset: resetCreate,
+  } = useForm<CreateAdminFormData>({
+    resolver: zodResolver(createAdminSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      phoneNumber: '',
+      role: 'admin',
+      permissions: [],
+    },
+  });
+
+  // Edit form
+  const {
+    register: registerEdit,
+    handleSubmit: handleEditSubmit,
+    formState: { errors: editErrors, isSubmitting: isEditing },
+    reset: resetEdit,
+  } = useForm<UpdateAdminFormData>({
+    resolver: zodResolver(updateAdminSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      role: 'admin',
+      permissions: [],
+    },
   });
 
   useEffect(() => {
@@ -150,17 +180,7 @@ export default function AdminsPage() {
           <button
             type="button"
             className="text-xs font-medium text-gray-600 hover:underline"
-            onClick={() => {
-              setEditing(admin);
-              setForm({
-                firstName: admin.firstName,
-                lastName: admin.lastName,
-                email: admin.email,
-                phoneNumber: admin.phoneNumber || '',
-                role: admin.role,
-                password: '',
-              });
-            }}
+            onClick={() => openEdit(admin)}
           >
             Edit
           </button>
@@ -177,34 +197,67 @@ export default function AdminsPage() {
     },
   ];
 
-  const handleSave = async () => {
+  const openEdit = (admin: AdminAccount) => {
+    setEditing(admin);
+    resetEdit({
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      email: admin.email,
+      phoneNumber: admin.phoneNumber || '',
+      role: admin.role,
+      permissions: [],
+    });
+    setShowModal(true);
+  };
+
+  const openCreate = () => {
+    setEditing(null);
+    resetCreate({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      phoneNumber: '',
+      role: 'admin',
+      permissions: [],
+    });
+    setShowModal(true);
+  };
+
+  const onCreateSave = async (data: CreateAdminFormData) => {
     try {
-      setSaving(true);
-      if (editing) {
-        const { data } = await AdminRolesPermissionsApi.updateAdmin(
-          editing._id,
-          {
-            firstName: form.firstName,
-            lastName: form.lastName,
-            phoneNumber: form.phoneNumber || undefined,
-          },
-        );
-        setAdmins((prev) =>
-          prev.map((a) => (a._id === editing._id ? data.data : a)),
-        );
-      } else {
-        const { data } = await AdminRolesPermissionsApi.createAdmin({
-          ...form,
-          permissions: [],
-        });
-        setAdmins((prev) => [data.data, ...prev]);
-      }
-      setEditing(null);
-      setForm(emptyForm);
+      const { data: response } = await AdminRolesPermissionsApi.createAdmin({
+        ...data,
+        role: data.role || 'admin',
+        permissions: data.permissions ?? [],
+      });
+      setAdmins((prev) => [response.data, ...prev]);
+      setShowModal(false);
+      resetCreate();
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setSaving(false);
+    }
+  };
+
+  const onEditSave = async (data: UpdateAdminFormData) => {
+    if (!editing) return;
+    try {
+      const { data: response } = await AdminRolesPermissionsApi.updateAdmin(
+        editing._id,
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber || undefined,
+        },
+      );
+      setAdmins((prev) =>
+        prev.map((a) => (a._id === editing._id ? response.data : a)),
+      );
+      setEditing(null);
+      setShowModal(false);
+      resetEdit();
+    } catch (error) {
+      sendCatchFeedback(error);
     }
   };
 
@@ -232,11 +285,6 @@ export default function AdminsPage() {
       setToggling(false);
       setToggleId(null);
     }
-  };
-
-  const openCreate = () => {
-    setEditing(null);
-    setForm(emptyForm);
   };
 
   return (
@@ -294,17 +342,7 @@ export default function AdminsPage() {
             <button
               type="button"
               className="text-xs font-medium text-gray-600 hover:underline"
-              onClick={() => {
-                setEditing(admin);
-                setForm({
-                  firstName: admin.firstName,
-                  lastName: admin.lastName,
-                  email: admin.email,
-                  phoneNumber: admin.phoneNumber || '',
-                  role: admin.role,
-                  password: '',
-                });
-              }}
+              onClick={() => openEdit(admin)}
             >
               Edit
             </button>
@@ -325,95 +363,142 @@ export default function AdminsPage() {
         onPageChange={setPage}
       />
 
+      {/* Create / Edit Modal */}
       <Modal
-        open={editing !== null || form.email.length > 0}
+        open={showModal}
         title={editing ? 'Edit admin' : 'New admin'}
         primaryLabel={editing ? 'Save changes' : 'Create admin'}
-        onPrimary={handleSave}
+        onPrimary={
+          editing
+            ? handleEditSubmit(onEditSave)
+            : handleCreateSubmit(onCreateSave)
+        }
         onClose={() => {
           setEditing(null);
-          setForm(emptyForm);
+          setShowModal(false);
         }}
-        loading={saving}
+        loading={editing ? isEditing : isCreating}
       >
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        {editing ? (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="inputContainer">
+                <label htmlFor="admin-first">First name</label>
+                <input id="admin-first" {...registerEdit('firstName')} />
+                {editErrors.firstName && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {editErrors.firstName.message}
+                  </p>
+                )}
+              </div>
+              <div className="inputContainer">
+                <label htmlFor="admin-last">Last name</label>
+                <input id="admin-last" {...registerEdit('lastName')} />
+                {editErrors.lastName && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {editErrors.lastName.message}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="inputContainer">
-              <label htmlFor="admin-first">First name</label>
+              <label htmlFor="admin-email">Email</label>
               <input
-                id="admin-first"
-                value={form.firstName}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, firstName: e.target.value }))
-                }
+                id="admin-email"
+                type="email"
+                {...registerEdit('email')}
+                disabled
               />
             </div>
             <div className="inputContainer">
-              <label htmlFor="admin-last">Last name</label>
+              <label htmlFor="admin-phone">Phone number (optional)</label>
               <input
-                id="admin-last"
-                value={form.lastName}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, lastName: e.target.value }))
-                }
+                id="admin-phone"
+                type="tel"
+                {...registerEdit('phoneNumber')}
               />
+              {editErrors.phoneNumber && (
+                <p className="mt-1 text-xs text-red-600">
+                  {editErrors.phoneNumber.message}
+                </p>
+              )}
             </div>
           </div>
-          <div className="inputContainer">
-            <label htmlFor="admin-email">Email</label>
-            <input
-              id="admin-email"
-              type="email"
-              value={form.email}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, email: e.target.value }))
-              }
-              disabled={!!editing}
-            />
-          </div>
-          <div className="inputContainer">
-            <label htmlFor="admin-phone">Phone number (optional)</label>
-            <input
-              id="admin-phone"
-              type="tel"
-              value={form.phoneNumber}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, phoneNumber: e.target.value }))
-              }
-            />
-          </div>
-          {!editing && (
-            <>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="inputContainer">
-                <label htmlFor="admin-password">Password</label>
-                <input
-                  id="admin-password"
-                  type="password"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, password: e.target.value }))
-                  }
-                />
+                <label htmlFor="admin-first">First name</label>
+                <input id="admin-first" {...registerCreate('firstName')} />
+                {createErrors.firstName && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {createErrors.firstName.message}
+                  </p>
+                )}
               </div>
               <div className="inputContainer">
-                <label htmlFor="admin-role">Role</label>
-                <select
-                  id="admin-role"
-                  value={form.role}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      role: e.target.value as AdminRole,
-                    }))
-                  }
-                >
-                  <option value="admin">Admin</option>
-                  <option value="super-admin">Super admin</option>
-                </select>
+                <label htmlFor="admin-last">Last name</label>
+                <input id="admin-last" {...registerCreate('lastName')} />
+                {createErrors.lastName && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {createErrors.lastName.message}
+                  </p>
+                )}
               </div>
-            </>
-          )}
-        </div>
+            </div>
+            <div className="inputContainer">
+              <label htmlFor="admin-email">Email</label>
+              <input
+                id="admin-email"
+                type="email"
+                {...registerCreate('email')}
+              />
+              {createErrors.email && (
+                <p className="mt-1 text-xs text-red-600">
+                  {createErrors.email.message}
+                </p>
+              )}
+            </div>
+            <div className="inputContainer">
+              <label htmlFor="admin-phone">Phone number (optional)</label>
+              <input
+                id="admin-phone"
+                type="tel"
+                {...registerCreate('phoneNumber')}
+              />
+              {createErrors.phoneNumber && (
+                <p className="mt-1 text-xs text-red-600">
+                  {createErrors.phoneNumber.message}
+                </p>
+              )}
+            </div>
+            <div className="inputContainer">
+              <label htmlFor="admin-password">Password</label>
+              <input
+                id="admin-password"
+                type="password"
+                {...registerCreate('password')}
+              />
+              {createErrors.password && (
+                <p className="mt-1 text-xs text-red-600">
+                  {createErrors.password.message}
+                </p>
+              )}
+            </div>
+            <div className="inputContainer">
+              <label htmlFor="admin-role">Role</label>
+              <select id="admin-role" {...registerCreate('role')}>
+                <option value="admin">Admin</option>
+                <option value="super-admin">Super admin</option>
+              </select>
+              {createErrors.role && (
+                <p className="mt-1 text-xs text-red-600">
+                  {createErrors.role.message}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </Modal>
 
       <Modal

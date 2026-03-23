@@ -18,6 +18,7 @@ export const verifyOtpSchema = z.object({
     .transform((email) => email.toLowerCase().trim()),
   otp: z
     .string()
+    .trim()
     .min(1, 'OTP is required')
     .length(6, 'OTP must be 6 digits')
     .regex(/^\d{6}$/, 'OTP must be 6 digits'),
@@ -126,7 +127,7 @@ export const updateAdminSchema = z.object({
 
 // Permission schemas
 export const createPermissionSchema = z.object({
-  name: z
+  permission: z
     .string()
     .min(1, 'Permission name is required')
     .min(2, 'Permission name must be at least 2 characters long')
@@ -153,12 +154,10 @@ export const createSubscriptionPlanSchema = z.object({
   price: z.number().min(0, 'Price must be a positive number'),
   currency: z
     .string()
-    .optional()
-    .refine(
-      (val) => !val || (val.length === 3 && /^[A-Z]{3}$/i.test(val)),
-      'Currency must be a 3-letter code',
-    )
-    .transform((val) => val?.toUpperCase()),
+    .min(1, 'Currency is required')
+    .length(3, 'Currency must be a 3-letter code')
+    .regex(/^[A-Z]{3}$/i, 'Currency must be a 3-letter code')
+    .transform((val) => val.toUpperCase()),
   billingCycle: z.enum(['monthly', 'yearly', 'quarterly']),
   features: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
@@ -177,7 +176,7 @@ export const createPromotionSchema = z.object({
     .min(5, 'Description must be at least 5 characters long')
     .trim(),
   type: z.enum(['announcement', 'discount', 'offer', 'feature']),
-  targetAudience: z.enum(['all', 'basic', 'organizations']),
+  targetAudience: z.enum(['all', 'basic', 'premium', 'organizations']),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().optional(),
   isActive: z.boolean().optional(),

@@ -1,5 +1,6 @@
 import type React from 'react';
-import { Outlet } from 'react-router';
+import { Link, Outlet } from 'react-router';
+import { RoutePaths } from '~/routes/route-paths';
 import FullPageLoader from '../../common/full-page-loader';
 import { useAuthGuard } from '../../hooks/useAuthGuard';
 
@@ -15,13 +16,16 @@ const AuthLayout: React.FC = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_55%),_radial-gradient(circle_at_bottom,_rgba(45,212,191,0.12),_transparent_55%)] pointer-events-none" />
       <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-[1.1fr,1fr] gap-10 items-center">
         <section className="hidden md:flex flex-col gap-6">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-emerald-200 ring-1 ring-emerald-400/30 w-fit">
+          <Link
+            to={RoutePaths.LOGIN}
+            className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-emerald-200 ring-1 ring-emerald-400/30 w-fit"
+          >
             Testimonies Admin
-          </div>
+          </Link>
           <h1 className="text-3xl lg:text-4xl font-semibold leading-tight">
-            Manage testimonies, users and subscriptions with confidence.
+            Welcome to Testimonies Admin
           </h1>
-          <p className="text-sm text-slate-300 max-w-md">
+          <p className="text-sm text-slate-300">
             A focused workspace for moderating content, monitoring engagement
             and managing platform configuration without leaving important
             context behind.

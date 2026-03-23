@@ -1,16 +1,21 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AdminAuthApi } from '../../api/adminAuth';
 import PageHeader from '../../common/page-header';
 import PasswordInput from '../../common/password-input';
+import TextInput from '../../common/text-input';
 import { getResponseData } from '../../functions/api-response';
 import {
   sendCatchFeedback,
   sendSuccessFeedback,
 } from '../../functions/feedback';
 import {
-  getPasswordStrengthMessage,
-  isStrongPassword,
-} from '../../functions/security';
+  changePasswordSchema,
+  updateProfileSchema,
+  type ChangePasswordFormData,
+  type UpdateProfileFormData,
+} from '../../schemas';
 import type { AdminProfile } from '../../types/auth';
 
 export function meta() {
@@ -23,15 +28,34 @@ export function meta() {
 export default function ProfileSettings() {
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [changingPassword, setChangingPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const {
+    register: registerProfile,
+    handleSubmit: handleProfileSubmit,
+    formState: { errors: profileErrors, isSubmitting: isProfileSaving },
+    reset: resetProfile,
+  } = useForm<UpdateProfileFormData>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+    },
+  });
+
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    formState: { errors: passwordErrors, isSubmitting: isPasswordChanging },
+    reset: resetPassword,
+  } = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
+  });
 
   useEffect(() => {
     const load = async () => {
@@ -40,9 +64,11 @@ export default function ProfileSettings() {
         const { data } = await AdminAuthApi.getProfile();
         const admin = getResponseData<AdminProfile>(data);
         setProfile(admin);
-        setFirstName(admin.firstName);
-        setLastName(admin.lastName);
-        setPhoneNumber(admin.phoneNumber || '');
+        resetProfile({
+          firstName: admin.firstName,
+          lastName: admin.lastName,
+          phoneNumber: admin.phoneNumber || '',
+        });
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -50,68 +76,32 @@ export default function ProfileSettings() {
       }
     };
     load();
-  }, []);
+  }, [resetProfile]);
 
-  useEffect(() => {
-    if (newPassword) {
-      const error = getPasswordStrengthMessage(newPassword);
-      setPasswordError(error);
-    } else {
-      setPasswordError(null);
-    }
-  }, [newPassword]);
-
-  const handleSaveProfile = async () => {
+  const onSaveProfile = async (data: UpdateProfileFormData) => {
     try {
-      setSaving(true);
-      const { data } = await AdminAuthApi.updateProfile({
-        firstName,
-        lastName,
-        phoneNumber: phoneNumber || undefined,
+      const { data: response } = await AdminAuthApi.updateProfile({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phoneNumber || undefined,
       });
-      setProfile(getResponseData<AdminProfile>(data));
+      setProfile(getResponseData<AdminProfile>(response));
       sendSuccessFeedback('Profile updated successfully');
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setSaving(false);
     }
   };
 
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      sendCatchFeedback(new Error('Passwords do not match'));
-      return;
-    }
-
-    if (!isStrongPassword(newPassword)) {
-      sendCatchFeedback(
-        new Error(passwordError || 'Password does not meet requirements'),
-      );
-      return;
-    }
-
-    if (newPassword === currentPassword) {
-      sendCatchFeedback(
-        new Error('New password must be different from current password'),
-      );
-      return;
-    }
-
+  const onChangePassword = async (data: ChangePasswordFormData) => {
     try {
-      setChangingPassword(true);
       await AdminAuthApi.changePassword({
-        currentPassword,
-        newPassword,
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
       });
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      resetPassword();
       sendSuccessFeedback('Password changed successfully');
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setChangingPassword(false);
     }
   };
 
@@ -143,24 +133,23 @@ export default function ProfileSettings() {
           <h3 className="mb-4 text-sm font-semibold text-gray-900">
             Personal information
           </h3>
-          <div className="space-y-4">
+          <form
+            onSubmit={handleProfileSubmit(onSaveProfile)}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-2 gap-4">
-              <div className="inputContainer">
-                <label htmlFor="profile-first">First name</label>
-                <input
-                  id="profile-first"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                />
-              </div>
-              <div className="inputContainer">
-                <label htmlFor="profile-last">Last name</label>
-                <input
-                  id="profile-last"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
+              <TextInput
+                id="profile-first"
+                label="First name"
+                {...registerProfile('firstName')}
+                error={profileErrors.firstName?.message}
+              />
+              <TextInput
+                id="profile-last"
+                label="Last name"
+                {...registerProfile('lastName')}
+                error={profileErrors.lastName?.message}
+              />
             </div>
             <div className="inputContainer">
               <label htmlFor="profile-email">Email</label>
@@ -171,15 +160,13 @@ export default function ProfileSettings() {
                 disabled
               />
             </div>
-            <div className="inputContainer">
-              <label htmlFor="profile-phone">Phone number (optional)</label>
-              <input
-                id="profile-phone"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-              />
-            </div>
+            <TextInput
+              id="profile-phone"
+              label="Phone number (optional)"
+              type="tel"
+              {...registerProfile('phoneNumber')}
+              error={profileErrors.phoneNumber?.message}
+            />
             <div className="flex items-center gap-4 text-xs text-gray-600">
               <div>
                 <span className="font-medium">Role:</span>{' '}
@@ -203,48 +190,43 @@ export default function ProfileSettings() {
               </div>
             </div>
             <button
-              type="button"
-              onClick={handleSaveProfile}
-              disabled={saving}
+              type="submit"
+              disabled={isProfileSaving}
               className="btn-primary"
             >
-              {saving ? 'Saving…' : 'Save changes'}
+              {isProfileSaving ? 'Saving…' : 'Save changes'}
             </button>
-          </div>
+          </form>
         </div>
 
         <div className="card">
           <h3 className="mb-4 text-sm font-semibold text-gray-900">
             Change password
           </h3>
-          <div className="space-y-4">
+          <form
+            onSubmit={handlePasswordSubmit(onChangePassword)}
+            className="space-y-4"
+          >
             <PasswordInput
               id="current-password"
               label="Current password"
-              value={currentPassword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setCurrentPassword(e.target.value)
-              }
               autoComplete="current-password"
+              {...registerPassword('currentPassword')}
+              error={passwordErrors.currentPassword?.message}
             />
             <PasswordInput
               id="new-password"
               label="New password"
-              value={newPassword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNewPassword(e.target.value)
-              }
               autoComplete="new-password"
-              error={passwordError || undefined}
+              {...registerPassword('newPassword')}
+              error={passwordErrors.newPassword?.message}
             />
             <PasswordInput
               id="confirm-password"
               label="Confirm new password"
-              value={confirmPassword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setConfirmPassword(e.target.value)
-              }
               autoComplete="new-password"
+              {...registerPassword('confirmPassword')}
+              error={passwordErrors.confirmPassword?.message}
             />
             <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-800">
               <p className="font-medium mb-1">Password requirements:</p>
@@ -256,20 +238,13 @@ export default function ProfileSettings() {
               </ul>
             </div>
             <button
-              type="button"
-              onClick={handleChangePassword}
-              disabled={
-                changingPassword ||
-                !currentPassword ||
-                !newPassword ||
-                !confirmPassword ||
-                !!passwordError
-              }
+              type="submit"
+              disabled={isPasswordChanging}
               className="btn-primary"
             >
-              {changingPassword ? 'Changing…' : 'Change password'}
+              {isPasswordChanging ? 'Changing…' : 'Change password'}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </>

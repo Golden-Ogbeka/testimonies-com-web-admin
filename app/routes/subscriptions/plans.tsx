@@ -1,4 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
 import Modal from '../../common/modal';
 import PaginationControls from '../../common/pagination-controls';
@@ -7,6 +9,10 @@ import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
+import {
+  createSubscriptionPlanSchema,
+  type CreateSubscriptionPlanFormData,
+} from '../../schemas';
 import type { PaginationMeta, SubscriptionPlan } from '../../types';
 
 export function meta() {
@@ -19,25 +25,11 @@ export function meta() {
   ];
 }
 
-type PlanFormState = Pick<
-  SubscriptionPlan,
-  'name' | 'description' | 'price' | 'billingCycle'
-> & { currency: string };
-
-const emptyForm: PlanFormState = {
-  name: '',
-  description: '',
-  price: 0,
-  billingCycle: 'monthly',
-  currency: 'NGN',
-};
-
 export default function SubscriptionPlans() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<SubscriptionPlan | null>(null);
-  const [form, setForm] = useState<PlanFormState>(emptyForm);
-  const [saving, setSaving] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'active' | 'inactive'
@@ -52,6 +44,24 @@ export default function SubscriptionPlans() {
     currentPage: 1,
     prevPage: null,
     nextPage: null,
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<CreateSubscriptionPlanFormData>({
+    resolver: zodResolver(createSubscriptionPlanSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      price: 0,
+      billingCycle: 'monthly',
+      currency: 'NGN',
+      features: [],
+      isActive: true,
+    },
   });
 
   useEffect(() => {
@@ -125,16 +135,7 @@ export default function SubscriptionPlans() {
           <button
             type="button"
             className="text-xs font-medium text-gray-600 hover:underline"
-            onClick={() => {
-              setEditing(plan);
-              setForm({
-                name: plan.name,
-                description: plan.description,
-                price: plan.price,
-                billingCycle: plan.billingCycle,
-                currency: plan.currency,
-              });
-            }}
+            onClick={() => openEdit(plan)}
           >
             Edit
           </button>
@@ -168,43 +169,55 @@ export default function SubscriptionPlans() {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      if (editing) {
-        const { data } = await AdminSubscriptionsApi.updatePlan(editing._id, {
-          name: form.name,
-          description: form.description,
-          price: form.price,
-          billingCycle: form.billingCycle,
-          currency: form.currency,
-        } as SubscriptionPlan);
-        setPlans((prev) =>
-          prev.map((p) => (p._id === editing._id ? data.data : p)),
-        );
-      } else {
-        const { data } = await AdminSubscriptionsApi.createPlan({
-          name: form.name,
-          description: form.description,
-          price: form.price,
-          billingCycle: form.billingCycle,
-          currency: form.currency,
-          features: [],
-        });
-        setPlans((prev) => [data.data, ...prev]);
-      }
-      setEditing(null);
-      setForm(emptyForm);
-    } catch (error) {
-      sendCatchFeedback(error);
-    } finally {
-      setSaving(false);
-    }
+  const openEdit = (plan: SubscriptionPlan) => {
+    setEditing(plan);
+    reset({
+      name: plan.name,
+      description: plan.description,
+      price: plan.price,
+      billingCycle: plan.billingCycle,
+      currency: plan.currency,
+      features: [],
+    });
+    setShowModal(true);
   };
 
   const openCreate = () => {
     setEditing(null);
-    setForm(emptyForm);
+    reset({
+      name: '',
+      description: '',
+      price: 0,
+      billingCycle: 'monthly',
+      currency: 'NGN',
+      features: [],
+    });
+    setShowModal(true);
+  };
+
+  const onSave = async (data: CreateSubscriptionPlanFormData) => {
+    try {
+      if (editing) {
+        const { data: response } = await AdminSubscriptionsApi.updatePlan(
+          editing._id,
+          data as SubscriptionPlan,
+        );
+        setPlans((prev) =>
+          prev.map((p) => (p._id === editing._id ? response.data : p)),
+        );
+      } else {
+        const { data: response } = await AdminSubscriptionsApi.createPlan({
+          ...data,
+          features: data.features ?? [],
+        });
+        setPlans((prev) => [response.data, ...prev]);
+      }
+      setEditing(null);
+      setShowModal(false);
+      reset();
+    } catch (error) {
+      sendCatchFeedback(error);
+    }
   };
 
   return (
@@ -265,16 +278,7 @@ export default function SubscriptionPlans() {
             <button
               type="button"
               className="text-xs font-medium text-gray-600 hover:underline"
-              onClick={() => {
-                setEditing(plan);
-                setForm({
-                  name: plan.name,
-                  description: plan.description,
-                  price: plan.price,
-                  billingCycle: plan.billingCycle,
-                  currency: plan.currency,
-                });
-              }}
+              onClick={() => openEdit(plan)}
             >
               Edit
             </button>
@@ -296,40 +300,37 @@ export default function SubscriptionPlans() {
       />
 
       <Modal
-        open={editing !== null || form.name.length > 0}
+        open={showModal}
         title={editing ? 'Edit plan' : 'New plan'}
         primaryLabel={editing ? 'Save changes' : 'Create plan'}
-        onPrimary={handleSave}
+        onPrimary={handleSubmit(onSave)}
         onClose={() => {
           setEditing(null);
-          setForm(emptyForm);
+          setShowModal(false);
+          reset();
         }}
-        loading={saving}
+        loading={isSubmitting}
       >
         <div className="space-y-3">
           <div className="inputContainer">
             <label htmlFor="plan-name">Name</label>
-            <input
-              id="plan-name"
-              value={form.name}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, name: event.target.value }))
-              }
-            />
+            <input id="plan-name" {...register('name')} />
+            {errors.name && (
+              <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+            )}
           </div>
           <div className="inputContainer">
             <label htmlFor="plan-description">Description</label>
             <textarea
               id="plan-description"
-              value={form.description}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  description: event.target.value,
-                }))
-              }
+              {...register('description')}
               rows={3}
             />
+            {errors.description && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.description.message}
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="inputContainer">
@@ -337,33 +338,40 @@ export default function SubscriptionPlans() {
               <input
                 id="plan-price"
                 type="number"
-                value={form.price}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    price: Number(event.target.value) || 0,
-                  }))
-                }
+                {...register('price', { valueAsNumber: true })}
               />
+              {errors.price && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.price.message}
+                </p>
+              )}
             </div>
             <div className="inputContainer">
-              <label htmlFor="plan-cycle">Billing cycle</label>
-              <select
-                id="plan-cycle"
-                value={form.billingCycle}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    billingCycle: event.target
-                      .value as PlanFormState['billingCycle'],
-                  }))
-                }
-              >
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-                <option value="quarterly">Quarterly</option>
-              </select>
+              <label htmlFor="plan-currency">Currency</label>
+              <input
+                id="plan-currency"
+                {...register('currency')}
+                placeholder="NGN"
+              />
+              {errors.currency && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.currency.message}
+                </p>
+              )}
             </div>
+          </div>
+          <div className="inputContainer">
+            <label htmlFor="plan-cycle">Billing cycle</label>
+            <select id="plan-cycle" {...register('billingCycle')}>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+              <option value="quarterly">Quarterly</option>
+            </select>
+            {errors.billingCycle && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.billingCycle.message}
+              </p>
+            )}
           </div>
         </div>
       </Modal>

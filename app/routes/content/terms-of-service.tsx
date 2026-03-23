@@ -1,4 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AdminContentApi } from '../../api/adminContent';
 import PageHeader from '../../common/page-header';
 import TextInput from '../../common/text-input';
@@ -6,6 +8,7 @@ import {
   sendCatchFeedback,
   sendSuccessFeedback,
 } from '../../functions/feedback';
+import { updateContentSchema, type UpdateContentFormData } from '../../schemas';
 import type { SystemContentItem } from '../../types';
 
 export function meta() {
@@ -18,10 +21,20 @@ export function meta() {
 export default function TermsOfServicePage() {
   const [content, setContent] = useState<SystemContentItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [version, setVersion] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<UpdateContentFormData>({
+    resolver: zodResolver(updateContentSchema),
+    defaultValues: {
+      title: '',
+      content: '',
+      version: '',
+    },
+  });
 
   useEffect(() => {
     const load = async () => {
@@ -29,9 +42,11 @@ export default function TermsOfServicePage() {
         setLoading(true);
         const { data } = await AdminContentApi.getTermsOfService();
         setContent(data.data);
-        setTitle(data.data.title);
-        setBody(data.data.content);
-        setVersion(data.data.version || '');
+        reset({
+          title: data.data.title,
+          content: data.data.content,
+          version: data.data.version || '',
+        });
       } catch (error) {
         sendCatchFeedback(error);
       } finally {
@@ -39,22 +54,19 @@ export default function TermsOfServicePage() {
       }
     };
     load();
-  }, []);
+  }, [reset]);
 
-  const handleSave = async () => {
+  const onSubmit = async (data: UpdateContentFormData) => {
     try {
-      setSaving(true);
-      const { data } = await AdminContentApi.updateTermsOfService({
-        title,
-        content: body,
-        version: version || undefined,
+      const { data: response } = await AdminContentApi.updateTermsOfService({
+        title: data.title,
+        content: data.content,
+        version: data.version || undefined,
       });
-      setContent(data.data);
+      setContent(response.data);
       sendSuccessFeedback('Terms of service updated successfully');
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -73,49 +85,55 @@ export default function TermsOfServicePage() {
         description="Update the terms of service displayed to users."
         actions={
           <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
+            type="submit"
+            form="tos-form"
+            disabled={isSubmitting}
             className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-primary/90 disabled:opacity-50"
           >
-            {saving ? 'Saving…' : 'Save changes'}
+            {isSubmitting ? 'Saving…' : 'Save changes'}
           </button>
         }
       />
 
       <div className="card">
-        <div className="space-y-4">
-          <TextInput
-            id="tos-title"
-            label="Title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <TextInput
-            id="tos-version"
-            label="Version (optional)"
-            type="text"
-            value={version}
-            onChange={(e) => setVersion(e.target.value)}
-            placeholder="e.g., 1.0.0"
-          />
-          <div className="inputContainer">
-            <label htmlFor="tos-content">Content</label>
-            <textarea
-              id="tos-content"
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={20}
-              className="font-mono text-xs"
+        <form id="tos-form" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4">
+            <TextInput
+              id="tos-title"
+              label="Title"
+              type="text"
+              {...register('title')}
+              error={errors.title?.message}
             />
-          </div>
-          {content && (
-            <div className="text-xs text-gray-500">
-              Last updated: {new Date(content.updatedAt).toLocaleString()}
+            <TextInput
+              id="tos-version"
+              label="Version (optional)"
+              type="text"
+              {...register('version')}
+              error={errors.version?.message}
+              placeholder="e.g., 1.0.0"
+            />
+            <div className="inputContainer">
+              <label htmlFor="tos-content">Content</label>
+              <textarea
+                id="tos-content"
+                {...register('content')}
+                rows={20}
+                className="font-mono text-xs"
+              />
+              {errors.content && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.content.message}
+                </p>
+              )}
             </div>
-          )}
-        </div>
+            {content && (
+              <div className="text-xs text-gray-500">
+                Last updated: {new Date(content.updatedAt).toLocaleString()}
+              </div>
+            )}
+          </div>
+        </form>
       </div>
     </>
   );

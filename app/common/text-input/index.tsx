@@ -3,7 +3,7 @@ import { forwardRef } from 'react';
 interface TextInputProps {
   id: string;
   label: string;
-  type: string;
+  type?: string;
   value?: string | number;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
@@ -22,7 +22,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     {
       id,
       label,
-      type,
+      type = 'text',
       value,
       onChange,
       placeholder,

@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router';
+import LoadingIndicator from '~/common/loading-indicator';
 import { AdminAuthApi } from '../../api/adminAuth';
 import OtpInput from '../../common/otp-input';
 import TextInput from '../../common/text-input';
@@ -37,7 +38,12 @@ export default function VerifyOtpRoute() {
     formState: { errors, isSubmitting },
   } = useForm<VerifyOtpFormData>({
     resolver: zodResolver(verifyOtpSchema),
+    defaultValues: {
+      email: '',
+      otp: '',
+    },
   });
+  const [resendOtpLoading, setResendOtpLoading] = useState(false);
 
   const otp = watch('otp');
 
@@ -74,10 +80,13 @@ export default function VerifyOtpRoute() {
     }
 
     try {
+      setResendOtpLoading(true);
       await AdminAuthApi.resendOtp(email);
       sendFeedback('OTP sent to your email', 'success');
     } catch (error) {
       sendCatchFeedback(error);
+    } finally {
+      setResendOtpLoading(false);
     }
   };
 
@@ -111,10 +120,12 @@ export default function VerifyOtpRoute() {
         <div className="flex items-center justify-between text-xs text-slate-500">
           <button
             type="button"
-            className="text-primary font-medium hover:underline"
+            className="text-primary font-medium hover:underline flex items-center gap-2"
             onClick={handleResendOtp}
+            disabled={resendOtpLoading}
           >
-            Resend code
+            {resendOtpLoading && <LoadingIndicator size={12} />}{' '}
+            {resendOtpLoading ? 'Sending...' : 'Resend code'}
           </button>
         </div>
 

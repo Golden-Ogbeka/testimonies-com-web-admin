@@ -30,7 +30,7 @@ export default function OtpInput({
         renderInput={(props) => (
           <input
             {...props}
-            className="!w-12 h-12 text-center text-lg font-semibold border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-50 outline-none transition-all"
+            className="!w-full h-12 text-center text-lg font-semibold border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-50 outline-none transition-all"
             style={{}}
           />
         )}

@@ -1,4 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AdminPromotionsApi } from '../../api/adminPromotions';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
@@ -11,6 +13,10 @@ import {
   getResponseData,
 } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
+import {
+  createPromotionSchema,
+  type CreatePromotionFormData,
+} from '../../schemas';
 import type {
   PaginationMeta,
   PromotionSummary,
@@ -25,27 +31,12 @@ export function meta() {
   ];
 }
 
-type PromotionFormState = Pick<
-  PromotionSummary,
-  'title' | 'description' | 'type' | 'targetAudience' | 'startDate'
-> & { endDate?: string };
-
-const emptyForm: PromotionFormState = {
-  title: '',
-  description: '',
-  type: 'announcement',
-  targetAudience: 'all',
-  startDate: new Date().toISOString().split('T')[0],
-  endDate: '',
-};
-
 export default function PromotionsIndex() {
   const [promotions, setPromotions] = useState<PromotionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<PromotionSummary | null>(null);
-  const [form, setForm] = useState<PromotionFormState>(emptyForm);
-  const [saving, setSaving] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'active' | 'inactive'
@@ -61,6 +52,23 @@ export default function PromotionsIndex() {
     currentPage: 1,
     prevPage: null,
     nextPage: null,
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<CreatePromotionFormData>({
+    resolver: zodResolver(createPromotionSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      type: 'announcement',
+      targetAudience: 'all',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
+    },
   });
 
   useEffect(() => {
@@ -163,17 +171,7 @@ export default function PromotionsIndex() {
           <button
             type="button"
             className="text-xs font-medium text-gray-600 hover:underline"
-            onClick={() => {
-              setEditing(promo);
-              setForm({
-                title: promo.title,
-                description: promo.description,
-                type: promo.type,
-                targetAudience: promo.targetAudience,
-                startDate: promo.startDate.split('T')[0],
-                endDate: promo.endDate ? promo.endDate.split('T')[0] : '',
-              });
-            }}
+            onClick={() => openEdit(promo)}
           >
             Edit
           </button>
@@ -207,39 +205,61 @@ export default function PromotionsIndex() {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      if (editing) {
-        const { data } = await AdminPromotionsApi.update(editing._id, {
-          ...form,
-          endDate: form.endDate || undefined,
-        } as PromotionSummary);
-        const updatedPromotion = getResponseData<PromotionSummary>(data);
-        setPromotions((prev) =>
-          prev.map((p) => (p._id === editing._id ? updatedPromotion : p)),
-        );
-      } else {
-        const { data } = await AdminPromotionsApi.create({
-          ...form,
-          endDate: form.endDate || undefined,
-          isActive: true,
-        } as PromotionSummary);
-        const createdPromotion = getResponseData<PromotionSummary>(data);
-        setPromotions((prev) => [createdPromotion, ...prev]);
-      }
-      setEditing(null);
-      setForm(emptyForm);
-    } catch (error) {
-      sendCatchFeedback(error);
-    } finally {
-      setSaving(false);
-    }
+  const openEdit = (promo: PromotionSummary) => {
+    setEditing(promo);
+    reset({
+      title: promo.title,
+      description: promo.description,
+      type: promo.type,
+      targetAudience: promo.targetAudience,
+      startDate: promo.startDate.split('T')[0],
+      endDate: promo.endDate ? promo.endDate.split('T')[0] : '',
+    });
+    setShowModal(true);
   };
 
   const openCreate = () => {
     setEditing(null);
-    setForm(emptyForm);
+    reset({
+      title: '',
+      description: '',
+      type: 'announcement',
+      targetAudience: 'all',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
+    });
+    setShowModal(true);
+  };
+
+  const onSave = async (data: CreatePromotionFormData) => {
+    try {
+      if (editing) {
+        const { data: response } = await AdminPromotionsApi.update(
+          editing._id,
+          {
+            ...data,
+            endDate: data.endDate || undefined,
+          } as PromotionSummary,
+        );
+        const updatedPromotion = getResponseData<PromotionSummary>(response);
+        setPromotions((prev) =>
+          prev.map((p) => (p._id === editing._id ? updatedPromotion : p)),
+        );
+      } else {
+        const { data: response } = await AdminPromotionsApi.create({
+          ...data,
+          endDate: data.endDate || undefined,
+          isActive: true,
+        } as PromotionSummary);
+        const createdPromotion = getResponseData<PromotionSummary>(response);
+        setPromotions((prev) => [createdPromotion, ...prev]);
+      }
+      setEditing(null);
+      setShowModal(false);
+      reset();
+    } catch (error) {
+      sendCatchFeedback(error);
+    }
   };
 
   return (
@@ -311,17 +331,7 @@ export default function PromotionsIndex() {
             <button
               type="button"
               className="text-xs font-medium text-gray-600 hover:underline"
-              onClick={() => {
-                setEditing(promo);
-                setForm({
-                  title: promo.title,
-                  description: promo.description,
-                  type: promo.type,
-                  targetAudience: promo.targetAudience,
-                  startDate: promo.startDate.split('T')[0],
-                  endDate: promo.endDate ? promo.endDate.split('T')[0] : '',
-                });
-              }}
+              onClick={() => openEdit(promo)}
             >
               Edit
             </button>
@@ -343,98 +353,88 @@ export default function PromotionsIndex() {
       />
 
       <Modal
-        open={editing !== null || form.title.length > 0}
+        open={showModal}
         title={editing ? 'Edit promotion' : 'New promotion'}
         primaryLabel={editing ? 'Save changes' : 'Create promotion'}
-        onPrimary={handleSave}
+        onPrimary={handleSubmit(onSave)}
         onClose={() => {
           setEditing(null);
-          setForm(emptyForm);
+          setShowModal(false);
+          reset();
         }}
-        loading={saving}
+        loading={isSubmitting}
       >
         <div className="space-y-3">
           <div className="inputContainer">
             <label htmlFor="promo-title">Title</label>
-            <input
-              id="promo-title"
-              value={form.title}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, title: e.target.value }))
-              }
-            />
+            <input id="promo-title" {...register('title')} />
+            {errors.title && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.title.message}
+              </p>
+            )}
           </div>
           <div className="inputContainer">
             <label htmlFor="promo-description">Description</label>
             <textarea
               id="promo-description"
-              value={form.description}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, description: e.target.value }))
-              }
+              {...register('description')}
               rows={3}
             />
+            {errors.description && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.description.message}
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="inputContainer">
               <label htmlFor="promo-type">Type</label>
-              <select
-                id="promo-type"
-                value={form.type}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    type: e.target.value as PromotionType,
-                  }))
-                }
-              >
+              <select id="promo-type" {...register('type')}>
                 <option value="announcement">Announcement</option>
                 <option value="discount">Discount</option>
                 <option value="offer">Offer</option>
                 <option value="feature">Feature</option>
               </select>
+              {errors.type && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.type.message}
+                </p>
+              )}
             </div>
             <div className="inputContainer">
               <label htmlFor="promo-audience">Target audience</label>
-              <select
-                id="promo-audience"
-                value={form.targetAudience}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    targetAudience: e.target.value as PromotionTargetAudience,
-                  }))
-                }
-              >
+              <select id="promo-audience" {...register('targetAudience')}>
                 <option value="all">All</option>
                 <option value="premium">Premium</option>
                 <option value="basic">Basic</option>
                 <option value="organizations">Organizations</option>
               </select>
+              {errors.targetAudience && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.targetAudience.message}
+                </p>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="inputContainer">
               <label htmlFor="promo-start">Start date</label>
-              <input
-                id="promo-start"
-                type="date"
-                value={form.startDate}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, startDate: e.target.value }))
-                }
-              />
+              <input id="promo-start" type="date" {...register('startDate')} />
+              {errors.startDate && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.startDate.message}
+                </p>
+              )}
             </div>
             <div className="inputContainer">
               <label htmlFor="promo-end">End date (optional)</label>
-              <input
-                id="promo-end"
-                type="date"
-                value={form.endDate}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, endDate: e.target.value }))
-                }
-              />
+              <input id="promo-end" type="date" {...register('endDate')} />
+              {errors.endDate && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.endDate.message}
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AdminContentApi } from '../../api/adminContent';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
@@ -14,6 +16,7 @@ import {
   sendCatchFeedback,
   sendSuccessFeedback,
 } from '../../functions/feedback';
+import { createFaqSchema, type CreateFaqFormData } from '../../schemas';
 import type { FaqItem } from '../../types';
 
 export function meta() {
@@ -23,14 +26,6 @@ export function meta() {
   ];
 }
 
-type FaqFormState = Pick<FaqItem, 'question' | 'answer' | 'order'>;
-
-const emptyForm: FaqFormState = {
-  question: '',
-  answer: '',
-  order: 0,
-};
-
 export default function FaqsPage() {
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,14 +34,26 @@ export default function FaqsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [editing, setEditing] = useState<FaqItem | null>(null);
-  const [form, setForm] = useState<FaqFormState>(emptyForm);
-  const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'active' | 'inactive'
   >('all');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<CreateFaqFormData>({
+    resolver: zodResolver(createFaqSchema),
+    defaultValues: {
+      question: '',
+      answer: '',
+      order: 0,
+    },
+  });
 
   const loadFaqs = async (currentPage = 1) => {
     try {
@@ -138,7 +145,7 @@ export default function FaqsPage() {
             className="text-xs font-medium text-primary hover:underline"
             onClick={() => {
               setEditing(faq);
-              setForm({
+              reset({
                 question: faq.question,
                 answer: faq.answer,
                 order: faq.order,
@@ -177,33 +184,28 @@ export default function FaqsPage() {
     }
   };
 
-  const handleSave = async () => {
-    if (!form.question.trim() || !form.answer.trim()) {
-      sendCatchFeedback(new Error('Question and answer are required'));
-      return;
-    }
-
+  const onSave = async (data: CreateFaqFormData) => {
     try {
-      setSaving(true);
       if (editing) {
-        const { data } = await AdminContentApi.updateFaq(editing._id, form);
-        const updatedFaq = getResponseData<FaqItem>(data);
+        const { data: response } = await AdminContentApi.updateFaq(
+          editing._id,
+          data,
+        );
+        const updatedFaq = getResponseData<FaqItem>(response);
         setFaqs((prev) =>
           prev.map((f) => (f._id === editing._id ? updatedFaq : f)),
         );
         sendSuccessFeedback('FAQ updated successfully');
       } else {
-        await AdminContentApi.createFaq(form);
+        await AdminContentApi.createFaq(data);
         sendSuccessFeedback('FAQ created successfully');
-        loadFaqs(1); // Reload to get updated list
+        loadFaqs(1);
       }
       setEditing(null);
-      setForm(emptyForm);
+      reset({ question: '', answer: '', order: 0 });
       setShowModal(false);
     } catch (error) {
       sendCatchFeedback(error);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -214,7 +216,6 @@ export default function FaqsPage() {
       await AdminContentApi.deleteFaq(deleteId);
       sendSuccessFeedback('FAQ deleted successfully');
 
-      // Reload current page or go to previous if current page becomes empty
       const remainingOnPage = faqs.length - 1;
       if (remainingOnPage === 0 && page > 1) {
         loadFaqs(page - 1);
@@ -231,7 +232,7 @@ export default function FaqsPage() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm(emptyForm);
+    reset({ question: '', answer: '', order: 0 });
     setShowModal(true);
   };
 
@@ -290,7 +291,7 @@ export default function FaqsPage() {
               className="text-xs font-medium text-gray-600 hover:underline"
               onClick={() => {
                 setEditing(faq);
-                setForm({
+                reset({
                   question: faq.question,
                   answer: faq.answer,
                   order: faq.order,
@@ -323,55 +324,58 @@ export default function FaqsPage() {
         open={showModal}
         title={editing ? 'Edit FAQ' : 'New FAQ'}
         primaryLabel={editing ? 'Save changes' : 'Create FAQ'}
-        onPrimary={handleSave}
+        onPrimary={handleSubmit(onSave)}
         onClose={() => {
           setEditing(null);
-          setForm(emptyForm);
+          reset({ question: '', answer: '', order: 0 });
           setShowModal(false);
         }}
-        loading={saving}
+        loading={isSubmitting}
       >
         <div className="space-y-4">
           <div className="inputContainer">
             <label htmlFor="faq-question">Question</label>
             <input
               id="faq-question"
-              value={form.question}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, question: e.target.value }))
-              }
+              {...register('question')}
               placeholder="Enter the question"
               className="w-full"
             />
+            {errors.question && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.question.message}
+              </p>
+            )}
           </div>
           <div className="inputContainer">
             <label htmlFor="faq-answer">Answer</label>
             <textarea
               id="faq-answer"
-              value={form.answer}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, answer: e.target.value }))
-              }
+              {...register('answer')}
               rows={5}
               placeholder="Enter the answer"
               className="w-full resize-none"
             />
+            {errors.answer && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.answer.message}
+              </p>
+            )}
           </div>
           <div className="inputContainer">
             <label htmlFor="faq-order">Display order</label>
             <input
               id="faq-order"
               type="number"
-              value={form.order}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  order: Number(e.target.value) || 0,
-                }))
-              }
+              {...register('order', { valueAsNumber: true })}
               placeholder="0"
               className="w-full"
             />
+            {errors.order && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.order.message}
+              </p>
+            )}
             <p className="mt-1 text-xs text-gray-500">
               Lower numbers appear first
             </p>

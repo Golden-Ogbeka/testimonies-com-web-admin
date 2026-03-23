@@ -12,8 +12,8 @@ const LoadingIndicator = ({ text, size = 32 }: LoadingIndicatorProps) => {
       data-testid="loading-container"
     >
       <div
-        className="rounded-full border-2 border-primary border-t-transparent animate-spin"
-        style={{ width: dimension, height: dimension }}
+        className="rounded-full border border-primary/20 border-t-primary animate-spin"
+        style={{ width: dimension, height: dimension, animationDuration: '1s' }}
         data-testid="loader"
       />
       {text && <span className="text-sm text-gray-600">{text}</span>}
