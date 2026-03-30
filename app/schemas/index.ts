@@ -93,7 +93,7 @@ export const createAdminSchema = z.object({
     .optional()
     .refine(
       (val) => !val || /^[\+]?[1-9][\d]{0,15}$/.test(val),
-      'Please provide a valid phone number',
+      'Please provide a valid phone number with country code',
     ),
   role: z.enum(['super-admin', 'admin']).optional(),
   permissions: z.array(z.string()).optional(),
@@ -215,7 +215,7 @@ export const updateContentSchema = z.object({
   content: z
     .string()
     .min(1, 'Content is required')
-    .min(10, 'Content must be at least 10 characters long')
+    .min(50, 'Content must be at least 50 characters long')
     .trim(),
 });
 

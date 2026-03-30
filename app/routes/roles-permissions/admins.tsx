@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toPascalCase } from '~/functions/stringManipulation';
 import { AdminRolesPermissionsApi } from '../../api/adminRolesPermissions';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
-import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import PaginationControls from '../../common/pagination-controls';
 import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
@@ -98,6 +99,8 @@ export default function AdminsPage() {
           isActive:
             statusFilter === 'all' ? undefined : statusFilter === 'active',
         });
+
+        console.log(data, 'here');
         const { results, pagination: pageMeta } =
           getPaginatedResponse<AdminAccount>(data, 'admins');
         setAdmins(results);
@@ -144,7 +147,9 @@ export default function AdminsPage() {
       id: 'role',
       header: 'Role',
       accessor: (admin) => (
-        <span className="text-xs capitalize text-gray-600">{admin.role}</span>
+        <span className="text-xs capitalize text-gray-600">
+          {toPascalCase(admin.role)}
+        </span>
       ),
     },
     {
@@ -459,19 +464,7 @@ export default function AdminsPage() {
                 </p>
               )}
             </div>
-            <div className="inputContainer">
-              <label htmlFor="admin-phone">Phone number (optional)</label>
-              <input
-                id="admin-phone"
-                type="tel"
-                {...registerCreate('phoneNumber')}
-              />
-              {createErrors.phoneNumber && (
-                <p className="mt-1 text-xs text-red-600">
-                  {createErrors.phoneNumber.message}
-                </p>
-              )}
-            </div>
+
             <div className="inputContainer">
               <label htmlFor="admin-password">Password</label>
               <input
@@ -482,6 +475,19 @@ export default function AdminsPage() {
               {createErrors.password && (
                 <p className="mt-1 text-xs text-red-600">
                   {createErrors.password.message}
+                </p>
+              )}
+            </div>
+            <div className="inputContainer">
+              <label htmlFor="admin-phone">Phone number (optional)</label>
+              <input
+                id="admin-phone"
+                type="tel"
+                {...registerCreate('phoneNumber')}
+              />
+              {createErrors.phoneNumber && (
+                <p className="mt-1 text-xs text-red-600">
+                  {createErrors.phoneNumber.message}
                 </p>
               )}
             </div>

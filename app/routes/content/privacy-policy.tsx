@@ -41,6 +41,9 @@ export default function PrivacyPolicyPage() {
       try {
         setLoading(true);
         const { data } = await AdminContentApi.getPrivacyPolicy();
+        if (!data.data) {
+          return;
+        }
         setContent(data.data);
         reset({
           title: data.data.title,

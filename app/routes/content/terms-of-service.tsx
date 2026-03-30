@@ -41,6 +41,9 @@ export default function TermsOfServicePage() {
       try {
         setLoading(true);
         const { data } = await AdminContentApi.getTermsOfService();
+        if (!data.data) {
+          return;
+        }
         setContent(data.data);
         reset({
           title: data.data.title,

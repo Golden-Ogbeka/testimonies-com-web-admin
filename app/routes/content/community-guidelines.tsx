@@ -44,6 +44,9 @@ export default function CommunityGuidelinesPage() {
       try {
         setLoading(true);
         const { data } = await AdminContentApi.getCommunityGuidelines();
+        if (!data.data) {
+          return;
+        }
         setContent(data.data);
         reset({
           title: data.data.title,

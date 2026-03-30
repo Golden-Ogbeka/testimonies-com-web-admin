@@ -147,7 +147,7 @@ export default function ProfileSettings() {
 
       <div className="space-y-6">
         <div className="card">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">
             Personal information
           </h3>
           <form
@@ -217,7 +217,7 @@ export default function ProfileSettings() {
         </div>
 
         <div className="card">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">
             Change password
           </h3>
           <form
@@ -238,6 +238,16 @@ export default function ProfileSettings() {
               {...registerPassword('newPassword')}
               error={passwordErrors.newPassword?.message}
             />
+            <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-800">
+              <p className="font-medium mb-1">Password requirements:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Cannot be the same as the old password</li>
+                <li>At least 8 characters long</li>
+                <li>Contains uppercase and lowercase letters</li>
+                <li>Contains at least one number</li>
+                <li>Contains at least one special character (!@#$%^&*)</li>
+              </ul>
+            </div>
             <PasswordInput
               id="confirm-password"
               label="Confirm new password"
@@ -245,15 +255,7 @@ export default function ProfileSettings() {
               {...registerPassword('confirmPassword')}
               error={passwordErrors.confirmPassword?.message}
             />
-            <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-800">
-              <p className="font-medium mb-1">Password requirements:</p>
-              <ul className="list-disc list-inside space-y-0.5">
-                <li>At least 8 characters long</li>
-                <li>Contains uppercase and lowercase letters</li>
-                <li>Contains at least one number</li>
-                <li>Contains at least one special character (!@#$%^&*)</li>
-              </ul>
-            </div>
+
             <button
               type="submit"
               disabled={isPasswordChanging}

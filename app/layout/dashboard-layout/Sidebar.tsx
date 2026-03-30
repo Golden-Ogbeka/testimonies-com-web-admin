@@ -11,7 +11,7 @@ import { AdminAuthApi } from '../../api/adminAuth';
 import { RoutePaths } from '../../routes/route-paths';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { signOut } from '../../store/slices/admin';
-import { mainLinks, secondaryLinks } from '../navLinks';
+import { contentLinks, mainLinks, secondaryLinks } from '../navLinks';
 
 interface SidebarProps {
   isMobileOpen?: boolean;
@@ -71,6 +71,40 @@ const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </nav>
+
+        {/* Content Section */}
+        <div className="mt-6">
+          {!iconsOnly && (
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mx-2 mb-3">
+              Content
+            </p>
+          )}
+          <nav className="flex flex-col gap-1">
+            {contentLinks.map((item) => {
+              const isActive =
+                location.pathname === item.href ||
+                location.pathname.startsWith(`${item.href}/`);
+              const linkClasses = `flex items-center rounded-lg text-sm font-medium transition-colors ${
+                isActive
+                  ? 'sidebar-item-active'
+                  : 'text-slate-600 hover:bg-slate-50'
+              } ${iconsOnly ? 'justify-center p-3' : 'gap-3 px-4 py-3'}`;
+
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  onClick={isMobile ? onMobileClose : undefined}
+                  className={linkClasses}
+                  title={iconsOnly ? item.label : undefined}
+                >
+                  <item.icon className="h-5 w-5 shrink-0" aria-hidden />
+                  {!iconsOnly && <span>{item.label}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
         {/* Administration section - always show icons when collapsed */}
         <div className="mt-6">

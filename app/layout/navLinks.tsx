@@ -1,16 +1,17 @@
-import type React from 'react';
-import { RoutePaths } from '../routes/route-paths';
 import {
-  Squares2X2Icon,
-  UsersIcon,
   ChatBubbleLeftRightIcon,
-  CreditCardIcon,
-  TagIcon,
-  ShieldCheckIcon,
-  DocumentTextIcon,
   ClockIcon,
   Cog6ToothIcon,
+  DocumentTextIcon,
+  ExclamationTriangleIcon,
+  QuestionMarkCircleIcon,
+  ShieldCheckIcon,
+  Squares2X2Icon,
+  UserCircleIcon,
+  UsersIcon,
 } from '@heroicons/react/24/outline';
+import type React from 'react';
+import { RoutePaths } from '../routes/route-paths';
 
 export interface NavItem {
   label: string;
@@ -34,34 +35,63 @@ export const mainLinks: NavItem[] = [
     href: RoutePaths.TESTIMONIES,
     icon: ChatBubbleLeftRightIcon,
   },
+  // {
+  //   label: 'Subscriptions',
+  //   href: RoutePaths.SUBSCRIPTION_PLANS,
+  //   icon: CreditCardIcon,
+  // },
+  // {
+  //   label: 'Promotions',
+  //   href: RoutePaths.PROMOTIONS,
+  //   icon: TagIcon,
+  // },
+];
+
+export const contentLinks: NavItem[] = [
   {
-    label: 'Subscriptions',
-    href: RoutePaths.SUBSCRIPTION_PLANS,
-    icon: CreditCardIcon,
+    label: 'FAQs',
+    href: RoutePaths.FAQS,
+    icon: QuestionMarkCircleIcon,
   },
   {
-    label: 'Promotions',
-    href: RoutePaths.PROMOTIONS,
-    icon: TagIcon,
+    label: 'Privacy Policy',
+    href: RoutePaths.PRIVACY_POLICY,
+    icon: ShieldCheckIcon,
+  },
+  {
+    label: 'Terms of Service',
+    href: RoutePaths.TERMS_OF_SERVICE,
+    icon: DocumentTextIcon,
+  },
+  {
+    label: 'Community Guidelines',
+    href: RoutePaths.COMMUNITY_GUIDELINES,
+    icon: ExclamationTriangleIcon,
   },
 ];
 
 export const secondaryLinks: NavItem[] = [
   {
-    label: 'Roles & Permissions',
-    href: RoutePaths.PERMISSIONS,
-    icon: ShieldCheckIcon,
-  },
-  {
-    label: 'Content',
-    href: RoutePaths.FAQS,
-    icon: DocumentTextIcon,
-  },
-  {
     label: 'Audit Logs',
     href: RoutePaths.AUDIT_LOGS,
     icon: ClockIcon,
   },
+  {
+    label: 'Admins',
+    href: RoutePaths.ADMINS,
+    icon: UserCircleIcon,
+  },
+  // {
+  //   label: 'Roles & Permissions',
+  //   href: RoutePaths.PERMISSIONS,
+  //   icon: ShieldCheckIcon,
+  // },
+  // {
+  //   label: 'Team Permissions',
+  //   href: RoutePaths.TEAM_PERMISSIONS,
+  //   icon: UserGroupIcon,
+  // },
+
   {
     label: 'Settings',
     href: RoutePaths.PROFILE_SETTINGS,
