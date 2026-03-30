@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useAppDispatch, useAppSelector } from '~/store/hooks';
+import { updateAdmin } from '~/store/slices/admin';
 import { AdminAuthApi } from '../../api/adminAuth';
 import PageHeader from '../../common/page-header';
 import PasswordInput from '../../common/password-input';
@@ -28,6 +30,8 @@ export function meta() {
 export default function ProfileSettings() {
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { profile: admin } = useAppSelector((state) => state.admin);
 
   const {
     register: registerProfile,
@@ -86,6 +90,19 @@ export default function ProfileSettings() {
         phoneNumber: data.phoneNumber || undefined,
       });
       setProfile(getResponseData<AdminProfile>(response));
+
+      // Update app state and local storage with new profile data
+      dispatch(
+        updateAdmin({
+          profile: {
+            ...admin,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phoneNumber: data.phoneNumber || null,
+          } as AdminProfile,
+        }),
+      );
+
       sendSuccessFeedback('Profile updated successfully');
     } catch (error) {
       sendCatchFeedback(error);

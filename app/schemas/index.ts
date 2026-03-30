@@ -236,7 +236,7 @@ export const updateProfileSchema = z.object({
     .optional()
     .refine(
       (val) => !val || /^[\+]?[1-9][\d]{0,15}$/.test(val),
-      'Please provide a valid phone number',
+      'Please provide a valid phone number with country code',
     ),
 });
 
@@ -258,6 +258,10 @@ export const changePasswordSchema = z
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: 'New password cannot be the same as the current password',
+    path: ['newPassword'],
   });
 
 // Type exports

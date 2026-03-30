@@ -1,16 +1,16 @@
+import {
+  ArrowRightOnRectangleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 import type React from 'react';
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { AdminAuthApi } from '../../api/adminAuth';
 import { RoutePaths } from '../../routes/route-paths';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { signOut } from '../../store/slices/admin';
-import { AdminAuthApi } from '../../api/adminAuth';
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ArrowRightOnRectangleIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
 import { mainLinks, secondaryLinks } from '../navLinks';
 
 interface SidebarProps {
@@ -163,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     Testimonies Admin
                   </span>
                   <span className="text-xs text-slate-500">
-                    {admin?.role === 'super-admin' ? 'Super Admin' : 'Admin'}
+                    {admin?.firstName || ''} {admin?.lastName || ''}
                   </span>
                 </div>
               )}

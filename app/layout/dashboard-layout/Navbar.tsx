@@ -1,16 +1,15 @@
 import autoAnimate from '@formkit/auto-animate';
+import {
+  ArrowRightOnRectangleIcon,
+  Bars3Icon,
+} from '@heroicons/react/24/outline';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
+import { AdminAuthApi } from '../../api/adminAuth';
 import { RoutePaths } from '../../routes/route-paths';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-  Bars3Icon,
-  ArrowRightOnRectangleIcon,
-  BuildingOfficeIcon,
-} from '@heroicons/react/24/outline';
-import { mainLinks, secondaryLinks } from '../navLinks';
 import { signOut } from '../../store/slices/admin';
-import { AdminAuthApi } from '../../api/adminAuth';
+import { mainLinks, secondaryLinks } from '../navLinks';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -154,9 +153,6 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
                   className="flex shrink-0 items-center gap-2 rounded-lg transition-opacity hover:opacity-90"
                   aria-label="Go to overview"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
-                    <BuildingOfficeIcon className="h-5 w-5" aria-hidden />
-                  </div>
                   <span className="truncate text-xl font-bold tracking-tight text-slate-900">
                     Testimonies Admin
                   </span>
