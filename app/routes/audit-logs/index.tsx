@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { toPascalCase } from '~/functions/stringManipulation';
 import { AdminAuditLogsApi } from '../../api/adminAuditLogs';
 import FilterBar from '../../common/filter-bar';
-import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import PaginationControls from '../../common/pagination-controls';
 import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
@@ -79,9 +80,11 @@ export default function AuditLogsIndex() {
       accessor: (log) => (
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-900">
-            {log.action}
+            {toPascalCase(log.action)}
           </span>
-          <span className="text-xs text-gray-500">{log.category}</span>
+          <span className="text-[10px] text-gray-500">
+            Category: <b className="capitalize">{log.category}</b>
+          </span>
         </div>
       ),
     },
@@ -97,7 +100,7 @@ export default function AuditLogsIndex() {
         };
         return (
           <span
-            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium uppercase ${
               colors[log.level] || 'bg-gray-100 text-gray-600'
             }`}
           >

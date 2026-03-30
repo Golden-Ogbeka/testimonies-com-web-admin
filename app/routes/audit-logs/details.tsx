@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { toPascalCase } from '~/functions/stringManipulation';
 import { AdminAuditLogsApi } from '../../api/adminAuditLogs';
 import PageHeader from '../../common/page-header';
 import { getResponseResource } from '../../functions/api-response';
@@ -89,23 +90,27 @@ export default function AuditLogDetails() {
               <label className="text-xs font-medium text-gray-500">
                 Action
               </label>
-              <p className="mt-1 text-sm text-gray-900">{log.action}</p>
+              <p className="mt-1 text-sm text-gray-900">
+                {toPascalCase(log.action)}
+              </p>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-500">
                 Category
               </label>
-              <p className="mt-1 text-sm text-gray-900">{log.category}</p>
+              <p className="mt-1 text-sm text-gray-900 capitalize">
+                {log.category}
+              </p>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-500">Level</label>
-              <span
-                className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+              <p
+                className={`mt-1 w-fit uppercase rounded-full px-2 py-0.5 text-sm font-medium ${
                   levelColors[log.level] || 'bg-gray-100 text-gray-600'
                 }`}
               >
                 {log.level}
-              </span>
+              </p>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-500">
