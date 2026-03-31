@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import { AdminUsersApi } from '../../api/adminUsers';
-import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import PaginationControls from '../../common/pagination-controls';
 import SelectInput from '../../common/select-input';
 import {
   getResponseData,
   getResponseResource,
 } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import { RoutePaths } from '../route-paths';
 import type { AdminTestimonyAnalyticsItem, AdminUserStats } from '../../types';
+import { RoutePaths } from '../route-paths';
 
 interface DashboardState {
   userStats?: AdminUserStats;
@@ -154,33 +154,31 @@ export default function DashboardIndex() {
               <ul className="space-y-3">
                 {visibleEngagement.map((item, index) => (
                   <li
-                    key={item.testimonyId ?? `${item.userId}-${index}`}
+                    key={item._id ?? `${item.user?._id}-${index}`}
                     className="rounded-lg bg-slate-50 text-sm transition-colors hover:bg-slate-100"
                   >
                     <button
                       type="button"
                       onClick={() =>
-                        navigate(
-                          `${RoutePaths.TESTIMONY_DETAILS}/${item.testimonyId}`,
-                        )
+                        navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item._id}`)
                       }
                       className="flex w-full items-center justify-between px-4 py-3 text-left"
                     >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                        {(engagementPage - 1) * (resolvedPageSize || 1) +
-                          index +
-                          1}
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                          {(engagementPage - 1) * (resolvedPageSize || 1) +
+                            index +
+                            1}
+                        </div>
+                        <span className="truncate font-medium text-slate-900">
+                          {item.title ??
+                            `Testimony ${item._id?.slice(-6) ?? index + 1}`}
+                        </span>
                       </div>
-                      <span className="truncate font-medium text-slate-900">
-                        {item.title ??
-                          `Testimony ${item.testimonyId?.slice(-6) ?? index + 1}`}
+                      <span className="flex items-center gap-1 text-xs font-medium text-slate-600">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        {Number(item.count ?? 0).toLocaleString()} interactions
                       </span>
-                    </div>
-                    <span className="flex items-center gap-1 text-xs font-medium text-slate-600">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                      {Number(item.count ?? 0).toLocaleString()} interactions
-                    </span>
                     </button>
                   </li>
                 ))}

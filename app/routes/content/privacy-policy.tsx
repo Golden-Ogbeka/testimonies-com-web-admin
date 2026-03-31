@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
         const { data } = await AdminContentApi.getPrivacyPolicy();
         const nextContent = getResponseResource<SystemContentItem>(
           data,
-          'content',
+          'data',
         );
         if (!nextContent) {
           return;

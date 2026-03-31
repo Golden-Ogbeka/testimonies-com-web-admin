@@ -188,15 +188,18 @@ export default function TestimonyDetails() {
           <p className="text-sm text-gray-700">
             {flagAction === 'flag'
               ? 'Provide a reason for flagging this testimony.'
-              : 'Optionally provide a note for unflagging this testimony.'}
+              : 'Are you sure you want to unflag this testimony?'}
           </p>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            rows={3}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="Reason (optional for unflag)…"
-          />
+
+          {!testimony.isFlagged && (
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Reason (optional)"
+            />
+          )}
         </div>
       </Modal>
     </>

@@ -161,7 +161,10 @@ export default function TeamPermissionsPage() {
           data,
         );
         const updated = mapTeamPermission(
-          getResponseResource<TeamPermissionApiItem>(response, 'teamPermission'),
+          getResponseResource<TeamPermissionApiItem>(
+            response,
+            'teamPermission',
+          ),
         );
         setPermissions((prev) =>
           prev.map((p) => (p._id === editing._id ? updated : p)),
@@ -170,7 +173,10 @@ export default function TeamPermissionsPage() {
         const { data: response } =
           await AdminContentApi.createTeamPermission(data);
         const created = mapTeamPermission(
-          getResponseResource<TeamPermissionApiItem>(response, 'teamPermission'),
+          getResponseResource<TeamPermissionApiItem>(
+            response,
+            'teamPermission',
+          ),
         );
         setPermissions((prev) => [created, ...prev]);
       }

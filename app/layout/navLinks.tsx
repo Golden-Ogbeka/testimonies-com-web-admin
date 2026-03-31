@@ -2,11 +2,10 @@ import {
   ChatBubbleLeftRightIcon,
   ClockIcon,
   Cog6ToothIcon,
-  CreditCardIcon,
   DocumentTextIcon,
+  LockClosedIcon,
   ShieldCheckIcon,
   Squares2X2Icon,
-  TagIcon,
   UsersIcon,
 } from '@heroicons/react/24/outline';
 import type React from 'react';
@@ -102,42 +101,42 @@ export const navigationSections: NavSection[] = [
           },
         ],
       },
-      {
-        label: 'Subscriptions',
-        icon: CreditCardIcon,
-        children: [
-          {
-            label: 'Plans',
-            href: RoutePaths.SUBSCRIPTION_PLANS,
-          },
-          {
-            label: 'Active subscriptions',
-            href: RoutePaths.SUBSCRIPTION_ACTIVE,
-          },
-          {
-            label: 'Cancelled subscriptions',
-            href: RoutePaths.SUBSCRIPTION_CANCELLED,
-          },
-          {
-            label: 'Unsubscribed users',
-            href: RoutePaths.SUBSCRIPTION_UNSUBSCRIBED_USERS,
-          },
-        ],
-      },
-      {
-        label: 'Promotions',
-        icon: TagIcon,
-        children: [
-          {
-            label: 'All promotions',
-            href: RoutePaths.PROMOTIONS,
-          },
-          {
-            label: 'Flagged promotions',
-            href: RoutePaths.FLAGGED_PROMOTIONS,
-          },
-        ],
-      },
+      // {
+      //   label: 'Subscriptions',
+      //   icon: CreditCardIcon,
+      //   children: [
+      //     {
+      //       label: 'Plans',
+      //       href: RoutePaths.SUBSCRIPTION_PLANS,
+      //     },
+      //     {
+      //       label: 'Active subscriptions',
+      //       href: RoutePaths.SUBSCRIPTION_ACTIVE,
+      //     },
+      //     {
+      //       label: 'Cancelled subscriptions',
+      //       href: RoutePaths.SUBSCRIPTION_CANCELLED,
+      //     },
+      //     {
+      //       label: 'Unsubscribed users',
+      //       href: RoutePaths.SUBSCRIPTION_UNSUBSCRIBED_USERS,
+      //     },
+      //   ],
+      // },
+      // {
+      //   label: 'Promotions',
+      //   icon: TagIcon,
+      //   children: [
+      //     {
+      //       label: 'All promotions',
+      //       href: RoutePaths.PROMOTIONS,
+      //     },
+      //     {
+      //       label: 'Flagged promotions',
+      //       href: RoutePaths.FLAGGED_PROMOTIONS,
+      //     },
+      //   ],
+      // },
     ],
   },
   {
@@ -163,10 +162,6 @@ export const navigationSections: NavSection[] = [
             label: 'Community guidelines',
             href: RoutePaths.COMMUNITY_GUIDELINES,
           },
-          {
-            label: 'Team permissions',
-            href: RoutePaths.TEAM_PERMISSIONS,
-          },
         ],
       },
     ],
@@ -175,16 +170,21 @@ export const navigationSections: NavSection[] = [
     label: 'Administration',
     items: [
       {
+        label: 'Admins',
+        href: RoutePaths.ADMINS,
+        icon: LockClosedIcon,
+      },
+      {
         label: 'Roles & permissions',
         icon: ShieldCheckIcon,
         children: [
           {
-            label: 'Admins',
-            href: RoutePaths.ADMINS,
+            label: 'Admin Permissions',
+            href: RoutePaths.PERMISSIONS,
           },
           {
-            label: 'Permissions',
-            href: RoutePaths.PERMISSIONS,
+            label: 'Team permissions',
+            href: RoutePaths.TEAM_PERMISSIONS,
           },
         ],
       },

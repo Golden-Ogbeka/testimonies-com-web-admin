@@ -76,8 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () =>
-      document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openFlyoutGroup]);
 
   const handleLogout = async () => {
@@ -183,7 +182,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           type="button"
           onClick={() => toggleGroup(group, options.iconsOnly)}
           className={`flex w-full items-center rounded-lg text-sm font-medium transition-colors ${
-            isActive ? 'sidebar-item-active' : 'text-slate-600 hover:bg-slate-50'
+            isActive
+              ? 'sidebar-item-active'
+              : 'text-slate-600 hover:bg-slate-50'
           } ${options.iconsOnly ? 'justify-center p-3' : 'gap-3 px-4 py-3'}`}
           aria-expanded={isOpen}
           aria-controls={`nav-group-${group.label}`}
@@ -253,7 +254,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const renderNavLinks = (iconsOnly: boolean) => (
     <div ref={navContainerRef} className="mt-4 flex-1 px-3 pb-4">
-      {navigationSections.map((section) => renderSection(section, { iconsOnly }))}
+      {navigationSections.map((section) =>
+        renderSection(section, { iconsOnly }),
+      )}
     </div>
   );
 

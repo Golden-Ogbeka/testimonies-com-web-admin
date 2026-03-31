@@ -261,11 +261,11 @@ export default function AdminsPage() {
       let updatedAdmin = getResponseResource<AdminAccount>(response, 'admin');
       if (data.role && data.role !== editing.role) {
         const { data: roleResponse } =
-          await AdminRolesPermissionsApi.updateAdminRole(editing._id, data.role);
-        updatedAdmin = getResponseResource<AdminAccount>(
-          roleResponse,
-          'admin',
-        );
+          await AdminRolesPermissionsApi.updateAdminRole(
+            editing._id,
+            data.role,
+          );
+        updatedAdmin = getResponseResource<AdminAccount>(roleResponse, 'admin');
       }
       setAdmins((prev) =>
         prev.map((a) => (a._id === editing._id ? updatedAdmin : a)),

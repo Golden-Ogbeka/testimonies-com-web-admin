@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
-import PageHeader from '../../common/page-header';
 import FilterBar from '../../common/filter-bar';
-import PaginationControls from '../../common/pagination-controls';
-import { Table, type TableColumn } from '../../common/table';
-import SelectInput from '../../common/select-input';
-import { getPaginatedResponse } from '../../functions/api-response';
-import type { AdminTestimonySummary, PaginationMeta } from '../../types';
-import { sendCatchFeedback } from '../../functions/feedback';
 import Modal from '../../common/modal';
+import PageHeader from '../../common/page-header';
+import PaginationControls from '../../common/pagination-controls';
+import SelectInput from '../../common/select-input';
+import { Table, type TableColumn } from '../../common/table';
+import { getPaginatedResponse } from '../../functions/api-response';
+import { sendCatchFeedback } from '../../functions/feedback';
+import type { AdminTestimonySummary, PaginationMeta } from '../../types';
 import { RoutePaths } from '../route-paths';
 
 export function meta() {
@@ -253,13 +253,16 @@ export default function TestimoniesIndex() {
               {getTestimonyText(activeItem)}
             </p>
           )}
-          <textarea
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-            rows={3}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="Reason (optional for unflag)…"
-          />
+
+          {!activeItem?.isFlagged && (
+            <textarea
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              rows={3}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Reason (optional for unflag)…"
+            />
+          )}
         </div>
       </Modal>
     </>

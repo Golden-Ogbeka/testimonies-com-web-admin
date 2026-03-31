@@ -45,9 +45,10 @@ export default function CommunityGuidelinesPage() {
       try {
         setLoading(true);
         const { data } = await AdminContentApi.getCommunityGuidelines();
+
         const nextContent = getResponseResource<SystemContentItem>(
           data,
-          'content',
+          'data',
         );
         if (!nextContent) {
           return;
@@ -75,7 +76,7 @@ export default function CommunityGuidelinesPage() {
           content: data.content,
           version: data.version || undefined,
         });
-      setContent(getResponseResource<SystemContentItem>(response, 'content'));
+      setContent(getResponseResource<SystemContentItem>(response, 'data'));
       sendSuccessFeedback('Community guidelines updated successfully');
     } catch (error) {
       sendCatchFeedback(error);

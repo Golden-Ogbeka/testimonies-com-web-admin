@@ -44,7 +44,7 @@ export default function TermsOfServicePage() {
         const { data } = await AdminContentApi.getTermsOfService();
         const nextContent = getResponseResource<SystemContentItem>(
           data,
-          'content',
+          'data',
         );
         if (!nextContent) {
           return;
@@ -71,7 +71,7 @@ export default function TermsOfServicePage() {
         content: data.content,
         version: data.version || undefined,
       });
-      setContent(getResponseResource<SystemContentItem>(response, 'content'));
+      setContent(getResponseResource<SystemContentItem>(response, 'data'));
       sendSuccessFeedback('Terms of service updated successfully');
     } catch (error) {
       sendCatchFeedback(error);

@@ -1,4 +1,4 @@
-import type { AuditLogLevel, AuditLogCategory } from './enums';
+import type { AuditLogCategory, AuditLogLevel } from './enums';
 
 export interface AdminUserSummary {
   _id: string;
@@ -33,9 +33,10 @@ export interface AdminTestimonySummary {
 }
 
 export interface AdminTestimonyAnalyticsItem {
-  testimonyId: string;
+  _id: string;
   title?: string;
-  userId: string;
+  description?: string;
+  user?: AdminUserSummary;
   count: number;
 }
 
