@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import { getResponseResource } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import type { AdminTestimonyAnalyticsItem } from '../../types';
+import { RoutePaths } from '../route-paths';
 
 export function meta() {
   return [
@@ -17,6 +19,7 @@ export function meta() {
 }
 
 export default function TestimonyAnalytics() {
+  const navigate = useNavigate();
   const [highestEngagement, setHighestEngagement] = useState<
     AdminTestimonyAnalyticsItem[]
   >([]);
@@ -96,6 +99,22 @@ export default function TestimonyAnalytics() {
         <span className="text-sm font-semibold text-primary">{item.count}</span>
       ),
     },
+    {
+      id: 'actions',
+      header: '',
+      accessor: (item) => (
+        <button
+          type="button"
+          onClick={() =>
+            navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item.testimonyId}`)
+          }
+          className="text-xs font-medium text-primary hover:underline"
+        >
+          View details
+        </button>
+      ),
+      className: 'text-right',
+    },
   ];
 
   const userColumns: TableColumn<AdminTestimonyAnalyticsItem>[] = [
@@ -144,6 +163,17 @@ export default function TestimonyAnalytics() {
             getRowKey={(item) => item.testimonyId}
             mobileTitle={(item) => item.title || item.testimonyId}
             mobileSubtitle={(item) => `User: ${item.userId}`}
+            mobileActions={(item) => (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item.testimonyId}`)
+                }
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                View details
+              </button>
+            )}
           />
         </div>
 
@@ -158,6 +188,17 @@ export default function TestimonyAnalytics() {
             getRowKey={(item) => item.testimonyId}
             mobileTitle={(item) => item.title || item.testimonyId}
             mobileSubtitle={(item) => `User: ${item.userId}`}
+            mobileActions={(item) => (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item.testimonyId}`)
+                }
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                View details
+              </button>
+            )}
           />
         </div>
 
@@ -172,6 +213,17 @@ export default function TestimonyAnalytics() {
             getRowKey={(item) => item.testimonyId}
             mobileTitle={(item) => item.title || item.testimonyId}
             mobileSubtitle={(item) => `User: ${item.userId}`}
+            mobileActions={(item) => (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item.testimonyId}`)
+                }
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                View details
+              </button>
+            )}
           />
         </div>
 

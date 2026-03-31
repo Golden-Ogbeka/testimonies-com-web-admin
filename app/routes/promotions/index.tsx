@@ -10,7 +10,7 @@ import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import {
   getPaginatedResponse,
-  getResponseData,
+  getResponseResource,
 } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import {
@@ -20,7 +20,6 @@ import {
 import type {
   PaginationMeta,
   PromotionSummary,
-  PromotionTargetAudience,
   PromotionType,
 } from '../../types';
 
@@ -241,7 +240,10 @@ export default function PromotionsIndex() {
             endDate: data.endDate || undefined,
           } as PromotionSummary,
         );
-        const updatedPromotion = getResponseData<PromotionSummary>(response);
+        const updatedPromotion = getResponseResource<PromotionSummary>(
+          response,
+          'promotion',
+        );
         setPromotions((prev) =>
           prev.map((p) => (p._id === editing._id ? updatedPromotion : p)),
         );
@@ -251,7 +253,10 @@ export default function PromotionsIndex() {
           endDate: data.endDate || undefined,
           isActive: true,
         } as PromotionSummary);
-        const createdPromotion = getResponseData<PromotionSummary>(response);
+        const createdPromotion = getResponseResource<PromotionSummary>(
+          response,
+          'promotion',
+        );
         setPromotions((prev) => [createdPromotion, ...prev]);
       }
       setEditing(null);

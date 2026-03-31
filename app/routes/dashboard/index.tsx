@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import { AdminUsersApi } from '../../api/adminUsers';
 import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import SelectInput from '../../common/select-input';
-import { getResponseResource } from '../../functions/api-response';
+import {
+  getResponseData,
+  getResponseResource,
+} from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
+import { RoutePaths } from '../route-paths';
 import type { AdminTestimonyAnalyticsItem, AdminUserStats } from '../../types';
 
 interface DashboardState {
@@ -24,6 +29,7 @@ export function meta() {
 }
 
 export default function DashboardIndex() {
+  const navigate = useNavigate();
   const [state, setState] = useState<DashboardState>({});
   const [loading, setLoading] = useState(true);
   const [engagementPage, setEngagementPage] = useState(1);
@@ -40,7 +46,7 @@ export default function DashboardIndex() {
           AdminTestimoniesApi.analyticsHighestEngagement(50),
         ]);
         setState({
-          userStats: usersRes.data.data,
+          userStats: getResponseData<AdminUserStats>(usersRes.data),
           topEngagement: getResponseResource<AdminTestimonyAnalyticsItem[]>(
             engagementRes.data,
             'testimonies',
@@ -149,8 +155,17 @@ export default function DashboardIndex() {
                 {visibleEngagement.map((item, index) => (
                   <li
                     key={item.testimonyId ?? `${item.userId}-${index}`}
-                    className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm transition-colors hover:bg-slate-100"
+                    className="rounded-lg bg-slate-50 text-sm transition-colors hover:bg-slate-100"
                   >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(
+                          `${RoutePaths.TESTIMONY_DETAILS}/${item.testimonyId}`,
+                        )
+                      }
+                      className="flex w-full items-center justify-between px-4 py-3 text-left"
+                    >
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                         {(engagementPage - 1) * (resolvedPageSize || 1) +
@@ -166,6 +181,7 @@ export default function DashboardIndex() {
                       <span className="h-2 w-2 rounded-full bg-emerald-500" />
                       {Number(item.count ?? 0).toLocaleString()} interactions
                     </span>
+                    </button>
                   </li>
                 ))}
               </ul>

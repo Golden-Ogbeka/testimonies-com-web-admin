@@ -7,7 +7,10 @@ import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
-import { getPaginatedResponse } from '../../functions/api-response';
+import {
+  getPaginatedResponse,
+  getResponseResource,
+} from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import {
   createSubscriptionPlanSchema,
@@ -200,17 +203,25 @@ export default function SubscriptionPlans() {
       if (editing) {
         const { data: response } = await AdminSubscriptionsApi.updatePlan(
           editing._id,
-          data as SubscriptionPlan,
+          data,
+        );
+        const updatedPlan = getResponseResource<SubscriptionPlan>(
+          response,
+          'plan',
         );
         setPlans((prev) =>
-          prev.map((p) => (p._id === editing._id ? response.data : p)),
+          prev.map((p) => (p._id === editing._id ? updatedPlan : p)),
         );
       } else {
         const { data: response } = await AdminSubscriptionsApi.createPlan({
           ...data,
           features: data.features ?? [],
         });
-        setPlans((prev) => [response.data, ...prev]);
+        const createdPlan = getResponseResource<SubscriptionPlan>(
+          response,
+          'plan',
+        );
+        setPlans((prev) => [createdPlan, ...prev]);
       }
       setEditing(null);
       setShowModal(false);

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import PageHeader from '../../common/page-header';
 import FilterBar from '../../common/filter-bar';
@@ -9,6 +10,7 @@ import { getPaginatedResponse } from '../../functions/api-response';
 import type { AdminTestimonySummary, PaginationMeta } from '../../types';
 import { sendCatchFeedback } from '../../functions/feedback';
 import Modal from '../../common/modal';
+import { RoutePaths } from '../route-paths';
 
 export function meta() {
   return [
@@ -18,6 +20,7 @@ export function meta() {
 }
 
 export default function TestimoniesIndex() {
+  const navigate = useNavigate();
   const [items, setItems] = useState<AdminTestimonySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -105,17 +108,28 @@ export default function TestimoniesIndex() {
       id: 'actions',
       header: '',
       accessor: (item) => (
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedId(item._id);
-            setFlagAction(item.isFlagged ? 'unflag' : 'flag');
-            setReason('');
-          }}
-          className="text-xs font-medium text-primary hover:underline"
-        >
-          {item.isFlagged ? 'Unflag' : 'Flag'}
-        </button>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item._id}`)
+            }
+            className="text-xs font-medium text-slate-600 hover:underline"
+          >
+            View details
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedId(item._id);
+              setFlagAction(item.isFlagged ? 'unflag' : 'flag');
+              setReason('');
+            }}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            {item.isFlagged ? 'Unflag' : 'Flag'}
+          </button>
+        </div>
       ),
       className: 'text-right',
     },
@@ -186,17 +200,28 @@ export default function TestimoniesIndex() {
         mobileTitle={(item) => getTestimonyText(item)}
         mobileSubtitle={(item) => `User: ${item.userId}`}
         mobileActions={(item) => (
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedId(item._id);
-              setFlagAction(item.isFlagged ? 'unflag' : 'flag');
-              setReason('');
-            }}
-            className="text-xs font-medium text-primary hover:underline"
-          >
-            {item.isFlagged ? 'Unflag' : 'Flag'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item._id}`)
+              }
+              className="text-xs font-medium text-slate-600 hover:underline"
+            >
+              View details
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedId(item._id);
+                setFlagAction(item.isFlagged ? 'unflag' : 'flag');
+                setReason('');
+              }}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              {item.isFlagged ? 'Unflag' : 'Flag'}
+            </button>
+          </div>
         )}
       />
       <PaginationControls

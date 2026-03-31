@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { AdminUsersApi } from '../../api/adminUsers';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
@@ -8,6 +9,7 @@ import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
+import { RoutePaths } from '../route-paths';
 import type { AdminUserSummary, PaginationMeta } from '../../types';
 
 export function meta() {
@@ -21,6 +23,7 @@ export function meta() {
 }
 
 export default function UsersIndex() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<AdminUserSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -168,13 +171,22 @@ export default function UsersIndex() {
       id: 'actions',
       header: '',
       accessor: (user) => (
-        <button
-          type="button"
-          onClick={() => setToggleUserId(user._id)}
-          className="text-xs font-medium text-primary hover:underline"
-        >
-          {user.active ? 'Deactivate' : 'Activate'}
-        </button>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(`${RoutePaths.USER_DETAILS}/${user._id}`)}
+            className="text-xs font-medium text-slate-600 hover:underline"
+          >
+            View details
+          </button>
+          <button
+            type="button"
+            onClick={() => setToggleUserId(user._id)}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            {user.active ? 'Deactivate' : 'Activate'}
+          </button>
+        </div>
       ),
       className: 'text-right',
     },
@@ -260,13 +272,22 @@ export default function UsersIndex() {
         mobileTitle={(user) => `${user.firstName} ${user.lastName}`.trim()}
         mobileSubtitle={(user) => user.email}
         mobileActions={(user) => (
-          <button
-            type="button"
-            onClick={() => setToggleUserId(user._id)}
-            className="text-xs font-medium text-primary hover:underline"
-          >
-            {user.active ? 'Deactivate' : 'Activate'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(`${RoutePaths.USER_DETAILS}/${user._id}`)}
+              className="text-xs font-medium text-slate-600 hover:underline"
+            >
+              View details
+            </button>
+            <button
+              type="button"
+              onClick={() => setToggleUserId(user._id)}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              {user.active ? 'Deactivate' : 'Activate'}
+            </button>
+          </div>
         )}
       />
       <PaginationControls

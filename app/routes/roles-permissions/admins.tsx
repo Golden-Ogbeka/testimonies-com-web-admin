@@ -9,7 +9,10 @@ import PageHeader from '../../common/page-header';
 import PaginationControls from '../../common/pagination-controls';
 import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
-import { getPaginatedResponse } from '../../functions/api-response';
+import {
+  getPaginatedResponse,
+  getResponseResource,
+} from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import {
   createAdminSchema,
@@ -100,7 +103,6 @@ export default function AdminsPage() {
             statusFilter === 'all' ? undefined : statusFilter === 'active',
         });
 
-        console.log(data, 'here');
         const { results, pagination: pageMeta } =
           getPaginatedResponse<AdminAccount>(data, 'admins');
         setAdmins(results);
@@ -236,7 +238,8 @@ export default function AdminsPage() {
         role: data.role || 'admin',
         permissions: data.permissions ?? [],
       });
-      setAdmins((prev) => [response.data, ...prev]);
+      const createdAdmin = getResponseResource<AdminAccount>(response, 'admin');
+      setAdmins((prev) => [createdAdmin, ...prev]);
       setShowModal(false);
       resetCreate();
     } catch (error) {
@@ -255,8 +258,17 @@ export default function AdminsPage() {
           phoneNumber: data.phoneNumber || undefined,
         },
       );
+      let updatedAdmin = getResponseResource<AdminAccount>(response, 'admin');
+      if (data.role && data.role !== editing.role) {
+        const { data: roleResponse } =
+          await AdminRolesPermissionsApi.updateAdminRole(editing._id, data.role);
+        updatedAdmin = getResponseResource<AdminAccount>(
+          roleResponse,
+          'admin',
+        );
+      }
       setAdmins((prev) =>
-        prev.map((a) => (a._id === editing._id ? response.data : a)),
+        prev.map((a) => (a._id === editing._id ? updatedAdmin : a)),
       );
       setEditing(null);
       setShowModal(false);
@@ -425,6 +437,18 @@ export default function AdminsPage() {
               {editErrors.phoneNumber && (
                 <p className="mt-1 text-xs text-red-600">
                   {editErrors.phoneNumber.message}
+                </p>
+              )}
+            </div>
+            <div className="inputContainer">
+              <label htmlFor="admin-role-edit">Role</label>
+              <select id="admin-role-edit" {...registerEdit('role')}>
+                <option value="admin">Admin</option>
+                <option value="super-admin">Super admin</option>
+              </select>
+              {editErrors.role && (
+                <p className="mt-1 text-xs text-red-600">
+                  {editErrors.role.message}
                 </p>
               )}
             </div>

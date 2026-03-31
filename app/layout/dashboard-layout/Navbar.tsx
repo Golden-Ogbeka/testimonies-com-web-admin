@@ -2,6 +2,7 @@ import autoAnimate from '@formkit/auto-animate';
 import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
@@ -9,7 +10,15 @@ import { AdminAuthApi } from '../../api/adminAuth';
 import { RoutePaths } from '../../routes/route-paths';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { signOut } from '../../store/slices/admin';
-import { mainLinks, secondaryLinks } from '../navLinks';
+import {
+  getActiveGroupLabels,
+  getCurrentRouteLabel,
+  isNavGroupItem,
+  isNavItemActive,
+  navigationSections,
+  type NavGroupItem,
+  type NavLinkItem,
+} from '../navLinks';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -20,30 +29,27 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
   const [open, setOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {},
+  );
   const dispatch = useAppDispatch();
   const { profile } = useAppSelector((state) => state.admin);
   const location = useLocation();
   const navigate = useNavigate();
   const parentRef = useRef<HTMLDivElement | null>(null);
 
-  const allLinks = [...mainLinks, ...secondaryLinks];
+  useEffect(() => {
+    const activeGroups = getActiveGroupLabels(location.pathname);
+    if (activeGroups.length === 0) return;
 
-  const getRouteName = () => {
-    const currentPath = location.pathname;
-    const mainLink = mainLinks.find(
-      (link) =>
-        currentPath === link.href || currentPath.startsWith(`${link.href}/`),
-    );
-    if (mainLink) return mainLink.label;
-
-    const secondaryLink = secondaryLinks.find(
-      (link) =>
-        currentPath === link.href || currentPath.startsWith(`${link.href}/`),
-    );
-    if (secondaryLink) return secondaryLink.label;
-
-    return 'Dashboard';
-  };
+    setExpandedGroups((previous) => {
+      const nextState = { ...previous };
+      activeGroups.forEach((label) => {
+        nextState[label] = true;
+      });
+      return nextState;
+    });
+  }, [location.pathname]);
 
   const requestClose = () => {
     if (!open || isClosing) return;
@@ -97,23 +103,91 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
     }
   };
 
+  const toggleGroup = (group: NavGroupItem) => {
+    setExpandedGroups((previous) => ({
+      ...previous,
+      [group.label]: !previous[group.label],
+    }));
+  };
+
+  const renderLeafLink = (item: NavLinkItem, isChild: boolean = false) => {
+    const isActive = isNavItemActive(item, location.pathname);
+    return (
+      <Link
+        key={item.href}
+        to={item.href}
+        role="menuitem"
+        onClick={requestClose}
+        className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+          isActive
+            ? 'bg-primary text-white hover:bg-primary/90 [&_svg]:text-white'
+            : 'text-slate-700 hover:bg-slate-50'
+        } ${isChild ? 'ml-3' : ''}`}
+      >
+        {item.icon ? (
+          <item.icon className="h-4 w-4 shrink-0" aria-hidden />
+        ) : (
+          <span
+            aria-hidden
+            className="h-2 w-2 shrink-0 rounded-full bg-current opacity-60"
+          />
+        )}
+        {item.label}
+      </Link>
+    );
+  };
+
+  const renderGroup = (group: NavGroupItem) => {
+    const isActive = isNavItemActive(group, location.pathname);
+    const isExpanded = Boolean(expandedGroups[group.label]);
+
+    return (
+      <div key={group.label} className="py-1">
+        <button
+          type="button"
+          role="menuitem"
+          onClick={() => toggleGroup(group)}
+          className={`flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+            isActive
+              ? 'bg-primary/10 text-primary'
+              : 'text-slate-700 hover:bg-slate-50'
+          }`}
+          aria-expanded={isExpanded}
+        >
+          <group.icon className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="flex-1 text-left">{group.label}</span>
+          <ChevronDownIcon
+            className={`h-4 w-4 shrink-0 transition-transform ${
+              isExpanded ? 'rotate-180' : ''
+            }`}
+            aria-hidden
+          />
+        </button>
+        {isExpanded && (
+          <div className="mt-1 space-y-1">
+            {group.children.map((child) => renderLeafLink(child, true))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-      {/* Logout Confirmation Dialog */}
       {logoutConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+          <div className="mx-4 max-w-sm rounded-lg bg-white p-6">
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">
               Log out?
             </h3>
-            <p className="text-sm text-slate-600 mb-6">
+            <p className="mb-6 text-sm text-slate-600">
               Are you sure you want to log out?
             </p>
-            <div className="flex gap-3 justify-end">
+            <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setLogoutConfirmOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-lg"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -123,7 +197,7 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
                   setOpen(false);
                   handleLogout();
                 }}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg"
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
               >
                 Log out
               </button>
@@ -161,7 +235,7 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
                   ·
                 </span>
                 <span className="truncate text-sm font-bold text-slate-900">
-                  {getRouteName()}
+                  {getCurrentRouteLabel(location.pathname) ?? 'Dashboard'}
                 </span>
               </div>
             </div>
@@ -183,7 +257,7 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
               )}
               {(open || isClosing) && profile && (
                 <div
-                  className={`absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-lg border border-slate-200 bg-white py-1 shadow-lg ${
+                  className={`absolute right-0 top-full z-50 mt-2 max-h-[75vh] w-72 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg ${
                     isClosing
                       ? 'animate-dropdown-close'
                       : 'animate-dropdown-open'
@@ -191,29 +265,22 @@ const Navbar = ({ onMenuClick, ariaExpanded = false }: NavbarProps) => {
                   role="menu"
                   onAnimationEnd={handleDropdownAnimationEnd}
                 >
-                  <div className="py-1">
-                    {allLinks.map(({ href, label, icon: Icon }) => {
-                      const isActive =
-                        location.pathname === href ||
-                        location.pathname.startsWith(`${href}/`);
-                      return (
-                        <Link
-                          key={href}
-                          to={href}
-                          role="menuitem"
-                          onClick={requestClose}
-                          className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors ${
-                            isActive
-                              ? 'bg-primary text-white hover:bg-primary/90 [&_svg]:text-white'
-                              : 'text-slate-700 hover:bg-slate-50'
-                          }`}
-                        >
-                          <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                          {label}
-                        </Link>
-                      );
-                    })}
-                  </div>
+                  {navigationSections.map((section) => (
+                    <div key={section.label ?? 'main'} className="py-1">
+                      {section.label && (
+                        <p className="px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                          {section.label}
+                        </p>
+                      )}
+                      <div className="space-y-1 px-2">
+                        {section.items.map((item) =>
+                          isNavGroupItem(item)
+                            ? renderGroup(item)
+                            : renderLeafLink(item),
+                        )}
+                      </div>
+                    </div>
+                  ))}
                   <div className="border-t border-slate-200" />
                   <div className="py-1">
                     <button

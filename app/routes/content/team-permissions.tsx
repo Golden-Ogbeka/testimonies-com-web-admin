@@ -9,7 +9,7 @@ import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import {
   getPaginatedResponse,
-  getResponseData,
+  getResponseResource,
 } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import {
@@ -42,6 +42,7 @@ export default function TeamPermissionsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<TeamPermissionItem | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
@@ -134,6 +135,7 @@ export default function TeamPermissionsPage() {
                 permission: perm.permission,
                 description: perm.description,
               });
+              setShowModal(true);
             }}
           >
             Edit
@@ -159,7 +161,7 @@ export default function TeamPermissionsPage() {
           data,
         );
         const updated = mapTeamPermission(
-          getResponseData<TeamPermissionApiItem>(response),
+          getResponseResource<TeamPermissionApiItem>(response, 'teamPermission'),
         );
         setPermissions((prev) =>
           prev.map((p) => (p._id === editing._id ? updated : p)),
@@ -168,12 +170,13 @@ export default function TeamPermissionsPage() {
         const { data: response } =
           await AdminContentApi.createTeamPermission(data);
         const created = mapTeamPermission(
-          getResponseData<TeamPermissionApiItem>(response),
+          getResponseResource<TeamPermissionApiItem>(response, 'teamPermission'),
         );
         setPermissions((prev) => [created, ...prev]);
       }
       setEditing(null);
       reset({ permission: '', description: '' });
+      setShowModal(false);
     } catch (error) {
       sendCatchFeedback(error);
     }
@@ -196,6 +199,7 @@ export default function TeamPermissionsPage() {
   const openCreate = () => {
     setEditing(null);
     reset({ permission: '', description: '' });
+    setShowModal(true);
   };
 
   return (
@@ -234,6 +238,7 @@ export default function TeamPermissionsPage() {
                   permission: perm.permission,
                   description: perm.description,
                 });
+                setShowModal(true);
               }}
             >
               Edit
@@ -256,13 +261,14 @@ export default function TeamPermissionsPage() {
       />
 
       <Modal
-        open={editing !== null || false}
+        open={showModal}
         title={editing ? 'Edit permission' : 'New permission'}
         primaryLabel={editing ? 'Save changes' : 'Create permission'}
         onPrimary={handleSubmit(onSave)}
         onClose={() => {
           setEditing(null);
           reset({ permission: '', description: '' });
+          setShowModal(false);
         }}
         loading={isSubmitting}
       >

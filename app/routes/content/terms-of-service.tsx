@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { AdminContentApi } from '../../api/adminContent';
 import PageHeader from '../../common/page-header';
 import TextInput from '../../common/text-input';
+import { getResponseResource } from '../../functions/api-response';
 import {
   sendCatchFeedback,
   sendSuccessFeedback,
@@ -41,14 +42,18 @@ export default function TermsOfServicePage() {
       try {
         setLoading(true);
         const { data } = await AdminContentApi.getTermsOfService();
-        if (!data.data) {
+        const nextContent = getResponseResource<SystemContentItem>(
+          data,
+          'content',
+        );
+        if (!nextContent) {
           return;
         }
-        setContent(data.data);
+        setContent(nextContent);
         reset({
-          title: data.data.title,
-          content: data.data.content,
-          version: data.data.version || '',
+          title: nextContent.title,
+          content: nextContent.content,
+          version: nextContent.version || '',
         });
       } catch (error) {
         sendCatchFeedback(error);
@@ -66,7 +71,7 @@ export default function TermsOfServicePage() {
         content: data.content,
         version: data.version || undefined,
       });
-      setContent(response.data);
+      setContent(getResponseResource<SystemContentItem>(response, 'content'));
       sendSuccessFeedback('Terms of service updated successfully');
     } catch (error) {
       sendCatchFeedback(error);

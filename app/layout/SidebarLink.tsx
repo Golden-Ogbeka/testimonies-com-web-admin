@@ -1,10 +1,10 @@
 import type React from 'react';
 import { Link, useLocation } from 'react-router';
-import type { NavItem } from './navLinks';
+import type { NavLinkItem } from './navLinks';
 import styles from './styles.module.css';
 
 interface SidebarLinkProps {
-  item: NavItem;
+  item: NavLinkItem;
   collapsed?: boolean;
 }
 
@@ -22,7 +22,7 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
   return (
     <Link to={item.href}>
       <li className={isActive ? styles.activeNavLink : styles.navLink}>
-        <Icon className={styles.navIcon} />
+        {Icon ? <Icon className={styles.navIcon} /> : null}
         {!collapsed && <span>{item.label}</span>}
       </li>
     </Link>

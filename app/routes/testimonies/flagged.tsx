@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { AdminTestimoniesApi } from '../../api/adminTestimonies';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
@@ -8,6 +9,7 @@ import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
 import type { AdminTestimonySummary, PaginationMeta } from '../../types';
+import { RoutePaths } from '../route-paths';
 
 export function meta() {
   return [
@@ -17,6 +19,7 @@ export function meta() {
 }
 
 export default function FlaggedTestimonies() {
+  const navigate = useNavigate();
   const [items, setItems] = useState<AdminTestimonySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -97,16 +100,27 @@ export default function FlaggedTestimonies() {
       id: 'actions',
       header: '',
       accessor: (item) => (
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedId(item._id);
-            setReason('');
-          }}
-          className="text-xs font-medium text-primary hover:underline"
-        >
-          Unflag
-        </button>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item._id}`)
+            }
+            className="text-xs font-medium text-slate-600 hover:underline"
+          >
+            View details
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedId(item._id);
+              setReason('');
+            }}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            Unflag
+          </button>
+        </div>
       ),
       className: 'text-right',
     },
@@ -149,16 +163,27 @@ export default function FlaggedTestimonies() {
           `Created: ${new Date(item.createdAt).toLocaleDateString()}`
         }
         mobileActions={(item) => (
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedId(item._id);
-              setReason('');
-            }}
-            className="text-xs font-medium text-primary hover:underline"
-          >
-            Unflag
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                navigate(`${RoutePaths.TESTIMONY_DETAILS}/${item._id}`)
+              }
+              className="text-xs font-medium text-slate-600 hover:underline"
+            >
+              View details
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedId(item._id);
+                setReason('');
+              }}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Unflag
+            </button>
+          </div>
         )}
       />
       <PaginationControls

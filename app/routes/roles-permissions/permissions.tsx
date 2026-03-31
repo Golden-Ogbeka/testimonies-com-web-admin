@@ -4,7 +4,10 @@ import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
 import { Table, type TableColumn } from '../../common/table';
 import Modal from '../../common/modal';
-import { getPaginatedResponse } from '../../functions/api-response';
+import {
+  getPaginatedResponse,
+  getResponseResource,
+} from '../../functions/api-response';
 import type { AdminPermission, PaginationMeta } from '../../types';
 import { sendCatchFeedback } from '../../functions/feedback';
 
@@ -29,6 +32,9 @@ export default function PermissionsPage() {
   const [items, setItems] = useState<AdminPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<AdminPermission | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState<PermissionFormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
@@ -82,16 +88,26 @@ export default function PermissionsPage() {
       id: 'actions',
       header: '',
       accessor: (perm) => (
-        <button
-          type="button"
-          onClick={() => {
-            setEditing(perm);
-            setForm({ name: perm.name, description: perm.description });
-          }}
-          className="text-xs font-medium text-gray-600 hover:underline"
-        >
-          Edit
-        </button>
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(perm);
+              setForm({ name: perm.name, description: perm.description });
+              setShowModal(true);
+            }}
+            className="text-xs font-medium text-gray-600 hover:underline"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeleteId(perm._id)}
+            className="text-xs font-medium text-red-600 hover:underline"
+          >
+            Delete
+          </button>
+        </div>
       ),
       className: 'text-right',
     },
@@ -108,19 +124,42 @@ export default function PermissionsPage() {
             description: form.description,
           },
         );
+        const updatedPermission = getResponseResource<AdminPermission>(
+          data,
+          'permission',
+        );
         setItems((prev) =>
-          prev.map((p) => (p._id === editing._id ? data.data : p)),
+          prev.map((p) => (p._id === editing._id ? updatedPermission : p)),
         );
       } else {
         const { data } = await AdminRolesPermissionsApi.createPermission(form);
-        setItems((prev) => [data.data, ...prev]);
+        const createdPermission = getResponseResource<AdminPermission>(
+          data,
+          'permission',
+        );
+        setItems((prev) => [createdPermission, ...prev]);
       }
       setEditing(null);
       setForm(emptyForm);
+      setShowModal(false);
     } catch (error) {
       sendCatchFeedback(error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      setDeleting(true);
+      await AdminRolesPermissionsApi.deletePermission(deleteId);
+      setItems((prev) => prev.filter((item) => item._id !== deleteId));
+      setDeleteId(null);
+    } catch (error) {
+      sendCatchFeedback(error);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -135,6 +174,7 @@ export default function PermissionsPage() {
             onClick={() => {
               setEditing(null);
               setForm(emptyForm);
+              setShowModal(true);
             }}
             className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-primary/90"
           >
@@ -151,16 +191,26 @@ export default function PermissionsPage() {
         mobileTitle={(perm) => perm.name}
         mobileSubtitle={(perm) => perm.description}
         mobileActions={(perm) => (
-          <button
-            type="button"
-            onClick={() => {
-              setEditing(perm);
-              setForm({ name: perm.name, description: perm.description });
-            }}
-            className="text-xs font-medium text-gray-600 hover:underline"
-          >
-            Edit
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(perm);
+                setForm({ name: perm.name, description: perm.description });
+                setShowModal(true);
+              }}
+              className="text-xs font-medium text-gray-600 hover:underline"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleteId(perm._id)}
+              className="text-xs font-medium text-red-600 hover:underline"
+            >
+              Delete
+            </button>
+          </div>
         )}
       />
       <PaginationControls
@@ -171,13 +221,14 @@ export default function PermissionsPage() {
       />
 
       <Modal
-        open={editing !== null || form.name.length > 0}
+        open={showModal}
         title={editing ? 'Edit permission' : 'New permission'}
         primaryLabel={editing ? 'Save changes' : 'Create permission'}
         onPrimary={handleSave}
         onClose={() => {
           setEditing(null);
           setForm(emptyForm);
+          setShowModal(false);
         }}
         loading={saving}
       >
@@ -207,6 +258,20 @@ export default function PermissionsPage() {
             />
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        open={deleteId !== null}
+        title="Delete permission"
+        primaryLabel="Delete"
+        onPrimary={handleDelete}
+        onClose={() => setDeleteId(null)}
+        loading={deleting}
+      >
+        <p className="text-sm text-gray-700">
+          Are you sure you want to delete this permission? This action cannot be
+          undone.
+        </p>
       </Modal>
     </>
   );

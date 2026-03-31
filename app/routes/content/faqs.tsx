@@ -10,7 +10,7 @@ import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import {
   getPaginatedResponse,
-  getResponseData,
+  getResponseResource,
 } from '../../functions/api-response';
 import {
   sendCatchFeedback,
@@ -174,7 +174,7 @@ export default function FaqsPage() {
         faq._id,
         !faq.isActive,
       );
-      const updatedFaq = getResponseData<FaqItem>(data);
+      const updatedFaq = getResponseResource<FaqItem>(data, 'faq');
       setFaqs((prev) => prev.map((f) => (f._id === faq._id ? updatedFaq : f)));
       sendSuccessFeedback(
         `FAQ ${!faq.isActive ? 'activated' : 'deactivated'} successfully`,
@@ -191,7 +191,7 @@ export default function FaqsPage() {
           editing._id,
           data,
         );
-        const updatedFaq = getResponseData<FaqItem>(response);
+        const updatedFaq = getResponseResource<FaqItem>(response, 'faq');
         setFaqs((prev) =>
           prev.map((f) => (f._id === editing._id ? updatedFaq : f)),
         );
