@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AdminSubscriptionsApi } from '../../api/adminSubscriptions';
-import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import PaginationControls from '../../common/pagination-controls';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
@@ -66,6 +66,21 @@ export default function UnsubscribedUsers() {
             accountType: org.accountType ?? 'organization',
             subscriptionType: org.subscriptionType,
             createdAt: org.createdAt || new Date().toISOString(),
+            name: org.businessName || 'Organization',
+            phoneNumber: '',
+            emailIsVerified: false,
+            phoneNumberIsVerified: false,
+            kycCompleted: false,
+            triedLogin: false,
+            triedPasswordReset: false,
+            triedSignup: false,
+            updatedAt: new Date(),
+            address: '',
+            bio: '',
+            coverImageURL: '',
+            profileVisibility: 'public',
+            id: org._id,
+            profileImage: '',
           }),
         );
 

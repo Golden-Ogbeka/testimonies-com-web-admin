@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router';
 import { AdminUsersApi } from '../../api/adminUsers';
 import FilterBar from '../../common/filter-bar';
 import Modal from '../../common/modal';
-import PaginationControls from '../../common/pagination-controls';
 import PageHeader from '../../common/page-header';
+import PaginationControls from '../../common/pagination-controls';
 import SelectInput from '../../common/select-input';
 import { Table, type TableColumn } from '../../common/table';
 import { getPaginatedResponse } from '../../functions/api-response';
 import { sendCatchFeedback } from '../../functions/feedback';
-import { RoutePaths } from '../route-paths';
 import type { AdminUserSummary, PaginationMeta } from '../../types';
+import { RoutePaths } from '../route-paths';
 
 export function meta() {
   return [
@@ -89,6 +89,21 @@ export default function UsersIndex() {
             accountType: org.accountType ?? 'organization',
             subscriptionType: org.subscriptionType,
             createdAt: org.createdAt || new Date().toISOString(),
+            name: org.businessName || 'Organization',
+            phoneNumber: '',
+            emailIsVerified: false,
+            phoneNumberIsVerified: false,
+            kycCompleted: false,
+            triedLogin: false,
+            triedPasswordReset: false,
+            triedSignup: false,
+            updatedAt: new Date(),
+            address: '',
+            bio: '',
+            coverImageURL: '',
+            profileVisibility: 'public',
+            id: org._id,
+            profileImage: '',
           }),
         );
         setUsers([...userResults, ...mappedOrganizations]);
@@ -135,7 +150,7 @@ export default function UsersIndex() {
     },
     {
       id: 'accountType',
-      header: 'Account',
+      header: 'Type',
       accessor: (user) => (
         <span className="text-xs capitalize text-gray-600">
           {user.accountType}
@@ -157,16 +172,16 @@ export default function UsersIndex() {
         </span>
       ),
     },
-    {
-      id: 'flag',
-      header: 'Flagged',
-      accessor: (user) =>
-        user.isFlagged ? (
-          <span className="text-xs font-medium text-red-600">Yes</span>
-        ) : (
-          <span className="text-xs text-gray-500">No</span>
-        ),
-    },
+    // {
+    //   id: 'flag',
+    //   header: 'Flagged',
+    //   accessor: (user) =>
+    //     user.isFlagged ? (
+    //       <span className="text-xs font-medium text-red-600">Yes</span>
+    //     ) : (
+    //       <span className="text-xs text-gray-500">No</span>
+    //     ),
+    // },
     {
       id: 'actions',
       header: '',
@@ -238,7 +253,7 @@ export default function UsersIndex() {
             { value: 'inactive', label: 'Inactive' },
           ]}
         />
-        <SelectInput
+        {/* <SelectInput
           value={flagFilter}
           onChange={(value) => {
             setFlagFilter(value as 'all' | 'flagged' | 'clean');
@@ -249,7 +264,7 @@ export default function UsersIndex() {
             { value: 'flagged', label: 'Flagged' },
             { value: 'clean', label: 'Not flagged' },
           ]}
-        />
+        /> */}
         <SelectInput
           value={accountTypeFilter}
           onChange={(value) => {

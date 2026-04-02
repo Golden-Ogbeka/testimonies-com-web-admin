@@ -114,7 +114,7 @@ export default function DashboardIndex() {
         />
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section>
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-lg font-semibold text-slate-900">
             Top testimonies by engagement

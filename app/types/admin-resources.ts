@@ -12,6 +12,20 @@ export interface AdminUserSummary {
   accountType: string;
   subscriptionType?: string;
   createdAt: string;
+  name: string;
+  phoneNumber: string;
+  emailIsVerified: boolean;
+  phoneNumberIsVerified: boolean;
+  kycCompleted: boolean;
+  triedLogin: boolean;
+  triedPasswordReset: boolean;
+  triedSignup: boolean;
+  updatedAt: Date;
+  address: string;
+  bio: string;
+  coverImageURL: string;
+  profileVisibility: string;
+  id: string;
 }
 
 export interface AdminUserStats {

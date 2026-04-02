@@ -114,7 +114,15 @@ export default function UserDetails() {
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
-              {`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()}
+              {user.profileImage ? (
+                <img
+                  src={user.profileImage}
+                  alt="Profile Image"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                user.firstName.charAt(0) + user.lastName.charAt(0).toUpperCase()
+              )}
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
@@ -176,6 +184,40 @@ export default function UserDetails() {
                 </p>
               </div>
             )}
+            <div>
+              <label className="text-xs font-medium text-gray-500">
+                Profile visibility
+              </label>
+              <p className="mt-1 text-sm capitalize text-gray-900">
+                {user.profileVisibility}
+              </p>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-gray-500">
+                KYC Completed
+              </label>
+              <p className="mt-1 text-sm capitalize text-gray-900">
+                {user.kycCompleted ? 'Yes' : 'No'}
+              </p>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-gray-500">
+                Email verified
+              </label>
+              <p className="mt-1 text-sm capitalize text-gray-900">
+                {user.emailIsVerified ? 'Yes' : 'No'}
+              </p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500">
+                Phone number verified
+              </label>
+              <p className="mt-1 text-sm capitalize text-gray-900">
+                {user.phoneNumberIsVerified ? 'Yes' : 'No'}
+              </p>
+            </div>
 
             {user.username && (
               <div>

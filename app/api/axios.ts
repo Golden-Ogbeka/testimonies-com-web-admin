@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { RoutePaths } from '~/routes/route-paths';
 import { ADMIN_API_KEY, API_URL } from '../functions/environmentVariables';
 import { getTokenDetails } from '../functions/userSession';
 import { store } from '../store';
@@ -51,6 +52,7 @@ appAxios.interceptors.response.use(
 
     if (status === 401) {
       store.dispatch(signOut());
+      window.location.href = RoutePaths.LOGIN;
     }
 
     return Promise.reject(error);
