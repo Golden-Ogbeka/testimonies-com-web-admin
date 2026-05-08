@@ -2,6 +2,11 @@
 
 A modern, production-ready admin dashboard for managing the Testimonies platform. Built with React Router 7, TypeScript, TailwindCSS, and Redux Toolkit.
 
+## 📋 Documentation
+
+- **[Product Requirements Document (PRD)](./PRD.md)** — Full feature specifications for the admin dashboard
+- **[Agent Guidelines](./AGENTS.md)** — Development rules and coding standards for AI agents
+
 ## Features
 
 - 🚀 Server-side rendering with React Router 7
