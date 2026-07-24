@@ -28,7 +28,7 @@ const DashboardLayout = () => {
             onMenuClick={() => setMobileSidebarOpen(true)}
             ariaExpanded={mobileSidebarOpen}
           />
-          <div className="px-3 py-4 sm:px-5 sm:py-5 lg:px-6 min-h-[calc(100vh-4rem)]">
+          <div className="px-3 py-4 sm:px-5 sm:py-5 lg:px-6 min-h-screen">
             <Outlet />
           </div>
         </main>

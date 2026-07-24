@@ -21,7 +21,7 @@ This is the admin dashboard for Testimonies.com. Built with React Router 7, Type
 - **Linting**: ESLint
 - **Formatting**: Prettier
 - **Type Checking**: `npm run typecheck`
-- **Git Hooks**: Husky + lint-staged
+- **Git Hooks**: simple-git-hooks
 
 ## 3. Project Structure
 

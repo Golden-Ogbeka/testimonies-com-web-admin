@@ -274,7 +274,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <nav
-        className={`hidden max-h-screen flex-col border-r border-slate-200 bg-white transition-[width] duration-300 lg:flex ${
+        className={`hidden max-h-screen flex-col border-r border-slate-200 bg-white transition-[width] duration-300 lg:flex overflow-y-auto ${
           collapsed ? 'w-16' : 'w-72'
         }`}
       >
