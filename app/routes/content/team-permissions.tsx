@@ -25,17 +25,7 @@ export function meta() {
   ];
 }
 
-type TeamPermissionApiItem = Omit<TeamPermissionItem, 'permission'> & {
-  name?: string;
-  permission?: string;
-};
-
-const mapTeamPermission = (
-  item: TeamPermissionApiItem,
-): TeamPermissionItem => ({
-  ...item,
-  permission: item.permission ?? item.name ?? '',
-});
+type TeamPermissionApiItem = TeamPermissionItem;
 
 export default function TeamPermissionsPage() {
   const [permissions, setPermissions] = useState<TeamPermissionItem[]>([]);
@@ -63,7 +53,7 @@ export default function TeamPermissionsPage() {
   } = useForm<CreatePermissionFormData>({
     resolver: zodResolver(createPermissionSchema),
     defaultValues: {
-      permission: '',
+      name: '',
       description: '',
     },
   });
@@ -77,8 +67,8 @@ export default function TeamPermissionsPage() {
           limit: 20,
         });
         const { results, pagination: pageMeta } =
-          getPaginatedResponse<TeamPermissionApiItem>(data, 'teamPermissions');
-        setPermissions(results.map(mapTeamPermission));
+          getPaginatedResponse<TeamPermissionItem>(data, 'teamPermissions');
+        setPermissions(results);
         setPagination(pageMeta);
       } catch (error) {
         sendCatchFeedback(error);
@@ -94,7 +84,7 @@ export default function TeamPermissionsPage() {
     if (!query) return permissions;
     return permissions.filter(
       (perm) =>
-        perm.permission.toLowerCase().includes(query) ||
+        perm.name.toLowerCase().includes(query) ||
         perm.description.toLowerCase().includes(query),
     );
   }, [permissions, search]);
@@ -105,9 +95,7 @@ export default function TeamPermissionsPage() {
       header: 'Permission',
       accessor: (perm) => (
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-gray-900">
-            {perm.permission}
-          </span>
+          <span className="text-sm font-medium text-gray-900">{perm.name}</span>
           <span className="text-xs text-gray-500">{perm.description}</span>
         </div>
       ),
@@ -132,7 +120,7 @@ export default function TeamPermissionsPage() {
             onClick={() => {
               setEditing(perm);
               reset({
-                permission: perm.permission,
+                name: perm.name,
                 description: perm.description,
               });
               setShowModal(true);
@@ -160,11 +148,9 @@ export default function TeamPermissionsPage() {
           editing._id,
           data,
         );
-        const updated = mapTeamPermission(
-          getResponseResource<TeamPermissionApiItem>(
-            response,
-            'teamPermission',
-          ),
+        const updated = getResponseResource<TeamPermissionItem>(
+          response,
+          'teamPermission',
         );
         setPermissions((prev) =>
           prev.map((p) => (p._id === editing._id ? updated : p)),
@@ -172,16 +158,14 @@ export default function TeamPermissionsPage() {
       } else {
         const { data: response } =
           await AdminContentApi.createTeamPermission(data);
-        const created = mapTeamPermission(
-          getResponseResource<TeamPermissionApiItem>(
-            response,
-            'teamPermission',
-          ),
+        const created = getResponseResource<TeamPermissionItem>(
+          response,
+          'teamPermission',
         );
         setPermissions((prev) => [created, ...prev]);
       }
       setEditing(null);
-      reset({ permission: '', description: '' });
+      reset({ name: '', description: '' });
       setShowModal(false);
     } catch (error) {
       sendCatchFeedback(error);
@@ -204,7 +188,7 @@ export default function TeamPermissionsPage() {
 
   const openCreate = () => {
     setEditing(null);
-    reset({ permission: '', description: '' });
+    reset({ name: '', description: '' });
     setShowModal(true);
   };
 
@@ -231,7 +215,7 @@ export default function TeamPermissionsPage() {
         data={filtered}
         loading={loading}
         getRowKey={(perm) => perm._id}
-        mobileTitle={(perm) => perm.permission}
+        mobileTitle={(perm) => perm.name}
         mobileSubtitle={(perm) => perm.description}
         mobileActions={(perm) => (
           <div className="flex gap-3">
@@ -241,7 +225,7 @@ export default function TeamPermissionsPage() {
               onClick={() => {
                 setEditing(perm);
                 reset({
-                  permission: perm.permission,
+                  name: perm.name,
                   description: perm.description,
                 });
                 setShowModal(true);
@@ -270,10 +254,12 @@ export default function TeamPermissionsPage() {
         open={showModal}
         title={editing ? 'Edit permission' : 'New permission'}
         primaryLabel={editing ? 'Save changes' : 'Create permission'}
-        onPrimary={handleSubmit(onSave)}
+        onPrimary={() => {
+          handleSubmit(onSave)();
+        }}
         onClose={() => {
           setEditing(null);
-          reset({ permission: '', description: '' });
+          reset({ name: '', description: '' });
           setShowModal(false);
         }}
         loading={isSubmitting}
@@ -283,13 +269,11 @@ export default function TeamPermissionsPage() {
             <label htmlFor="perm-name">Permission name</label>
             <input
               id="perm-name"
-              {...register('permission')}
+              {...register('name')}
               placeholder="e.g., manage_users"
             />
-            {errors.permission && (
-              <p className="mt-1 text-xs text-red-600">
-                {errors.permission.message}
-              </p>
+            {errors.name && (
+              <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
             )}
           </div>
           <div className="inputContainer">

@@ -120,7 +120,11 @@ export default function TestimonyAnalytics() {
       header: 'User',
       accessor: (item) => (
         <span className="text-sm font-mono text-gray-900">
-          {item.user?.firstName} {item.user?.lastName}
+          {item.user?.accountType === 'organization'
+            ? item.user?.businessName || item.user?.firstName
+            : `${item.user?.firstName ?? ''} ${item.user?.lastName ?? ''}`.trim() ||
+              item.user?.username ||
+              item.user?._id}
         </span>
       ),
     },

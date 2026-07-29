@@ -84,6 +84,7 @@ export default function UsersIndex() {
             lastName: '',
             email: org.businessEmail || '',
             username: org.username,
+            businessName: org.businessName,
             active: org.active ?? true,
             isFlagged: org.isFlagged ?? false,
             accountType: org.accountType ?? 'organization',
@@ -104,6 +105,7 @@ export default function UsersIndex() {
             profileVisibility: 'public',
             id: org._id,
             profileImage: '',
+            businessLogoURL: '',
           }),
         );
         setUsers([...userResults, ...mappedOrganizations]);
@@ -136,12 +138,30 @@ export default function UsersIndex() {
       header: 'User',
       accessor: (user) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-            {`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()}
-          </div>
+          {user.accountType === 'organization' && user.businessLogoURL ? (
+            <img
+              src={user.businessLogoURL}
+              alt=""
+              className="h-9 w-9 rounded-full object-cover"
+            />
+          ) : user.profileImage ? (
+            <img
+              src={user.profileImage}
+              alt=""
+              className="h-9 w-9 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+              {user.accountType === 'organization'
+                ? (user.businessName || 'O').charAt(0).toUpperCase()
+                : `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()}
+            </div>
+          )}
           <div className="flex flex-col">
             <span className="text-sm font-medium text-gray-900">
-              {user.firstName} {user.lastName}
+              {user.accountType === 'organization'
+                ? user.businessName || user.firstName
+                : `${user.firstName} ${user.lastName}`.trim()}
             </span>
             <span className="text-xs text-gray-500">{user.email}</span>
           </div>

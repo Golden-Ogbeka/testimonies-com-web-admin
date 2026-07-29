@@ -87,7 +87,11 @@ export default function UserDetails() {
     <>
       <PageHeader
         title="User details"
-        description={`${user.firstName} ${user.lastName}`}
+        description={
+          user.accountType === 'organization'
+            ? user.businessName || `${user.firstName} ${user.lastName}`
+            : `${user.firstName} ${user.lastName}`
+        }
         actions={
           <div className="flex gap-2">
             <button
@@ -114,19 +118,29 @@ export default function UserDetails() {
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
-              {user.profileImage ? (
+              {user.accountType === 'organization' && user.businessLogoURL ? (
+                <img
+                  src={user.businessLogoURL}
+                  alt=""
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : user.profileImage ? (
                 <img
                   src={user.profileImage}
                   alt="Profile Image"
                   className="w-full h-full rounded-full object-cover"
                 />
+              ) : user.accountType === 'organization' ? (
+                (user.businessName || 'O').charAt(0).toUpperCase()
               ) : (
                 user.firstName.charAt(0) + user.lastName.charAt(0).toUpperCase()
               )}
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {user.firstName} {user.lastName}
+                {user.accountType === 'organization'
+                  ? user.businessName || `${user.firstName} ${user.lastName}`
+                  : `${user.firstName} ${user.lastName}`}
               </h3>
               <p className="text-sm text-gray-600">{user.email}</p>
             </div>

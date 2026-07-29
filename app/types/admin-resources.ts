@@ -6,7 +6,9 @@ export interface AdminUserSummary {
   lastName: string;
   email: string;
   username?: string;
+  businessName?: string;
   profileImage?: string;
+  businessLogoURL?: string;
   active: boolean;
   isFlagged: boolean;
   accountType: string;
@@ -38,9 +40,16 @@ export interface AdminUserStats {
 export interface AdminTestimonySummary {
   _id: string;
   userId: string;
+  userType?: 'user' | 'organization';
   title?: string;
   description?: string;
   content?: string;
+  tags?: string[];
+  mediaURLs?: string[];
+  isBroadcast?: boolean;
+  likesCount?: number;
+  viewsCount?: number;
+  repliesCount?: number;
   isFlagged: boolean;
   flagReason?: string;
   createdAt: string;
@@ -72,7 +81,12 @@ export interface SubscriptionPlan {
   updatedAt: string;
 }
 
-export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'trial';
+export type SubscriptionStatus =
+  | 'active'
+  | 'cancelled'
+  | 'expired'
+  | 'trial'
+  | 'pending';
 
 export interface SubscriptionSummary {
   _id: string;
@@ -156,7 +170,7 @@ export interface SystemContentItem {
 
 export interface TeamPermissionItem {
   _id: string;
-  permission: string;
+  name: string;
   description: string;
   createdAt: string;
   updatedAt: string;

@@ -100,7 +100,7 @@ export const AdminContentApi = {
   },
 
   createTeamPermission(
-    payload: Pick<TeamPermissionItem, 'permission' | 'description'>,
+    payload: Pick<TeamPermissionItem, 'name' | 'description'>,
   ) {
     return appAxios.post<ApiSuccessResponse<TeamPermissionItem>>(
       '/admin/data-management/team-permission',
@@ -116,7 +116,7 @@ export const AdminContentApi = {
 
   updateTeamPermission(
     id: string,
-    payload: Partial<Pick<TeamPermissionItem, 'permission' | 'description'>>,
+    payload: Partial<Pick<TeamPermissionItem, 'name' | 'description'>>,
   ) {
     return appAxios.put<ApiSuccessResponse<TeamPermissionItem>>(
       `/admin/data-management/team-permission/${id}`,

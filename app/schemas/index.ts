@@ -127,7 +127,7 @@ export const updateAdminSchema = z.object({
 
 // Permission schemas
 export const createPermissionSchema = z.object({
-  permission: z
+  name: z
     .string()
     .min(1, 'Permission name is required')
     .min(2, 'Permission name must be at least 2 characters long')
@@ -160,6 +160,9 @@ export const createSubscriptionPlanSchema = z.object({
     .transform((val) => val.toUpperCase()),
   billingCycle: z.enum(['monthly', 'yearly', 'quarterly']),
   features: z.array(z.string()).optional(),
+  trialDays: z.number().min(0).optional(),
+  maxUsers: z.number().min(0).optional(),
+  maxTestimonies: z.number().min(0).optional(),
   isActive: z.boolean().optional(),
 });
 
