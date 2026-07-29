@@ -25,8 +25,6 @@ export function meta() {
   ];
 }
 
-type TeamPermissionApiItem = TeamPermissionItem;
-
 export default function TeamPermissionsPage() {
   const [permissions, setPermissions] = useState<TeamPermissionItem[]>([]);
   const [loading, setLoading] = useState(true);
