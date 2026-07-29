@@ -14,7 +14,7 @@
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run format && npm run lint:fix && npm run typecheck && git add -u"
+    "pre-commit": "node .pre-commit.cjs"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.9.0",
