@@ -20,30 +20,35 @@ A modern, production-ready admin dashboard for managing the Testimonies platform
 ## Admin Features
 
 ### User Management
+
 - View and manage all platform users
 - Activate/deactivate user accounts
 - View detailed user profiles
 - Filter users by account type and subscription
 
 ### Testimony Management
+
 - Browse all testimonies
 - Flag/unflag inappropriate content
 - View flagged testimonies
 - Analytics dashboard with engagement metrics
 
 ### Subscription Management
+
 - Create and manage subscription plans
 - View active and cancelled subscriptions
 - Track unsubscribed users
 - Configure pricing and billing cycles
 
 ### Promotions
+
 - Create promotional campaigns
 - Target specific user segments
 - Manage active/inactive promotions
 - Review flagged promotions
 
 ### Content Management
+
 - Manage FAQs
 - Update privacy policy
 - Update terms of service
@@ -51,17 +56,20 @@ A modern, production-ready admin dashboard for managing the Testimonies platform
 - Define team permissions
 
 ### Roles & Permissions
+
 - Manage admin accounts
 - Assign roles (Admin/Super Admin)
 - Control access permissions
 
 ### Audit Logs
+
 - Track all administrative actions
 - Filter by category, level, and date
 - View detailed log entries
 - Monitor admin activity
 
 ### Profile Settings
+
 - Update personal information
 - Change password
 - View account status
@@ -70,7 +78,7 @@ A modern, production-ready admin dashboard for managing the Testimonies platform
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Access to the Testimonies backend API
 
@@ -196,6 +204,7 @@ app/
 The application uses a consistent design system defined in `app.css`:
 
 ### Color Palette
+
 - **Primary Blue**: `#1d4ed8` - Main brand color for buttons and links
 - **Emerald Green**: `#10b981` - Success states and positive actions
 - **Red**: `#dc2626` - Danger states and destructive actions
@@ -204,11 +213,13 @@ The application uses a consistent design system defined in `app.css`:
 ### Utility Classes
 
 **Form Inputs**
+
 ```css
 .inputContainer - Styled form input wrapper with label and input
 ```
 
 **Buttons**
+
 ```css
 .btn-primary - Primary action button (blue)
 .btn-secondary - Secondary action button (gray)
@@ -216,11 +227,13 @@ The application uses a consistent design system defined in `app.css`:
 ```
 
 **Cards**
+
 ```css
 .card - Content card with border, shadow, and padding
 ```
 
 **Badges**
+
 ```css
 .badge - Base badge style
 .badge-success - Green badge for success states
@@ -231,6 +244,7 @@ The application uses a consistent design system defined in `app.css`:
 ```
 
 ### Layout Consistency
+
 - All dashboard pages use `dashboard-layout` with sidebar navigation
 - All auth pages use `auth-layout` with centered forms
 - Consistent spacing and typography throughout
@@ -325,6 +339,7 @@ Make sure to deploy the output of `npm run build`:
 The admin dashboard implements comprehensive security measures:
 
 ### Authentication & Authorization
+
 - JWT token-based authentication
 - OTP verification for login
 - Encrypted token storage using crypto-js
@@ -332,12 +347,14 @@ The admin dashboard implements comprehensive security measures:
 - Session expiry checking
 
 ### API Security
+
 - Admin API key validation on all requests
 - Request ID tracking (x-request-id header)
 - Axios interceptors for automatic auth headers
 - Environment-based configuration
 
 ### Input Validation & Sanitization
+
 - XSS prevention with HTML sanitization
 - Email format validation
 - Strong password requirements (8+ chars, uppercase, lowercase, number, special char)
@@ -346,6 +363,7 @@ The admin dashboard implements comprehensive security measures:
 - Real-time password strength feedback
 
 ### Client-Side Protection
+
 - Rate limiting for sensitive operations
 - HTML entity encoding
 - No sensitive data in URLs
@@ -353,7 +371,9 @@ The admin dashboard implements comprehensive security measures:
 - Password reuse prevention
 
 ### Security Utilities
+
 All security functions are available in `app/functions/security.ts`:
+
 - `sanitizeHtml()` - XSS prevention
 - `isValidEmail()` - Email validation
 - `isStrongPassword()` - Password strength validation
@@ -371,6 +391,6 @@ This is an internal admin dashboard. For questions or issues, contact the develo
 
 ## License
 
-Proprietary - All rights reserved
+This project is licensed under the [MIT License](LICENSE).
 
 ---
